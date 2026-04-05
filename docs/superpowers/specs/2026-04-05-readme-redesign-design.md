@@ -18,7 +18,6 @@ Terminal-themed (Approach A) — consistent with the portfolio site's CLI aesthe
 
 - Terminal-style heading: `# > theodore-zd`
 - Title line: **Senior Software Engineer** | TypeScript | Go | Python | React/Next.js | Node.js
-- Availability status: `` `$ status --available` ``
 - Medium-length bio paragraph (from portfolio summary, no specific company mentions):
   > "Seasoned software engineer delivering fast, reliable, scalable full-stack solutions. Expert in TypeScript, Go, Python, and modern cloud architectures. I collaborate with cross-functional teams to translate complex requirements into high-quality software that drives business results and measurable impact."
 - Social links: Portfolio | LinkedIn | Email
@@ -31,7 +30,7 @@ All items rendered as shields.io badges (`for-the-badge` style), organized into 
 
 **Languages:** Go, TypeScript, JavaScript, Python, HTML5, CSS3
 
-**Frameworks & Libraries:** React, Next.js, Node.js, NestJS, Vue.js, Svelte, SvelteKit, Socket.io, Styled Components, MUI, SASS
+**Frameworks & Libraries:** React, Next.js, Node.js, NestJS, Vue.js, Svelte, SvelteKit, Socket.io, Styled Components, MUI
 
 **Databases:** PostgreSQL, MongoDB, MySQL, Supabase
 
