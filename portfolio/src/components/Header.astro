@@ -1,0 +1,109 @@
+---
+import { resume } from "@/data/resume"
+
+const navLinks = [
+    { href: "#experience", label: "Experience" },
+    { href: "#projects", label: "Projects" },
+]
+
+const currentPath = Astro.url.pathname
+---
+
+<header class="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-sm">
+    <nav class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        <a href="/" class="text-lg font-semibold text-foreground transition-colors hover:text-primary">
+            <span class="text-primary">$</span> Theo
+        </a>
+        
+        <div class="hidden items-center gap-6 md:flex">
+            {navLinks.map((link) => (
+                <a 
+                    href={link.href}
+                    class:list={[
+                        "link-underline text-sm transition-colors hover:text-primary",
+                        currentPath === link.href ? "text-foreground" : "text-muted-foreground"
+                    ]}
+                >
+                    {link.label}
+                </a>
+            ))}
+            
+            <a 
+                href={resume.resumeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="terminal-card inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-4 py-2 text-xs font-medium transition-all hover:border-primary hover:text-primary"
+            >
+                <svg class="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Resume
+            </a>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <button 
+                id="theme-toggle"
+                class="terminal-card inline-flex shrink-0 items-center justify-center rounded-lg p-2 text-muted-foreground transition-all hover:text-primary"
+                aria-label="Toggle theme"
+            >
+                <svg class="h-5 w-5 dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+                <svg class="hidden h-5 w-5 dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+            </button>
+            
+            <button 
+                class="terminal-card inline-flex shrink-0 items-center justify-center rounded-lg p-2 text-muted-foreground transition-all hover:text-primary md:hidden"
+                id="mobile-menu-toggle"
+                aria-label="Toggle menu"
+            >
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+        </div>
+    </nav>
+    
+    <div class="hidden border-t border-border md:hidden" id="mobile-menu">
+        <div class="flex flex-col gap-2 px-6 py-4">
+            {navLinks.map((link) => (
+                <a 
+                    href={link.href}
+                    class:list={[
+                        "rounded-lg px-3 py-2 text-sm transition-colors hover:bg-accent hover:text-primary",
+                        currentPath === link.href 
+                            ? "bg-accent text-foreground" 
+                            : "text-muted-foreground"
+                    ]}
+                >
+                    {link.label}
+                </a>
+            ))}
+            
+            <a 
+                href={resume.resumeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-primary"
+            >
+                Resume
+            </a>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('astro:page-load', () => {
+            const toggle = document.getElementById('mobile-menu-toggle')
+            const menu = document.getElementById('mobile-menu')
+            
+            if (toggle && menu) {
+                toggle.addEventListener('click', () => {
+                    menu.classList.toggle('hidden')
+                })
+            }
+        })
+    </script>
+</header>

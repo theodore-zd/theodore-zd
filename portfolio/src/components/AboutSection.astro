@@ -1,0 +1,37 @@
+---
+import AboutCard from "./AboutCard.astro";
+import SectionLabel from "./SectionLabel.astro";
+import StarWarsFalcon from "./StarWarsFalcon.astro";
+import StatCard from "./StatCard.astro";
+
+import { resume } from "@/data/resume"
+---
+
+<section class="border-b border-border py-24">
+    <div class="mx-auto max-w-6xl px-6">
+        <SectionLabel label="about" />
+        <div class="grid gap-8 lg:grid-cols-2">
+            <AboutCard 
+                title={resume.name}
+                subtitle={resume.title}
+                description={resume.professionalSummary}
+                technologies={resume.skills.favorite.slice(0, 6)}
+                githubUrl={resume.github}
+                email={resume.email}
+            />
+            
+            <!-- Key Impact Highlights -->
+            <div class="flex flex-col gap-4">
+                <div class="space-y-3">
+                    <StatCard percentage="43%" title="UI/UX Improvement" description="User testing scores increased through design system implementation" delay={100} />
+                    <StatCard percentage="65%" title="User Adoption Increase" description="Led comprehensive redesign that drove significant adoption growth" delay={200} />
+                    <StatCard percentage="33%" title="Faster Development Cycles" description="Built reusable components and design systems that accelerated delivery" delay={300} />
+                    <StatCard percentage="53%" title="Organic Traffic Growth" description="Achieved 95+ Lighthouse scores with performance-optimized sites" delay={400} />
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--  -->
+    <StarWarsFalcon />
+    <!--  -->
+</section>

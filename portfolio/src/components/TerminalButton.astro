@@ -1,0 +1,56 @@
+---
+interface Props {
+  variant?: "primary" | "outline" | "icon"
+  size?: "sm" | "md" | "lg"
+  href?: string
+  class?: string
+  target?: "_blank" | "_self"
+  rel?: string
+}
+
+const { 
+  variant = "outline", 
+  size = "md",
+  href, 
+  class: className = "",
+  target,
+  rel
+} = Astro.props
+
+const sizeClasses = {
+  sm: "px-3 py-1.5 text-xs",
+  md: "px-6 py-3 text-sm",
+  lg: "px-8 py-4 text-base"
+}
+
+const baseClasses = "inline-flex shrink-0 items-center justify-center gap-2 rounded-lg font-medium transition-all"
+---
+
+{variant === "primary" ? (
+  <a 
+    href={href} 
+    target={target}
+    rel={rel}
+    class:list={[baseClasses, "bg-primary text-primary-foreground hover:bg-primary/80 hover:glow-primary", sizeClasses[size], className]}
+  >
+    <slot />
+  </a>
+) : variant === "icon" ? (
+  <a 
+    href={href} 
+    target={target}
+    rel={rel}
+    class:list={[baseClasses, "terminal-card text-muted-foreground hover:text-primary p-2", className]}
+  >
+    <slot />
+  </a>
+) : (
+  <a 
+    href={href} 
+    target={target}
+    rel={rel}
+    class:list={[baseClasses, "terminal-card border border-border bg-background hover:text-primary", sizeClasses[size], className]}
+  >
+    <slot />
+  </a>
+)}

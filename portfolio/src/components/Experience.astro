@@ -1,0 +1,107 @@
+---
+import { resume } from "@/data/resume"
+import Card from "./Card.astro"
+import CardContent from "./CardContent.astro"
+import Badge from "./Badge.astro"
+import SectionLabel from "./SectionLabel.astro"
+import TerminalPrompt from "./TerminalPrompt.astro"
+
+const experiences = resume.experiences
+---
+
+<section id="experience" class="border-b border-border py-24">
+    <div class="mx-auto max-w-6xl px-6">
+        <SectionLabel label="experience" />
+        
+        <div class="grid gap-6 lg:grid-cols-[280px_1fr]">
+            <div class="flex lg:grid lg:grid-cols-1 gap-2 overflow-x-auto pb-2 lg:pb-0" id="experience-tabs">
+                {experiences.map((exp, index) => (
+                    <button
+                        data-index={index}
+                        class="experience-tab terminal-card whitespace-nowrap rounded-lg border border-border px-4 py-3 text-left text-sm font-medium transition-all hover:text-primary"
+                        data-active={index === 0 ? "true" : "false"}
+                    >
+                        <span class="text-primary opacity-50">./</span>{exp.title}
+                    </button>
+                ))}
+            </div>
+            
+            <div id="experience-content">
+                {experiences.map((exp, index) => (
+                    <div 
+                        class="experience-panel animate-fade-in" 
+                        data-index={index}
+                        style={index === 0 ? "" : "display: none;"}
+                    >
+                        <Card class="terminal-card rounded-lg">
+                            <CardContent class="p-6">
+                                <div class="mb-4 flex flex-col gap-1">
+                                    <div class="flex items-center gap-2">
+                                        <h3 class="text-lg font-semibold">{exp.title}</h3>
+                                        {exp.role && (
+                                            <Badge variant="secondary" class="text-xs">{exp.role}</Badge>
+                                        )}
+                                    </div>
+                                    {exp.desc && (
+                                        <p class="text-sm text-primary font-mono">{exp.desc}</p>
+                                    )}
+                                </div>
+                                
+                                <ul class="space-y-3">
+                                    {exp.info.map((item) => (
+                                        <li class="flex gap-3 text-sm text-muted-foreground">
+                                            <TerminalPrompt />
+                                            <span>{item}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </CardContent>
+                        </Card>
+                    </div>
+                ))}
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    const tabs = document.querySelectorAll('.experience-tab')
+    const panels = document.querySelectorAll('.experience-panel')
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const index = tab.getAttribute('data-index')
+            
+            tabs.forEach(t => t.setAttribute('data-active', 'false'))
+            tab.setAttribute('data-active', 'true')
+            
+            panels.forEach(panel => {
+                if (panel.getAttribute('data-index') === index) {
+                    (panel as HTMLElement).style.display = 'block'
+                    panel.classList.remove('animate-fade-in')
+                    void (panel as HTMLElement).offsetWidth
+                    panel.classList.add('animate-fade-in')
+                } else {
+                    (panel as HTMLElement).style.display = 'none'
+                }
+            })
+        })
+    })
+</script>
+
+<style>
+    .experience-tab[data-active="true"] {
+        background-color: var(--primary);
+        color: var(--primary-foreground);
+        border-color: var(--primary);
+    }
+    
+    .experience-tab[data-active="true"] .text-primary {
+        color: var(--primary-foreground);
+        opacity: 0.7;
+    }
+    
+    .dark .experience-tab[data-active="true"] {
+        color: var(--primary-foreground);
+    }
+</style>

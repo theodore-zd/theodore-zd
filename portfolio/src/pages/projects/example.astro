@@ -1,0 +1,38 @@
+---
+import Layout from '@/layouts/main.astro'
+import Badge from '@/components/Badge.astro'
+
+const project = {
+  title: 'Example Project',
+  description: 'This is an example project description that gives an overview of the project and its key features.',
+  tools: ['React', 'Node.js', 'TypeScript'],
+  live: 'https://example.com',
+  git: 'https://github.com/example/project'
+}
+
+---
+
+<Layout title={project?.title ?? 'Project'} description={project?.description ?? ''}>
+  <article class="mx-auto max-w-3xl p-6">
+    <header class="mb-8">
+      <a href="/" class="text-sm text-muted-foreground hover:text-primary">← Back</a>
+      <h1 class="text-2xl font-semibold mb-2">{project.title}</h1>
+      <p class="text-sm text-muted-foreground mb-4">{project.description}</p>
+
+      <div class="flex flex-wrap gap-2 mb-4">
+        {project.tools.map((tool) => (
+          <Badge variant="secondary" class="text-xs">{tool}</Badge>
+        ))}
+      </div>
+
+      <div class="flex gap-4">
+        {project.live && project.live !== '#' ? (
+          <a href={project.live} target="_blank" rel="noopener" class="text-sm text-primary underline">Live</a>
+        ) : null}
+        {project.git && project.git !== '#' ? (
+          <a href={project.git} target="_blank" rel="noopener" class="text-sm text-primary underline">Git</a>
+        ) : null}
+      </div>
+    </article>
+  </article>
+</Layout>

@@ -1,0 +1,17 @@
+---
+interface Props {
+  index: number
+  award: string
+  delay?: number
+  class?: string
+}
+
+const { index, award, delay, class: className = "" } = Astro.props
+const actualDelay = delay ?? (index + 1) * 100
+const indexStr = String(index + 1).padStart(2, "0")
+---
+
+<div class:list={["flex items-start gap-3 rounded-lg border border-border bg-card/50 p-4 animate-fade-up", `delay-${actualDelay}`, className]}>
+  <span class="shrink-0 text-muted-foreground/40 text-xs font-mono w-5 text-right">{indexStr}</span>
+  <p class="text-sm text-muted-foreground">{award}</p>
+</div>

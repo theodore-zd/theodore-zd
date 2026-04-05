@@ -1,0 +1,18 @@
+---
+interface Props {
+  variant?: "secondary" | "outline"
+  class?: string
+}
+
+const { variant = "secondary", class: className = "" } = Astro.props
+---
+
+{variant === "outline" ? (
+  <span class:list={["inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium", className]}>
+    <slot />
+  </span>
+) : (
+  <span class:list={["inline-flex items-center rounded-md bg-secondary px-2 py-0.5 text-xs text-secondary-foreground", className]}>
+    <slot />
+  </span>
+)}

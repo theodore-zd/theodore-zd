@@ -1,0 +1,21 @@
+---
+interface Props {
+  percentage: string
+  title: string
+  description: string
+  delay?: number
+  class?: string
+}
+
+const { percentage, title, description, delay = 100, class: className = "" } = Astro.props
+---
+
+<div class:list={["terminal-card rounded-lg border border-border bg-card/50 p-4 animate-fade-up", `delay-${delay}`, className]}>
+  <div class="flex items-start gap-3">
+    <span class="text-primary text-xl font-bold">{percentage}</span>
+    <div>
+      <p class="text-sm font-medium">{title}</p>
+      <p class="text-xs text-muted-foreground mt-0.5">{description}</p>
+    </div>
+  </div>
+</div>

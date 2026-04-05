@@ -1,0 +1,114 @@
+---
+import Layout from "@/layouts/main.astro"
+import { resume } from "@/data/resume"
+
+const posts = [
+    {
+        title: "Building Modern Web Applications with Next.js 15",
+        description: "Exploring the latest features and best practices for building performant web applications.",
+        date: "2025-03-08",
+        slug: "modern-web-apps-nextjs-15",
+        tags: ["Next.js", "React", "Performance"],
+        readTime: "8 min",
+    },
+    {
+        title: "TypeScript Best Practices for 2025",
+        description: "A comprehensive guide to writing clean, type-safe code in modern TypeScript projects.",
+        date: "2025-02-20",
+        slug: "typescript-best-practices-2025",
+        tags: ["TypeScript", "Best Practices"],
+        readTime: "12 min",
+    },
+    {
+        title: "The Future of CSS with Tailwind v4",
+        description: "What's new in Tailwind CSS v4 and how it changes the way we write styles.",
+        date: "2025-01-15",
+        slug: "future-css-tailwind-v4",
+        tags: ["CSS", "Tailwind"],
+        readTime: "6 min",
+    },
+    {
+        title: "Building Scalable APIs with PostgreSQL",
+        description: "Design patterns and optimization techniques for high-performance database architectures.",
+        date: "2024-12-10",
+        slug: "scalable-apis-postgresql",
+        tags: ["PostgreSQL", "API", "Backend"],
+        readTime: "10 min",
+    },
+]
+
+function formatDate(dateString: string) {
+    return new Date(dateString).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+    })
+}
+---
+
+<Layout title="Blog - Theo" description="Articles and thoughts on web development, technology, and more.">
+    <section class="border-b border-border py-24">
+        <div class="mx-auto max-w-4xl px-6">
+            <div class="mb-12">
+                <p class="section-label">Writing</p>
+                <h1 class="section-title mb-4">Blog</h1>
+                <p class="text-muted-foreground max-w-xl">
+                    Thoughts on web development, system design, and building products. 
+                    I write about things I'm learning and problems I've solved.
+                </p>
+            </div>
+            
+            <div class="space-y-1">
+                {posts.map((post, index) => (
+                    <article class={`group animate-fade-up delay-${(index + 1) * 100}`}>
+                        <a 
+                            href={`/blog/${post.slug}`} 
+                            class="terminal-card block rounded-lg border border-transparent p-5 transition-all hover:border-border"
+                        >
+                            <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                                <div class="flex-1">
+                                    <div class="flex flex-wrap items-center gap-3 mb-2">
+                                        <time class="text-xs font-mono text-muted-foreground">
+                                            {formatDate(post.date)}
+                                        </time>
+                                        <span class="text-xs text-muted-foreground">·</span>
+                                        <span class="text-xs text-muted-foreground">{post.readTime}</span>
+                                    </div>
+                                    <h2 class="text-base font-semibold group-hover:text-primary transition-colors mb-1">
+                                        {post.title}
+                                    </h2>
+                                    <p class="text-sm text-muted-foreground line-clamp-2">
+                                        {post.description}
+                                    </p>
+                                </div>
+                                <div class="flex flex-wrap gap-1.5 md:ml-6 md:flex-shrink-0">
+                                    {post.tags.map((tag) => (
+                                        <span class="inline-flex items-center rounded-md bg-muted/50 px-2 py-0.5 text-xs text-muted-foreground">
+                                            {tag}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        </a>
+                    </article>
+                ))}
+            </div>
+            
+            <div class="mt-16 rounded-lg border border-border bg-card/50 p-8 text-center">
+                <p class="text-sm text-muted-foreground mb-4">
+                    Want to discuss an article or have a question?
+                </p>
+                <a 
+                    href={`mailto:${resume.email}`}
+                    class="inline-flex items-center gap-2 text-sm font-medium text-primary link-underline"
+                >
+                    <span class="text-primary/70">$</span>
+                    Get in touch
+                    <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </section>
+</Layout>

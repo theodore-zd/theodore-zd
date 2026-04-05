@@ -1,0 +1,47 @@
+---
+import { resume } from "@/data/resume"
+import Card from "./Card.astro"
+import CardContent from "./CardContent.astro"
+import TechBadge from "./TechBadge.astro"
+import TerminalPrompt from "./TerminalPrompt.astro"
+import { slugFromTitle } from "@/lib/slug"
+import SectionLabel from "./SectionLabel.astro"
+
+const projects = resume.projects
+---
+
+<section id="projects" class="border-b border-border py-24">
+    <div class="mx-auto max-w-6xl px-6">
+        <SectionLabel label="projects" />
+        
+        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {projects.map((project, index) => (
+                <a href={`/projects/${slugFromTitle(project.title)}`} class="block h-full hover:no-underline">
+                    <Card class={`terminal-card rounded-lg h-full animate-fade-up delay-${((index % 3) + 1) * 100}`}>
+                        <CardContent class="flex h-full flex-col gap-4 p-6">
+                            <div class="flex flex-col gap-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="flex size-6 shrink-0 items-center justify-center rounded bg-primary/10">
+                                        <TerminalPrompt />
+                                    </span>
+                                    <h3 class="text-base font-semibold">
+                                        {project.title}
+                                    </h3>
+                                </div>
+                                <p class="text-sm text-muted-foreground line-clamp-3">
+                                    {project.description}
+                                </p>
+                            </div>
+                            
+                            <div class="flex flex-wrap gap-1.5 mt-auto">
+                                {project.tools.map((tool) => (
+                                    <TechBadge tech={tool} />
+                                ))}
+                            </div>
+                        </CardContent>
+                    </Card>
+                </a>
+            ))}
+        </div>
+    </div>
+</section>

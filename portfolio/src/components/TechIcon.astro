@@ -1,0 +1,25 @@
+---
+import { getTechIcon } from "@/lib/tech-icons"
+
+interface Props {
+  name: string
+  size?: number
+  class?: string
+}
+
+const { name, size = 16, class: className = "" } = Astro.props
+const icon = getTechIcon(name)
+---
+
+{icon ? (
+  <svg 
+    role="img" 
+    viewBox="0 0 24 24" 
+    class:list={["fill-muted-foreground", className]}
+    style={`width: ${size}px; height: ${size}px;`}
+  >
+    <path d={icon.path} />
+  </svg>
+) : (
+  <span class:list={[className]}>{name}</span>
+)}

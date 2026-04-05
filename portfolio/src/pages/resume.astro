@@ -1,0 +1,91 @@
+---
+// Printable resume page - server-side data from src/data/resume.ts
+import * as resumeModule from '../data/resume';
+
+// Normalize import for common module shapes (default export or named export)
+let resume: any = {};
+if (resumeModule) {
+  resume = (resumeModule as any).default ?? (resumeModule as any).resume ?? resumeModule;
+}
+---
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Printable Resume — {resume?.name ?? 'Resume'}</title>
+    <style>
+      :root {
+        --text: #111;
+        --muted: #555;
+      }
+      @media print {
+        html, body { margin: 0; padding: 0; background: #fff; }
+        .resume-page { width: 8.5in; min-height: 11in; padding: 0; margin: 0 auto; }
+        .no-print { display: none !important; }
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+          Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+        color: var(--text);
+        line-height: 1.25;
+        background: #fff;
+      }
+      .resume-page {
+        width: 100%; max-width: 800px; margin: 0 auto; padding: 1in; box-sizing: border-box;
+      }
+      header { margin-bottom: 0.5rem; }
+      .name { font-size: 2rem; font-weight: 700; margin: 0; }
+      .title { font-size: 1.15rem; color: #333; margin: 0.15rem 0 0 0; }
+      .contact { margin-top: 6px; font-size: .95rem; color: var(--muted); }
+      .section { margin-top: 1rem; }
+      .section h3 { font-size: 1.05rem; margin: 0 0 0.4rem 0; }
+      .separator { height: 1px; background: #eee; margin: 0.6rem 0; border: 0; }
+      ul { margin: 0; padding-left: 1.2rem; }
+      .bullets { padding-left: 1.1rem; }
+      .print-actions { text-align: right; margin-bottom: 0.5rem; }
+      button.print { padding: .5rem 1rem; font-size: 0.95rem; border: 1px solid #ccc; border-radius: 4px; background: #f7f7f7; cursor: pointer; }
+      @media (max-width: 600px) { .resume-page { padding: 0.75in; } }
+    </style>
+  </head>
+  <body>
+    <main class="resume-page" aria-label="Printable resume">
+      <div class="print-actions no-print">
+        <button class="print" onclick="window.print()">Print</button>
+      </div>
+
+      <header>
+        <h1 class="name">{resume?.name ?? ''}</h1>
+        <div class="title">{resume?.title ?? ''}</div>
+        <div class="contact">{[(resume?.location), resume?.email, resume?.phone, resume?.linkedin, resume?.website].filter(Boolean).join(' • ')}</div>
+      </header>
+
+      {resume?.summary ? (
+        <section class="section" aria-label="Professional summary">
+          <p style="margin:0; font-size:0.98rem; color:#333;">{resume.summary}</p>
+        </section>
+      ) : null}
+      <hr class="separator" aria-label="section separator" />
+
+      {resume?.skills?.length ? (
+        <section class="section" aria-label="Skills">
+          <h3>Skills</h3>
+          <p style="margin:0;">{resume.skills.join(', ')}</p>
+        </section>
+      ) : null}
+
+      {resume?.experience?.length ? (
+        <section class="section" aria-label="Experience">
+          <h3>Experience</h3>
+          <p style="margin:0;">{(resume.experience).map((e: any) => `${e.title ?? e.role ?? ''} at ${e.company ?? ''}${e.location ? ', ' + e.location : ''} (${e.period ?? ''})`).join(' | ')}</p>
+        </section>
+      ) : null}
+
+      {resume?.awards?.length ? (
+        <section class="section" aria-label="Awards">
+          <h3>Awards</h3>
+          <p style="margin:0;">{resume.awards.join(' | ')}</p>
+        </section>
+      ) : null}
+    </main>
+  </body>
+  </html>

@@ -1,0 +1,55 @@
+---
+---
+
+<section class="py-5">
+  <div class="flex justify-end">
+    <button
+      id="falcon-button"
+      class="flex cursor-pointer bg-transparent border-0 p-0"
+      type="button"
+    >
+      <p class="flex pt-10 headerFont leading-loose opacity-80">
+        Click Me
+      </p>
+      <div class="w-38 h-38 relative z-[99]">
+        <div id="falcon-container">
+          <img
+            src="/MillenniumFalconDesk_3.webp"
+            alt="Millennium Falcon"
+            class="transform rotate-45"
+          />
+          </svg>
+        </div>
+      </div>
+    </button>
+  </div>
+
+  <audio id="falcon-sound" preload="auto">
+    <source src="/falcon-jump.mp3" type="audio/mpeg" />
+  </audio>
+</section>
+
+<script>
+  const button = document.getElementById("falcon-button")
+  const container = document.getElementById("falcon-container")
+  const sound = document.getElementById("falcon-sound") as HTMLAudioElement
+
+  if (button && container && sound) {
+    button.addEventListener("click", () => {
+      sound.volume = 0.05
+      sound.playbackRate = 1
+      sound.play()
+
+      container.classList.add("falcon-exit")
+
+      setTimeout(() => {
+        container.classList.remove("falcon-exit")
+        container.classList.add("falcon-enter")
+      }, 3000)
+
+      setTimeout(() => {
+        container.classList.remove("falcon-enter")
+      }, 5000)
+    })
+  }
+</script>

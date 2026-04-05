@@ -1,0 +1,36 @@
+---
+import { resume } from "@/data/resume"
+import StatusLabel from "./StatusLabel.astro"
+
+const {
+    title = "Let's make something awesome!",
+    description = "I help companies and individuals build modern web applications with cutting-edge technologies. From MVP to scale.",
+    buttonText = "Get in Touch",
+    buttonHref = `mailto:${resume.email}`
+} = Astro.props
+---
+
+<section class="border-t border-border bg-card/30 relative overflow-hidden">
+    <div class="absolute inset-0 dot-pattern opacity-30" />
+    <div class="relative mx-auto max-w-6xl px-6 py-20">
+        <div class="mx-auto max-w-2xl text-center">
+            <StatusLabel label=" --ready" />
+            <h2 class="mb-4 section-title md:text-4xl">
+                {title}
+            </h2>
+            <p class="mb-8 text-muted-foreground text-sm">
+                {description}
+            </p>
+            <a 
+                href={buttonHref}
+                class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/80 hover:glow-primary focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
+            >
+                <span class="text-primary-foreground/70 font-bold">{'>'}</span>
+                {buttonText}
+                <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+            </a>
+        </div>
+    </div>
+</section>
