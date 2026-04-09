@@ -3,25 +3,63 @@
     "allow": [
       "WebSearch",
       "WebFetch(domain:proxy.golang.org)",
+      "WebFetch(domain:sum.golang.org)",
+      "WebFetch(domain:golang.org)",
+      "WebFetch(domain:gopkg.in)",
+      "WebFetch(domain:go.googlesource.com)",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:api.github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(go build:*)",
-      "Bash(go vet:*)",
       "Bash(go test:*)",
-      "FileRead(~/.gitconfig)"
+      "Bash(go run:*)",
+      "Bash(go fmt:*)",
+      "Bash(go vet:*)",
+      "Bash(go get:*)",
+      "Bash(go mod:*)",
+      "Bash(go env:*)",
+      "Bash(go install:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(git push:*)",
+      "Bash(git stash:*)",
+      "Bash(git branch:*)",
+      "Bash(git checkout:*)",
+      "Bash(git merge:*)",
+      "Bash(git remote:*)",
+      "Bash(git fetch:*)",
+      "Bash(git rebase:*)",
+      "Bash(git tag:*)",
+      "Bash(./scripts/*.sh:*)",
+      "Bash(docker:*)",
+      "Bash(docker compose:*)",
+      "Bash(psql:*)",
+      "Bash(goose:*)",
+      "Bash(curl:*)",
+      "Bash(gh:*)"
     ]
   },
   "sandbox": {
     "enabled": true,
+    "network": {
+      "allowAllUnixSockets": true
+    },
     "filesystem": {
+      "allowWrite": [
+        "~/.1password/agent.sock",
+        "/run/user/1000/agent-browser"
+      ],
       "denyRead": [
         "~/"
       ],
       "allowRead": [
         ".",
         "~/.1password/agent.sock",
-        "~/.gitconfig"
+        "~/.gitconfig",
+        "/opt/1Password"
       ]
     }
   }
