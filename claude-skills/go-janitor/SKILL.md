@@ -1,6 +1,8 @@
 ---
 name: go-janitor
-description: "Finds and removes dead code in Go codebases: unused functions, exports, imports, variables, and unreachable code paths. Also simplifies and consolidates remaining code for a leaner codebase."
+description: |
+  Find and remove dead code in Go codebases: unused functions, exports, imports, variables, constants, and unreachable code paths. Simplifies and consolidates remaining code for a leaner codebase.
+  Use this skill whenever the user wants to clean up Go code, find unused functions, remove dead code, audit for unused exports, slim down a package, or asks about code that's not being used. Also trigger when the user mentions "dead code", "unused code", "code cleanup", "go cleanup", "remove unused", "slim down", "lean codebase", "unused functions", "unused exports", or wants to make a Go codebase leaner — even if they don't explicitly ask for a "janitor" or "dead code hunter".
 ---
 
 # Dead Code Hunter (Go)
@@ -134,25 +136,18 @@ This is where you add value beyond what tools catch. Think like a detective:
 
 1. **Map the package graph.** Understand which packages import which. Start from `cmd/*/main.go` or the main entry points and work outward. Packages that nothing imports (except tests) are candidates for removal.
 
-2. **Grep is your primary weapon.** For every suspect symbol, search the entire project:
-   ```
-   # Is this exported function used anywhere?
-   grep -r "packagename\.FunctionName" --include="*.go" .
-   
-   # Is this type used anywhere (including type assertions)?
-   grep -r "TypeName" --include="*.go" .
-   ```
+2. **Use the Grep tool as your primary weapon.** For every suspect symbol, search the entire project using the Grep tool (not raw `grep` in bash — the Grep tool handles permissions and access correctly):
+   - Search for `packagename\.FunctionName` with glob `*.go` to find exported function usage
+   - Search for `TypeName` with glob `*.go` to find type usage (including type assertions and composite literals)
+   - Search for the symbol name as a plain string too — it might be referenced via reflection or struct tags
 
-3. **Follow the dependency chain.** Removing one unused function may make others unused too. After each removal, check if anything else became orphaned — especially imports that were only needed for the removed code.
+3. **Use `gopls` if the LSP tool is available.** LSP `references` and `implementations` queries are more reliable than text search for finding all callers of a function or all implementors of an interface, because they understand Go's type system. Fall back to Grep when LSP is unavailable.
 
-4. **Check the interface contract.** Before removing any method, verify:
-   ```
-   # Find interfaces this type might implement
-   grep -r "interface {" --include="*.go" -A 20 . | grep "MethodName"
-   
-   # Check if the type is ever assigned to an interface variable
-   grep -r "var.*InterfaceName.*=.*&TypeName" --include="*.go" .
-   ```
+4. **Follow the dependency chain.** Removing one unused function may make others unused too. After each removal, check if anything else became orphaned — especially imports that were only needed for the removed code.
+
+5. **Check the interface contract.** Before removing any method, verify using Grep:
+   - Search for `interface \{` with glob `*.go` and check surrounding lines for `MethodName`
+   - Search for assignments where the type is used as an interface: `var.*InterfaceName.*=.*&TypeName`
 
 ### Step 4: Make changes
 
