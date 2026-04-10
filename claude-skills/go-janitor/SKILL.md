@@ -1,6 +1,6 @@
 ---
-name: dead-code-hunter
-description: "Deep Go code cleaning skill that finds and removes dead code in Go codebases: unused functions, exports, imports, variables, entire dead files, and unreachable code paths. Also simplifies and consolidates remaining code. Use this skill whenever the user asks to clean up Go code, remove dead code, find unused functions or exports, simplify a Go codebase, reduce code bloat, or mentions anything about unused/orphaned/stale code. Trigger this even if the user just says 'clean this up' or 'trim the fat' — those are dead code hunting requests."
+name: go-janitor
+description: "Finds and removes dead code in Go codebases: unused functions, exports, imports, variables, and unreachable code paths. Also simplifies and consolidates remaining code for a leaner codebase."
 ---
 
 # Dead Code Hunter (Go)
