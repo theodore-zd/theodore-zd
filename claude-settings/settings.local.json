@@ -39,18 +39,33 @@
       "Bash(psql:*)",
       "Bash(goose:*)",
       "Bash(curl:*)",
-      "Bash(gh:*)"
+      "Bash(gh:*)",
+      "Bash(jq:*)",
+      "Bash(bc:*)",
+      "Bash(basename:*)",
+      "Bash(printf:*)",
+      "Bash(echo:*)",
+      "Bash(bash:*)",
+      "Bash(sh:*)",
+      "Bash(cat:*)",
+      "Bash(grep:*)",
+      "Bash(sed:*)",
+      "Bash(awk:*)"
     ]
   },
   "sandbox": {
     "enabled": true,
+    "autoAllowBashIfSandboxed": true,
     "network": {
       "allowAllUnixSockets": true
     },
     "filesystem": {
       "allowWrite": [
         "~/.1password/agent.sock",
-        "/run/user/1000/agent-browser"
+        "/run/user/1000/agent-browser",
+        "$TMPDIR",
+        "/dev/stdout",
+        "/dev/stderr"
       ],
       "denyRead": [
         "~/"
@@ -59,7 +74,9 @@
         ".",
         "~/.1password/agent.sock",
         "~/.gitconfig",
-        "/opt/1Password"
+        "/opt/1Password",
+        "$TMPDIR",
+        "/home/theo/Work/atluo"
       ]
     }
   }
