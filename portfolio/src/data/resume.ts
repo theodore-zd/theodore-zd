@@ -143,7 +143,7 @@ const resumeData = {
     { text: yearsExperience, accent: false },
     { text: seniority, accent: true },
     { text: availability, accent: false },
-    { text: location, accent: false },
+    { text: location, accent: true },
     { text: engagementType, accent: false },
   ],
   impactBullets: [
