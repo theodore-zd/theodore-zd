@@ -123,11 +123,11 @@ const engagementType = "Full-time + Contract"
 const resumeData = {
   name: "Theodore Zurek-Dunne",
   displayName: "Theodore",
-  title: "Senior Software Engineer | TypeScript | Go | React/Next.js | Node.js",
+  title: "Senior Software Engineer | Go | TypeScript | React/Next.js | Node.js",
   tagline:
     "Senior software engineer with 9+ years of experience delivering high-performance, scalable systems",
   headline:
-    "Senior Software Engineer | TypeScript, Go, Python, React | Building scalable, high‑performance full‑stack applications with measurable business impact.",
+    "Senior Software Engineer | TypeScript, Go, Svelte, React | Building scalable, high‑performance full‑stack applications with measurable business impact.",
   valueProps: [
     "Frontend: React, Next.js, TypeScript, Tailwind, Svelte",
     "Backend: Node.js, Python, Go, PostgreSQL, MongoDB",
@@ -138,7 +138,7 @@ const resumeData = {
   linkedin: "https://www.linkedin.com/in/theodore-zurek-dunne-37885b164/",
   portfolioUrl: "https://zurek-dunne.dev",
   resumeUrl: "/Theodore_Zurek-Dunne_Resume-2026.pdf",
-  professionalSummary: `Seasoned software engineer delivering fast, reliable, scalable full-stack solutions. Expert in TypeScript, Go, Python, and modern cloud architectures. I collaborate with cross-functional teams to translate complex requirements into high-quality software that drives business results and measurable impact.`,
+  professionalSummary: `Senior Software Engineer with 9+ years of experience building fast, scalable full-stack applications. I work primarily with TypeScript, Go, React, Svelte, and Next.js. I’ve led Node.js to Go migrations that significantly cut latency and infrastructure costs, built design systems that sped up team delivery, and led UI overhauls that improved user testing scores while reducing support tickets. I focus on making systems perform better and run cheaper without sacrificing a smooth user experience.`,
   location,
   availability,
   engagementType,
@@ -157,10 +157,10 @@ const resumeData = {
     "Mentored 4 engineers; founded Kato.Studio; shipped 95+ Lighthouse production sites",
   ],
   aboutDescription:
-    "I love building high-performance, data-driven solutions, tinkering to optimize backend systems, designing seamless user interfaces, and delivering scalable applications that elevate functionality and speed.",
+    "9+ years shipping high-performance full-stack applications in TypeScript, Go, React, and Next.js. I've led Node.js→Go migrations cutting latency and infrastructure costs, built design systems that accelerated delivery, and shipped UX overhauls that improved user metrics.",
   ctaDescription:
-    "I help companies and individuals build modern web applications with cutting-edge technologies. From MVP to scale.",
-  footerTagline: "Full-stack developer building scalable, performant applications.",
+    "Scaling full-stack applications with TypeScript, Go, React, and Next.js. I focus on what matters: faster systems, lower costs, better user experience.",
+  footerTagline: "9+ years. TypeScript, Go, React. Measurable impact.",
   skills: {
     favorite: [
       "TypeScript",
@@ -250,7 +250,7 @@ const resumeData = {
     {
       title: "SalesGrowth Development Inc",
       desc: "December 2018 - December 2019",
-      role: "Frontend Engineer, UI/UX Designer",
+      role: "Frontend Developer, UI/UX Designer",
       info: [
         "Optimized four client websites, improving SEO rankings by an average of 21%, accessibility scores by 42%, and load times by 22%.",
         "Led comprehensive redesign of the client application, resulting in a 65% increase in user adoption.",
