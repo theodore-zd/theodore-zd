@@ -1,59 +1,48 @@
 ---
 import { resume } from "@/data/resume"
-import { getTechIcon } from "@/lib/tech-icons"
-import StarWarsFalcon from "./StarWarsFalcon.astro"
 import StatusLabel from "./StatusLabel.astro"
 
-const valueProps = resume.valueProps || [
-    "Frontend: React, Next.js, TypeScript, Tailwind",
-    "Backend: Node.js, Python, Go, PostgreSQL",
-    "DevOps: Docker, CI/CD, cloud deployment"
-]
+const { metaItems, impactBullets } = resume
 ---
 
 <section class="relative overflow-hidden border-b border-border">
     <div class="absolute inset-0 from-primary/5 via-transparent to-transparent" />
     <div class="absolute inset-0 dot-pattern opacity-50" />
-    
+
     <div class="relative mx-auto max-w-6xl px-6 py-20 md:py-32">
         <div class="flex max-w-3xl flex-col gap-1">
             <StatusLabel label=" --available" />
-            
+
             <p class="animate-fade-up delay-100 text-lg text-muted-foreground md:text-2xl">Hi, my name is</p>
-            
+
             <h1 class="animate-fade-up delay-200 text-4xl font-bold tracking-tight md:text-6xl py-2">
                 {resume.name}
             </h1>
-            
-            <p class="animate-fade-up delay-300 text-xl text-muted-foreground md:text-2xl pb-4">
+
+            <p class="animate-fade-up delay-300 text-xl text-muted-foreground md:text-2xl pb-2">
                 {resume.headline || resume.tagline}<span class="cursor-blink"></span>
             </p>
-            
-            <ul class="animate-fade-up delay-400 flex flex-col gap-3 pt-2">
-                {valueProps.map((prop) => {
-                    // Extract tech names mentioned in the prop for inline icons
-                    const techNames = ["React", "Next.js", "TypeScript", "Node.js", "Python", "Go", "PostgreSQL", "MongoDB", "Docker", "CI/CD"]
-                    const foundIcons = techNames.filter(t => prop.includes(t)).map(t => ({ name: t, icon: getTechIcon(t) })).filter(t => t.icon)
-                    return (
-                        <li class="flex items-center gap-2 text-sm text-muted-foreground">
-                            <span class="text-primary font-bold shrink-0">{'>'}</span>
-                            <span>{prop}</span>
-                            {foundIcons.length > 0 && (
-                                <span class="flex items-center gap-1.5 ml-1 opacity-50">
-                                    {foundIcons.map(({ icon }) => (
-                                        <svg role="img" viewBox="0 0 24 24" class="size-3.5 fill-muted-foreground">
-                                            <path d={icon!.path} />
-                                        </svg>
-                                    ))}
-                                </span>
-                            )}
-                        </li>
-                    )
-                })}
+
+            <ul class="animate-fade-up delay-350 flex flex-wrap items-center gap-x-2 gap-y-1 pt-1 pb-3 text-xs text-muted-foreground">
+                {metaItems.map((item, i) => (
+                    <>
+                        <li class={item.accent ? "text-primary font-medium" : ""}>{item.text}</li>
+                        {i < metaItems.length - 1 && <li aria-hidden="true" class="opacity-50">·</li>}
+                    </>
+                ))}
             </ul>
-            
+
+            <ul class="animate-fade-up delay-400 flex flex-col gap-3 pt-2">
+                {impactBullets.map((bullet) => (
+                    <li class="flex items-start gap-2 text-sm text-muted-foreground">
+                        <span class="text-primary font-bold shrink-0">{'>'}</span>
+                        <span>{bullet}</span>
+                    </li>
+                ))}
+            </ul>
+
             <div class="animate-fade-up delay-500 flex flex-wrap gap-4 pt-4">
-                <a 
+                <a
                     href={`mailto:${resume.email}`}
                     class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/80 hover:glow-primary focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50"
                 >
@@ -62,7 +51,7 @@ const valueProps = resume.valueProps || [
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                 </a>
-                <a 
+                <a
                     href={resume.resumeUrl}
                     target="_blank"
                     rel="noopener noreferrer"

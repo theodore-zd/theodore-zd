@@ -4,7 +4,7 @@ import StatusLabel from "./StatusLabel.astro"
 
 const {
     title = "Let's make something awesome!",
-    description = "I help companies and individuals build modern web applications with cutting-edge technologies. From MVP to scale.",
+    description = resume.ctaDescription,
     buttonText = "Get in Touch",
     buttonHref = `mailto:${resume.email}`
 } = Astro.props

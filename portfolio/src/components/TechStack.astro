@@ -2,11 +2,12 @@
 import { resume } from "@/data/resume"
 import { getTechIcon } from "@/lib/tech-icons"
 import SectionLabel from "./SectionLabel.astro"
+import StarWarsFalcon from "./StarWarsFalcon.astro"
 
 const { skills = resume.skills } = Astro.props
 ---
 
-<section class="border-b border-border py-24">
+<section class="relative border-b border-border py-24">
   <div class="mx-auto max-w-6xl px-6">
     <SectionLabel label="tech stack" />
 
@@ -77,5 +78,7 @@ const { skills = resume.skills } = Astro.props
         <span class="text-primary">"~/toolbox"</span>
       </p>
     </div>
+
   </div>
+  <StarWarsFalcon class="absolute bottom-4 right-6 md:right-40 xl:right-50" />
 </section>

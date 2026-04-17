@@ -6,6 +6,7 @@ import CardDescription from "./CardDescription.astro"
 import CardContent from "./CardContent.astro"
 import TechBadge from "./TechBadge.astro"
 import TerminalButton from "./TerminalButton.astro"
+import { resume } from "@/data/resume"
 
 interface Props {
   title?: string
@@ -17,19 +18,12 @@ interface Props {
 }
 
 const {
-  title = "Theodore Zurek-Dunne",
-  subtitle = "Full-Stack Developer",
-  description = "I love building high-performance, data-driven solutions, tinkering to optimize backend systems, designing seamless user interfaces, and delivering scalable applications that elevate functionality and speed.",
-  technologies = [
-    "TypeScript",
-    "Go",
-    "Python",
-    "React",
-    "Next.js",
-    "PostgreSQL",
-  ],
-  githubUrl = "https://github.com/TheSodaPopPanda",
-  email = "hello@zurekcreative.com",
+  title = resume.name,
+  subtitle = resume.title,
+  description = resume.aboutDescription,
+  technologies = resume.coreStack.slice(0, 6),
+  githubUrl = resume.github,
+  email = resume.email,
 } = Astro.props
 ---
 

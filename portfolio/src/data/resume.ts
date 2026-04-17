@@ -1,8 +1,75 @@
-import { githubProjects, type GithubProject } from "./githubProjects"
+// GitHub project types and data
+export interface GithubProject {
+  repo: string
+  description: string
+  language?: string
+  stars: number
+  forks: number
+  homepage?: string
+}
+
+const LANGUAGE_COLORS: Record<string, string> = {
+  Go: "#00ADD8",
+  TypeScript: "#3178c6",
+  JavaScript: "#f1e05a",
+  Python: "#3572A5",
+  Rust: "#dea584",
+  Svelte: "#ff3e00",
+  Astro: "#ff5a03",
+  HTML: "#e34c26",
+  CSS: "#563d7c",
+  SCSS: "#c6538c",
+  Shell: "#89e051",
+  C: "#555555",
+  "C++": "#f34b7d",
+  "C#": "#178600",
+  Java: "#b07219",
+  Ruby: "#701516",
+  PHP: "#4F5D95",
+  Swift: "#F05138",
+  Kotlin: "#A97BFF",
+  Vue: "#41b883",
+  Lua: "#000080",
+  Zig: "#ec915c",
+  Dart: "#00B4AB",
+}
+
+export function languageColor(lang?: string): string {
+  if (!lang) return "#8b949e"
+  return LANGUAGE_COLORS[lang] ?? "#8b949e"
+}
+
+const githubProjects: GithubProject[] = [
+  {
+    repo: "wispberry-tech/wispy-auth",
+    description: "Lightweight authentication service in Go.",
+    language: "Go",
+    stars: 0,
+    forks: 0,
+    homepage: "",
+  },
+  {
+    repo: "wispberry-tech/grove",
+    description: "Grove — a Wispberry project written in Go.",
+    language: "Go",
+    stars: 0,
+    forks: 0,
+    homepage: "",
+  },
+  {
+    repo: "wispberry-tech/wispy-grove-lang-support",
+    description: "Language support and tooling for the Grove ecosystem.",
+    language: "JavaScript",
+    stars: 0,
+    forks: 0,
+    homepage: "",
+  },
+]
 
 // Type definitions for resume data
 export interface Resume {
   name: string
+  displayName: string
   title: string
   tagline: string
   headline: string
@@ -15,6 +82,16 @@ export interface Resume {
   linkedin: string
   resumeUrl: string
   professionalSummary: string
+  location: string
+  availability: string
+  engagementType: string
+  yearsExperience: string
+  seniority: string
+  metaItems: Array<{ text: string; accent: boolean }>
+  impactBullets: string[]
+  aboutDescription: string
+  ctaDescription: string
+  footerTagline: string
   skills: {
     favorite: string[]
     toolbox: string[]
@@ -33,14 +110,21 @@ export interface Resume {
     git: string
   }>
   githubProjects: GithubProject[]
-  awards: string[]
+  achievements: string[]
 }
+
+const yearsExperience = "9+ years experience"
+const seniority = "Senior / Lead"
+const availability = "Hybrid/Remote"
+const location = "Toronto (EST)"
+const engagementType = "Full-time + Contract"
 
 const resumeData = {
   name: "Theodore Zurek-Dunne",
+  displayName: "Theodore",
   title: "Senior Software Engineer | TypeScript | Go | React/Next.js | Node.js",
   tagline:
-    "Senior software engineer with 7+ years of experience delivering high-performance, scalable systems",
+    "Senior software engineer with 9+ years of experience delivering high-performance, scalable systems",
   headline:
     "Senior Software Engineer | TypeScript, Go, Python, React | Building scalable, high‑performance full‑stack applications with measurable business impact.",
   valueProps: [
@@ -48,30 +132,50 @@ const resumeData = {
     "Backend: Node.js, Python, Go, PostgreSQL, MongoDB",
     "DevOps: Docker, CI/CD, cloud deployment",
   ],
-  email: "theodore.zd@example.com",
+  email: "99theodore@gmail.com",
   phone: "+1 (555) 010-9876",
   github: "https://github.com/theodore-zd",
   linkedin: "https://www.linkedin.com/in/theodore-zurek-dunne-37885b164/",
   resumeUrl: "/Theodore_Zurek-Dunne_Resume-2025.pdf",
   professionalSummary: `Seasoned software engineer delivering fast, reliable, scalable full-stack solutions. Expert in TypeScript, Go, Python, and modern cloud architectures. I collaborate with cross-functional teams to translate complex requirements into high-quality software that drives business results and measurable impact.`,
+  location,
+  availability,
+  engagementType,
+  yearsExperience,
+  seniority,
+  metaItems: [
+    { text: yearsExperience, accent: false },
+    { text: seniority, accent: true },
+    { text: availability, accent: false },
+    { text: location, accent: false },
+    { text: engagementType, accent: false },
+  ],
+  impactBullets: [
+    "Led Node.js → Go migration — cut p95 latency and infra cost on high-traffic microservices",
+    "Built design systems that accelerated delivery 33% and lifted user adoption 65%",
+    "Mentored 4 engineers; founded Kato.Studio; shipped 95+ Lighthouse production sites",
+  ],
+  aboutDescription:
+    "I love building high-performance, data-driven solutions, tinkering to optimize backend systems, designing seamless user interfaces, and delivering scalable applications that elevate functionality and speed.",
+  ctaDescription:
+    "I help companies and individuals build modern web applications with cutting-edge technologies. From MVP to scale.",
+  footerTagline: "Full-stack developer building scalable, performant applications.",
   skills: {
     favorite: [
       "TypeScript",
       "Go",
       "Python",
-      "JavaScript",
+      "Alpine.js",
+      "JavaScript/Typescript",
       "React",
       "Next.js",
       "Node.js",
+      "Bun",
       "Docker",
       "PostgreSQL",
-      "MongoDB",
+      "SvelteKit",
       "Git",
-      "GraphQL",
-      "REST APIs",
-      "Design Systems",
-      "CI/CD",
-      "Cloud Infrastructure",
+
     ],
     toolbox: [
       "Netlify",
@@ -83,18 +187,19 @@ const resumeData = {
       "Socket.io",
       "Vue",
       "Pnpm",
+      "MongoDB",
       "Npm",
-      "SvelteKit",
+      "GraphQL",
+      "Playwright",
       "Cypress",
       "HTTP/REST",
-      "Full-Stack Development",
-      "Frontend & Backend Development",
       "Design Systems",
       "Agile Methodologies",
       "SEO Optimization",
       "UI/UX Design",
       "Team Management",
-      "Team Collaboration",
+      "Design Systems",
+      "CI/CD",
     ],
   },
   experiences: [
@@ -134,12 +239,11 @@ const resumeData = {
     {
       title: "Freelance",
       desc: "December 2019 - October 2020",
-      role: "Full-Stack Developer",
+      role: "Full-Stack Developer, UI/UX Designer",
       info: [
         "Collaborated with cross-functional teams to integrate design concepts and backend functionality, reducing project timelines by 27%.",
         "Contributed to design systems and reusable components, increasing development efficiency by 2x.",
         "Built real-time stream overlay system for e-sports broadcasts.",
-        "Delivered innovative solutions that exceeded client expectations, resulting in a 100% client retention rate.",
       ],
     },
     {
@@ -155,26 +259,16 @@ const resumeData = {
     {
       title: "Freelance",
       desc: "January 2016 - December 2018",
-      role: "Graphic Designer",
+      role: "Freelance Graphic Designer",
       info: [
         "Collaborated with 23 clients to identify and execute optimal design solutions.",
         "Delivered tailored solutions for rebranding, packaging, and marketing materials, resulting in an average 45% increase in brand recognition for clients.",
       ],
     },
-    {
-      title: "Senior Software Engineer",
-      desc: "July 2024 - Present",
-      role: "Lead Frontend & API Engineer",
-      info: [
-        "Architected and led frontend and API initiatives delivering scalable microservices and a 40% performance improvement.",
-        "Mentored 4 engineers, improved release velocity by 25%, and elevated code quality and reliability.",
-        "Implemented performance budgets, testing strategies, and accessible UI components.",
-      ],
-    },
   ],
   projects: [],
   githubProjects,
-  awards: [
+  achievements: [
     "Winner of the 2019 McMaster Design League UI/UX Designathon",
     "Consistently received 5-star client ratings for freelance projects",
   ],

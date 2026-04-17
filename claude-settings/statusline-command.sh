@@ -1,6 +1,6 @@
 #!/bin/bash
-# Source: https://github.com/daniel3303/ClaudeCodeStatusLine
-# Single line: Model | tokens | %used | %remain | think | 5h bar @reset | 7d bar @reset | extra
+# Source: https://github.com/theodore-zd/ClaudeCodeStatusLine
+# FORK OF: https://github.com/daniel3303/ClaudeCodeStatusLine
 
 set -f  # disable globbing
 VERSION="1.2.1"
@@ -12,14 +12,14 @@ if [ -z "$input" ]; then
     exit 0
 fi
 
-# ANSI colors matching oh-my-posh theme
-blue='\033[38;2;0;153;255m'
-orange='\033[38;2;255;176;85m'
-green='\033[38;2;0;160;0m'
-cyan='\033[38;2;46;149;153m'
-red='\033[38;2;255;85;85m'
-yellow='\033[38;2;230;200;0m'
-white='\033[38;2;220;220;220m'
+# Muted palette — 4 hues + dim, lower contrast
+blue='\033[38;2;122;162;199m'
+orange='\033[38;2;209;163;113m'
+green='\033[38;2;152;181;130m'
+red='\033[38;2;204;120;115m'
+cyan="$blue"
+yellow="$orange"
+white='\033[38;2;170;170;170m'
 dim='\033[2m'
 reset='\033[0m'
 
@@ -44,9 +44,8 @@ format_commas() {
 # Usage: usage_color <pct>
 usage_color() {
     local pct=$1
-    if [ "$pct" -ge 90 ]; then echo "$red"
-    elif [ "$pct" -ge 70 ]; then echo "$orange"
-    elif [ "$pct" -ge 50 ]; then echo "$yellow"
+    if [ "$pct" -ge 85 ]; then echo "$red"
+    elif [ "$pct" -ge 60 ]; then echo "$orange"
     else echo "$green"
     fi
 }
@@ -108,14 +107,12 @@ fi
 
 # ===== Build single-line output =====
 out=""
-out+="${blue}${model_name}${reset}"
 
 # Current working directory
 cwd=$(echo "$input" | jq -r '.cwd // empty')
 if [ -n "$cwd" ]; then
     display_dir="${cwd##*/}"
     git_branch=$(git -C "${cwd}" rev-parse --abbrev-ref HEAD 2>/dev/null)
-    out+=" ${dim}|${reset} "
     out+="${cyan}${display_dir}${reset}"
     if [ -n "$git_branch" ]; then
         out+="${dim}@${reset}${green}${git_branch}${reset}"
@@ -400,18 +397,18 @@ elif [ -n "$usage_data" ] && echo "$usage_data" | jq -e '.five_hour' >/dev/null 
     out+="${sep}${white}7d${reset} ${seven_day_color}${seven_day_pct}%${reset}"
     [ -n "$seven_day_reset" ] && out+=" ${dim}@${seven_day_reset}${reset}"
 
-    # ---- Extra usage ----
+    # ---- Extra usage (deferred — appended to line 2) ----
+    extra_segment=""
     extra_enabled=$(echo "$usage_data" | jq -r '.extra_usage.is_enabled // false')
     if [ "$extra_enabled" = "true" ]; then
         extra_pct=$(echo "$usage_data" | jq -r '.extra_usage.utilization // 0' | awk '{printf "%.0f", $1}')
         extra_used=$(echo "$usage_data" | jq -r '.extra_usage.used_credits // 0' | LC_NUMERIC=C awk '{printf "%.2f", $1/100}')
         extra_limit=$(echo "$usage_data" | jq -r '.extra_usage.monthly_limit // 0' | LC_NUMERIC=C awk '{printf "%.2f", $1/100}')
-        # Validate: if values are empty or contain unexpanded variables, show simple "enabled" label
         if [ -n "$extra_used" ] && [ -n "$extra_limit" ] && [[ "$extra_used" != *'$'* ]] && [[ "$extra_limit" != *'$'* ]]; then
             extra_color=$(usage_color "$extra_pct")
-            out+="${sep}${white}extra${reset} ${extra_color}\$${extra_used}/\$${extra_limit}${reset}"
+            extra_segment="${sep}${white}extra${reset} ${extra_color}\$${extra_used}/\$${extra_limit}${reset}"
         else
-            out+="${sep}${white}extra${reset} ${green}enabled${reset}"
+            extra_segment="${sep}${white}extra${reset} ${green}enabled${reset}"
         fi
     fi
 else
@@ -419,6 +416,51 @@ else
     out+="${sep}${white}5h${reset} ${dim}-${reset}"
     out+="${sep}${white}7d${reset} ${dim}-${reset}"
 fi
+
+# ===== LINE 2: Context bar + token/cost info =====
+make_bar() {
+    local pct=$1
+    local width=${2:-20}
+    [ "$pct" -gt 100 ] && pct=100
+    [ "$pct" -lt 0 ] && pct=0
+    local filled=$(( pct * width / 100 ))
+    local empty=$(( width - filled ))
+    local bar_color
+    bar_color=$(usage_color "$pct")
+    local b=""
+    local i
+    for (( i=0; i<filled; i++ )); do b+="█"; done
+    local e=""
+    for (( i=0; i<empty; i++ )); do e+="░"; done
+    printf "%b%s%b%b%s%b" "$bar_color" "$b" "$reset" "$dim" "$e" "$reset"
+}
+
+ctx_color=$(usage_color "$pct_used")
+ctx_bar=$(make_bar "$pct_used" 20)
+ctx_line="${blue}${model_name}${reset}${sep}${white}ctx${reset} ${ctx_bar} ${ctx_color}${pct_used}%${reset} ${dim}${used_comma}/${reset}${orange}${used_tokens}${reset}${dim}·${reset}${orange}${total_tokens}${reset}"
+
+total_cost=$(echo "$input" | jq -r '.cost.total_cost_usd // empty')
+lines_added=$(echo "$input" | jq -r '.cost.total_lines_added // 0')
+lines_removed=$(echo "$input" | jq -r '.cost.total_lines_removed // 0')
+api_ms=$(echo "$input" | jq -r '.cost.total_api_duration_ms // 0')
+
+if [ -n "$total_cost" ] && [ "$total_cost" != "null" ]; then
+    cost_fmt=$(LC_NUMERIC=C awk "BEGIN {printf \"%.2f\", $total_cost}")
+    ctx_line+="${sep}${white}cost${reset} ${green}\$${cost_fmt}${reset}"
+fi
+
+if [ "$lines_added" != "0" ] || [ "$lines_removed" != "0" ]; then
+    ctx_line+="${sep}${green}+${lines_added}${reset} ${red}-${lines_removed}${reset}"
+fi
+
+if [ "$api_ms" != "0" ] && [ "$api_ms" != "null" ]; then
+    api_sec=$(awk "BEGIN {printf \"%.1f\", $api_ms/1000}")
+    ctx_line+="${sep}${dim}api ${api_sec}s${reset}"
+fi
+
+[ -n "$extra_segment" ] && ctx_line+="$extra_segment"
+
+out+="\n${ctx_line}"
 
 # ===== Update check (cached, 24h TTL) =====
 version_cache_file="/tmp/claude/statusline-version-cache.json"

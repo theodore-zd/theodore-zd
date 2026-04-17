@@ -2,8 +2,9 @@
 import { resume } from "@/data/resume"
 
 const navLinks = [
-    { href: "#experience", label: "Experience" },
-    { href: "#projects", label: "Projects" },
+    { href: "/#experience", label: "Experience" },
+    { href: "/#projects", label: "Projects" },
+    { href: "/blog", label: "Blog" },
 ]
 
 const currentPath = Astro.url.pathname
@@ -12,7 +13,7 @@ const currentPath = Astro.url.pathname
 <header class="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-sm">
     <nav class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <a href="/" class="text-lg font-semibold text-foreground transition-colors hover:text-primary">
-            <span class="text-primary">$</span> Theo
+            <span class="text-primary">$</span> {resume.displayName}
         </a>
         
         <div class="hidden items-center gap-6 md:flex">

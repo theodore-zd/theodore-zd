@@ -1,23 +1,29 @@
 ---
 import Layout from "@/layouts/main.astro"
 import Hero from "@/components/Hero.astro"
+import ImpactStrip from "@/components/ImpactStrip.astro"
 import TechStack from "@/components/TechStack.astro"
 import Experience from "@/components/Experience.astro"
 import Projects from "@/components/Projects.astro"
-import Awards from "@/components/Awards.astro"
+import Achievements from "@/components/Achievements.astro"
+import Blog from "@/components/Blog.astro"
 import CTA from "@/components/CTA.astro"
 ---
 
 <Layout>
     <Hero available={true} />
-    
+
+    <ImpactStrip />
+
     <TechStack />
     
     <Experience />
     
     <Projects />
     
-    <Awards />
-    
+    <Achievements />
+
+    <Blog />
+
     <CTA />
 </Layout>

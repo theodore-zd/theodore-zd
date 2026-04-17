@@ -1,24 +1,30 @@
 ---
+interface Props {
+  class?: string
+}
+const { class: className = "" } = Astro.props
 ---
 
-<section class="py-5">
-  <div class="flex justify-end">
+<div class:list={[" ", className]}>
+  <div class="relative group">
+    <span
+      class="pointer-events-none absolute right-full top-1/2 -translate-y-1/2 mr-3 whitespace-nowrap rounded border border-border bg-card px-2 py-1 text-xs text-muted-foreground opacity-0 transition-opacity duration-150 group-hover:opacity-100"
+    >
+      activate hyperdrive
+    </span>
     <button
       id="falcon-button"
-      class="flex cursor-pointer bg-transparent border-0 p-0"
+      class="cursor-pointer bg-transparent border-0 p-0"
       type="button"
+      aria-label="Activate hyperdrive"
     >
-      <p class="flex pt-10 headerFont leading-loose opacity-80">
-        Click Me
-      </p>
-      <div class="w-38 h-38 relative z-[99]">
+      <div class="w-25 h-25 relative z-[99] transition-transform duration-200 group-hover:scale-110">
         <div id="falcon-container">
           <img
             src="/MillenniumFalconDesk_3.webp"
             alt="Millennium Falcon"
             class="transform rotate-45"
           />
-          </svg>
         </div>
       </div>
     </button>
@@ -27,7 +33,7 @@
   <audio id="falcon-sound" preload="auto">
     <source src="/falcon-jump.mp3" type="audio/mpeg" />
   </audio>
-</section>
+</div>
 
 <script>
   const button = document.getElementById("falcon-button")

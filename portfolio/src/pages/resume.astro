@@ -8,6 +8,7 @@ if (resumeModule) {
   resume = (resumeModule as any).default ?? (resumeModule as any).resume ?? resumeModule;
 }
 ---
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" />
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -15,36 +16,184 @@ if (resumeModule) {
     <title>Printable Resume — {resume?.name ?? 'Resume'}</title>
     <style>
       :root {
+        /* Colors */
         --text: #111;
+        --text-secondary: #333;
         --muted: #555;
+        --border: #eee;
+        --bg-button: #f7f7f7;
+        --border-button: #ccc;
+
+        /* Typography */
+        --font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        --line-height: 1.15;
+
+        /* Font sizes */
+        --fs-name: 1.45rem;
+        --fs-subtitle: 0.8rem;
+        --fs-section-title: 0.8rem;
+        --fs-body: 0.8rem;
+        --fs-summary: 0.8rem;
+        --fs-bullet: 0.8rem;
+
+        /* Spacing */
+        --sp-xs: 0.08rem;
+        --sp-sm: 0.12rem;
+        --sp-md: 0.2rem;
+        --sp-lg: 0.3rem;
+        --sp-xl: 0.45rem;
+        --sp-2xl: 0.5rem;
+        --sp-page: 0.6in;
+        --sp-mobile: 0.5in;
+
+        --margin-contact: 3px;
+        --list-indent: 1rem;
+        --list-indent-alt: 0.9rem;
       }
+
       @media print {
         html, body { margin: 0; padding: 0; background: #fff; }
-        .resume-page { width: 8.5in; min-height: 11in; padding: 0; margin: 0 auto; }
+        .resume-page {
+          margin: 0 auto;
+        }
         .no-print { display: none !important; }
       }
+
       body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-          Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+        font-family: var(--font-family);
         color: var(--text);
-        line-height: 1.25;
+        line-height: var(--line-height);
         background: #fff;
       }
+
       .resume-page {
-        width: 100%; max-width: 800px; margin: 0 auto; padding: 1in; box-sizing: border-box;
+        width: 100%;
+        padding: var(--sp-page);
+        margin: 0 auto;
+        box-sizing: border-box;
       }
-      header { margin-bottom: 0.5rem; }
-      .name { font-size: 2rem; font-weight: 700; margin: 0; }
-      .title { font-size: 1.15rem; color: #333; margin: 0.15rem 0 0 0; }
-      .contact { margin-top: 6px; font-size: .95rem; color: var(--muted); }
-      .section { margin-top: 1rem; }
-      .section h3 { font-size: 1.05rem; margin: 0 0 0.4rem 0; }
-      .separator { height: 1px; background: #eee; margin: 0.6rem 0; border: 0; }
-      ul { margin: 0; padding-left: 1.2rem; }
-      .bullets { padding-left: 1.1rem; }
-      .print-actions { text-align: right; margin-bottom: 0.5rem; }
-      button.print { padding: .5rem 1rem; font-size: 0.95rem; border: 1px solid #ccc; border-radius: 4px; background: #f7f7f7; cursor: pointer; }
-      @media (max-width: 600px) { .resume-page { padding: 0.75in; } }
+
+      /* Header section */
+      header {
+        margin-bottom: var(--sp-md);
+      }
+
+      .name {
+        font-size: var(--fs-name);
+        font-weight: 700;
+        margin: 0;
+        line-height: 1;
+      }
+
+      .title {
+        font-size: var(--fs-subtitle);
+        color: var(--text-secondary);
+        margin: var(--sp-xs) 0 0 0;
+        line-height: 1.1;
+      }
+
+      .contact {
+        margin-top: var(--margin-contact);
+        font-size: var(--fs-body);
+        color: var(--muted);
+        line-height: 1.1;
+      }
+
+      /* Content sections */
+      .section {
+        margin-top: var(--sp-xl);
+      }
+
+      .section h3 {
+        font-size: var(--fs-section-title);
+        margin: 0 0 var(--sp-sm) 0;
+        font-weight: 600;
+      }
+
+      .section p {
+        font-size: var(--fs-summary);
+        margin: 0;
+      }
+
+      .separator {
+        height: 1px;
+        background: var(--border);
+        margin: var(--sp-md) 0;
+        border: 0;
+      }
+
+      /* Lists */
+      ul {
+        margin: 0;
+        padding-left: var(--list-indent);
+      }
+
+      .bullets {
+        padding-left: var(--list-indent-alt);
+      }
+
+      li {
+        margin: var(--sp-xs) 0;
+        font-size: var(--fs-bullet);
+        line-height: 1.2;
+      }
+
+      /* Print actions */
+      .print-actions {
+        text-align: right;
+        margin-bottom: var(--sp-md);
+      }
+
+      button.print {
+        padding: 0.3rem 0.7rem;
+        font-size: 0.8rem;
+        border: 1px solid var(--border-button);
+        border-radius: 3px;
+        background: var(--bg-button);
+        cursor: pointer;
+      }
+
+      /* Utility classes */
+      .summary-text {
+        margin: 0;
+        font-size: var(--fs-summary);
+        color: var(--text-secondary);
+        line-height: 1.15;
+      }
+
+      .experience-items {
+        display: flex;
+        flex-direction: column;
+        gap: var(--sp-lg);
+      }
+
+      .experience-header {
+        font-weight: 600;
+        margin-bottom: var(--sp-xs);
+        line-height: 1.1;
+      }
+
+      .experience-description {
+        color: var(--muted);
+        font-weight: 400;
+        font-size: 0.75rem;
+      }
+
+      .experience-bullets {
+        margin: var(--sp-xs) 0;
+        padding-left: var(--list-indent);
+      }
+
+      .skill-list {
+        margin: 0;
+        font-size: var(--fs-body);
+      }
+
+      @media (max-width: 600px) {
+        .resume-page {
+          padding: var(--sp-mobile);
+        }
+      }
     </style>
   </head>
   <body>
@@ -58,7 +207,7 @@ if (resumeModule) {
       {resume?.professionalSummary ? (
         <>
           <section class="section" aria-label="Professional summary">
-            <p style="margin:0; font-size:0.98rem; color:#333;">{resume.professionalSummary}</p>
+            <p class="summary-text">{resume.professionalSummary}</p>
           </section>
           <hr class="separator" aria-label="section separator" />
         </>
@@ -67,8 +216,8 @@ if (resumeModule) {
       {resume?.skills?.favorite?.length ? (
         <>
           <section class="section" aria-label="Skills">
-            <h3>Core Skills</h3>
-            <p style="margin:0;">{resume.skills.favorite.slice(0, 12).join(', ')}</p>
+            <h3>Favorite Tools</h3>
+            <p class="skill-list">{resume.skills.favorite.slice(0, 12).join(', ')}</p>
           </section>
           <hr class="separator" aria-label="section separator" />
         </>
@@ -78,12 +227,12 @@ if (resumeModule) {
         <>
           <section class="section" aria-label="Experience">
             <h3>Experience</h3>
-            <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+            <div class="experience-items">
               {(resume.experiences).map((e: any) => (
                 <div>
-                  <div style="font-weight: 600; margin-bottom: 0.2rem;">{e.title} — {e.role} <span style="color: var(--muted); font-weight: 400;">({e.desc})</span></div>
-                  <ul style="margin: 0.3rem 0; padding-left: 1.2rem;">
-                    {e.info?.map((bullet: string) => <li style="margin: 0.2rem 0; font-size: 0.93rem;">{bullet}</li>)}
+                  <div class="experience-header">{e.title} — {e.role} <span class="experience-description">({e.desc})</span></div>
+                  <ul class="experience-bullets">
+                    {e.info?.map((bullet: string) => <li>{bullet}</li>)}
                   </ul>
                 </div>
               ))}
@@ -96,8 +245,8 @@ if (resumeModule) {
       {resume?.achievements?.length ? (
         <section class="section" aria-label="Achievements">
           <h3>Achievements</h3>
-          <ul style="margin: 0; padding-left: 1.2rem;">
-            {resume.achievements.map((a: string) => <li style="margin: 0.2rem 0; font-size: 0.93rem;">{a}</li>)}
+          <ul class="skill-list">
+            {resume.achievements.map((a: string) => <li>{a}</li>)}
           </ul>
         </section>
       ) : null}
