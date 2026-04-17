@@ -1,0 +1,121 @@
+{
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:proxy.golang.org)",
+      "WebFetch(domain:sum.golang.org)",
+      "WebFetch(domain:golang.org)",
+      "WebFetch(domain:gopkg.in)",
+      "WebFetch(domain:go.googlesource.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:api.github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(go build:*)",
+      "Bash(go test:*)",
+      "Bash(go run:*)",
+      "Bash(go fmt:*)",
+      "Bash(go vet:*)",
+      "Bash(go get:*)",
+      "Bash(go mod:*)",
+      "Bash(go env:*)",
+      "Bash(go install:*)",
+      "Bash(git add:*)",
+      "Bash(git ls:*)",
+      "Bash(git commit:*)",
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(git push:*)",
+      "Bash(git stash:*)",
+      "Bash(git branch:*)",
+      "Bash(git checkout:*)",
+      "Bash(git merge:*)",
+      "Bash(git remote:*)",
+      "Bash(git fetch:*)",
+      "Bash(git rebase:*)",
+      "Bash(git tag:*)",
+      "Bash(./scripts/*.sh:*)",
+      "Bash(docker:*)",
+      "Bash(docker compose:*)",
+      "Bash(psql:*)",
+      "Bash(goose:*)",
+      "Bash(curl:*)",
+      "Bash(gh:*)",
+      "Bash(jq:*)",
+      "Bash(bc:*)",
+      "Bash(basename:*)",
+      "Bash(printf:*)",
+      "Bash(echo:*)",
+      "Bash(bash:*)",
+      "Bash(sh:*)",
+      "Bash(cat:*)",
+      "Bash(grep:*)",
+      "Bash(sed:*)",
+      "Bash(awk:*)",
+      "Skill(agent-browser:agent-browser)",
+      "Bash(agent-browser --auto-connect open 'http://localhost:*)",
+      "Bash(agent-browser --auto-connect wait --load networkidle)",
+      "Bash(agent-browser --auto-connect network requests --type xhr,fetch)",
+      "Bash(agent-browser network:*)",
+      "Bash(agent-browser open:*)"
+    ],
+    "defaultMode": "auto"
+  },
+  "hooks": {},
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline-command.sh"
+  },
+  "enabledPlugins": {
+    "gopls-lsp@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true,
+    "agent-browser@agent-browser": true,
+    "claude-md-management@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true,
+    "feature-dev@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true,
+    "bencium-controlled-ux-designer@bencium-marketplace": true,
+    "bencium-impact-designer@bencium-marketplace": true,
+    "bencium-innovative-ux-designer@bencium-marketplace": true,
+    "design-audit@bencium-marketplace": true,
+    "human-architect-mindset@bencium-marketplace": true,
+    "negentropy-lens@bencium-marketplace": true,
+    "relationship-design@bencium-marketplace": true,
+    "renaissance-architecture@bencium-marketplace": true,
+    "typography@bencium-marketplace": true,
+    "caveman@caveman": true
+  },
+  "extraKnownMarketplaces": {
+    "claude-plugins-official": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-plugins-official"
+      }
+    },
+    "agent-browser": {
+      "source": {
+        "source": "git",
+        "url": "https://github.com/vercel-labs/agent-browser.git"
+      }
+    },
+    "bencium-marketplace": {
+      "source": {
+        "source": "github",
+        "repo": "bencium/bencium-marketplace"
+      }
+    },
+    "caveman": {
+      "source": {
+        "source": "github",
+        "repo": "JuliusBrussee/caveman"
+      }
+    }
+  },
+  "effortLevel": "medium",
+  "skipAutoPermissionPrompt": true
+}
