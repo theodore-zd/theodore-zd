@@ -138,7 +138,7 @@ const resumeData = {
   linkedin: "https://www.linkedin.com/in/theodore-zurek-dunne-37885b164/",
   portfolioUrl: "https://zurek-dunne.dev",
   resumeUrl: "/Theodore_Zurek-Dunne_Resume-2026.pdf",
-  professionalSummary: `Senior Software Engineer with 9+ years of experience building fast, scalable full-stack applications. I work primarily with TypeScript, Go, React, Svelte, and Next.js. I’ve led Node.js to Go migrations that significantly cut latency and infrastructure costs, built design systems that sped up team delivery, and led UI overhauls that improved user testing scores while reducing support tickets. I focus on making systems perform better and run cheaper without sacrificing a smooth user experience.`,
+  professionalSummary: `Senior Software Engineer with over 9 years of experience working with TypeScript, Go, React, and Svelte to deliver fast, scalable systems. Led Node.js→Go migrations cutting latency and costs, built design systems, shipped UX improvements boosting adoption.`,
   location,
   availability,
   engagementType,
@@ -223,7 +223,7 @@ const resumeData = {
         "Implemented REST endpoints & UI interfaces around complex computational models on an event-driven architecture using Python micro-services.",
         "Developed design systems and reusable components, reducing development time by 33% and decreasing technical debt by 42%.",
         "Built multi-tenant access controls, real-time collaboration features, and approval workflows.",
-        "Ensured SOC 2 compliance, enhancing data security.",
+        "Corroborated to ensure ensure SOC 2 compliance, enhancing data security.",
       ],
     },
     {
