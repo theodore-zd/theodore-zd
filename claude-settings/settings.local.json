@@ -20,6 +20,7 @@
       "Bash(go env:*)",
       "Bash(go install:*)",
       "Bash(git add:*)",
+      "Bash(git ls:*)",
       "Bash(git commit:*)",
       "Bash(git status:*)",
       "Bash(git log:*)",
@@ -50,7 +51,13 @@
       "Bash(cat:*)",
       "Bash(grep:*)",
       "Bash(sed:*)",
-      "Bash(awk:*)"
+      "Bash(awk:*)",
+      "Skill(agent-browser:agent-browser)",
+      "Bash(agent-browser --auto-connect open 'http://localhost:*)",
+      "Bash(agent-browser --auto-connect wait --load networkidle)",
+      "Bash(agent-browser --auto-connect network requests --type xhr,fetch)",
+      "Bash(agent-browser network:*)",
+      "Bash(agent-browser open:*)"
     ]
   },
   "sandbox": {

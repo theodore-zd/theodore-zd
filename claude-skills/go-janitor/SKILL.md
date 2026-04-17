@@ -7,104 +7,104 @@ description: |
 
 # Dead Code Hunter (Go)
 
-You are performing a deep, aggressive code audit of a Go codebase focused on finding and removing dead code. The user wants their codebase lean — if something isn't being used, it goes. This isn't about style or formatting; it's about eliminating code that serves no purpose.
+Deep aggressive audit of Go codebase. Hunt dead code. User want lean — unused = gone. Not style/formatting; eliminate purposeless code.
 
 ## What you're hunting for
 
-In priority order:
+Priority order:
 
 ### 1. Dead files
 
-Files that nothing imports or references. These are the biggest wins — entire files the project doesn't need.
+Files nothing imports or references. Biggest wins — whole files project no need.
 
 **How to find them:**
-- Grep for the package name + symbol usage across the project
-- Check if the file's package is imported anywhere (for non-`main` packages)
-- For files in a `main` package, check if any symbols defined in the file are used by other files in the same package
+- Grep package name + symbol usage across project
+- Check if file's package imported anywhere (non-`main` packages)
+- For `main` package files, check if symbols used by other files in same package
 
 **Watch out for:**
-- Files that only contain `init()` — these run on import and may have side effects
-- Files with `//go:build` tags — they may only compile on certain platforms or with certain tags
-- Files ending in `_test.go` — test files are used by `go test`, not imports
-- Files matching `*_generated.go` or containing `// Code generated` — these are managed by generators, not humans
-- `doc.go` files that exist only for package documentation
-- Files containing `//go:embed` directives that other files reference
-- `main.go` and other entry points under `cmd/`
+- Files only containing `init()` — run on import, side effects possible
+- Files with `//go:build` tags — may only compile on certain platforms/tags
+- Files ending `_test.go` — used by `go test`, not imports
+- Files matching `*_generated.go` or containing `// Code generated` — generator-managed
+- `doc.go` files — exist for package docs only
+- Files with `//go:embed` directives other files reference
+- `main.go` and entry points under `cmd/`
 
 ### 2. Unused exported symbols
 
-Exported functions, types, constants, or variables (capitalized names) that nothing outside the package uses. These are particularly insidious because the compiler won't catch them — Go only errors on unused *imports* and *local variables*, not unused exports.
+Exported functions, types, constants, variables (capitalized) nothing outside package uses. Insidious — compiler no catch. Go errors on unused *imports* and *local variables* only, not exports.
 
 **How to find them:**
-- For each exported symbol, grep the entire project for `packagename.SymbolName`
-- Check for indirect usage: type assertions (`x.(MyType)`), composite literals (`MyStruct{}`), embedded types
-- Search for usage in `_test.go` files in *other* packages (external test packages like `package foo_test`)
+- For each exported symbol, grep project for `packagename.SymbolName`
+- Check indirect usage: type assertions (`x.(MyType)`), composite literals (`MyStruct{}`), embedded types
+- Search usage in `_test.go` files in *other* packages (external test packages like `package foo_test`)
 
 **Watch out for:**
-- Symbols that satisfy an interface — a method might look unused but could be required by `io.Reader`, `http.Handler`, `sort.Interface`, `encoding.TextMarshaler`, or a project-specific interface. Before removing a method, check if the receiver type is ever used where an interface is expected
-- Symbols used via reflection (`reflect.ValueOf`, `reflect.TypeOf`) — grep for the symbol name as a string too
-- Symbols referenced in struct tags (e.g., `json:"field"`, `mapstructure:"field"`, `validate:"required"`)
-- Symbols used in `//go:linkname` directives
-- Symbols that are part of the public API of a library package (if the project is a library, exported symbols *are* the product)
-- Symbols registered as handlers: HTTP handlers (`http.HandleFunc`), gRPC service registrations, CLI command registrations (cobra, urfave/cli)
-- Symbols used in wire/fx dependency injection containers
-- Protobuf/gRPC generated code — don't touch generated files
+- Symbols satisfying interface — method may look unused but required by `io.Reader`, `http.Handler`, `sort.Interface`, `encoding.TextMarshaler`, or project interface. Before remove method, check if receiver type used where interface expected
+- Symbols used via reflection (`reflect.ValueOf`, `reflect.TypeOf`) — grep symbol name as string too
+- Symbols in struct tags (e.g., `json:"field"`, `mapstructure:"field"`, `validate:"required"`)
+- Symbols in `//go:linkname` directives
+- Symbols part of public API of library package (if project is library, exported symbols *are* the product)
+- Symbols registered as handlers: HTTP (`http.HandleFunc`), gRPC service, CLI command (cobra, urfave/cli)
+- Symbols in wire/fx DI containers
+- Protobuf/gRPC generated code — no touch generated files
 
 ### 3. Unused unexported functions and methods
 
-Unexported (lowercase) functions defined but never called within their package.
+Unexported (lowercase) functions defined but never called within package.
 
 **How to find them:**
-- Search within the package directory for call sites: `functionName(`
-- For methods, search for `.methodName(`
-- Check if the function is passed as a value: `http.HandlerFunc(myFunc)`, `sort.Slice(s, myLessFunc)`, goroutine launches `go myFunc()`
+- Search package dir for call sites: `functionName(`
+- Methods: search `.methodName(`
+- Check if passed as value: `http.HandlerFunc(myFunc)`, `sort.Slice(s, myLessFunc)`, goroutine `go myFunc()`
 
 **Watch out for:**
-- Functions used as arguments to higher-order functions
+- Functions as args to higher-order functions
 - Functions assigned to variables or struct fields (function values)
-- Methods that satisfy unexported interfaces within the package
-- Test helpers in `_test.go` files that are only called from tests
-- Functions used in `go:linkname` directives
+- Methods satisfying unexported interfaces within package
+- Test helpers in `_test.go` only called from tests
+- Functions in `go:linkname` directives
 
 ### 4. Unused variables and constants
 
-Declared but never read. Go catches unused *local* variables at compile time, so what you're looking for here is:
+Declared but never read. Go catches unused *local* variables at compile time, so target:
 
-- **Package-level variables** (`var x = ...` at file scope) that nothing reads
-- **Package-level constants** defined "for later" that later never came
-- **Struct fields** that nothing reads or writes — be cautious here, as fields may be populated via JSON unmarshaling, database scanning, or reflection
-- **Enum-style const blocks** where some values are never referenced
+- **Package-level variables** (`var x = ...` at file scope) nothing reads
+- **Package-level constants** defined "for later" that never came
+- **Struct fields** nothing reads/writes — careful, may be populated via JSON unmarshal, DB scan, reflection
+- **Enum-style const blocks** where some values never referenced
 
 **Watch out for:**
 - Variables used in `init()` functions
-- Variables that hold side effects (e.g., `var _ Interface = (*Type)(nil)` for compile-time interface checks — these are intentional)
-- Constants used in build-tagged files you might not see
-- Struct fields populated by `json.Unmarshal`, `sql.Scan`, `mapstructure.Decode`, or similar
+- Variables holding side effects (e.g., `var _ Interface = (*Type)(nil)` for compile-time interface checks — intentional)
+- Constants in build-tagged files you might not see
+- Struct fields populated by `json.Unmarshal`, `sql.Scan`, `mapstructure.Decode`, similar
 
 ### 5. Dead imports
 
-Go catches unused imports at compile time, so what slips through is subtler:
+Go catches unused imports at compile time; subtler slips through:
 
-- **Blank imports** (`_ "package/path"`) that aren't actually needed. These exist for side effects (registering drivers, codecs, etc.). Check if the side effect is still needed — e.g., `_ "image/png"` registers the PNG decoder, but if nothing decodes PNGs anymore, it's dead
-- **Dot imports** (`. "package/path"`) — these pollute the namespace and can mask what's actually used
-- **Import blocks** in generated files that reference packages no longer needed after manual edits (don't edit generated files — flag them instead)
+- **Blank imports** (`_ "package/path"`) not actually needed. Exist for side effects (registering drivers, codecs). Check side effect still needed — e.g., `_ "image/png"` registers PNG decoder, but if nothing decodes PNGs, dead
+- **Dot imports** (`. "package/path"`) — pollute namespace, mask what's actually used
+- **Import blocks** in generated files referencing packages no longer needed after manual edits (no edit generated files — flag instead)
 
 ### 6. Commented-out code blocks
 
-Large blocks of commented-out code are dead code with extra steps. If it's in version control, it's recoverable — the comment serves no purpose. Remove it. Short explanatory comments are fine; the target is commented-out *code* (look for commented lines containing `:=`, `func `, `if `, `for `, `return `, etc.).
+Big commented-out blocks = dead code with extra steps. Version control = recoverable; comment serves no purpose. Remove. Short explanatory comments fine; target commented-out *code* (look for commented lines containing `:=`, `func `, `if `, `for `, `return `, etc.).
 
 ### 7. Unreachable code
 
-Code after unconditional `return`, `panic`, `os.Exit`, or `log.Fatal` calls. Also includes:
-- Switch/select cases that can never match
-- `if false { ... }` blocks or conditions that are always true/false based on constants
-- Error handling branches for errors that are impossible given the preceding code
+Code after unconditional `return`, `panic`, `os.Exit`, `log.Fatal`. Also:
+- Switch/select cases that never match
+- `if false { ... }` blocks or conditions always true/false based on constants
+- Error handling branches for impossible errors given preceding code
 
 ## How to work
 
 ### Step 1: Use Go tooling first
 
-Before doing manual analysis, run the tools that can catch things mechanically. This saves time and catches the obvious stuff so you can focus on the harder cross-package analysis.
+Before manual analysis, run tools that catch things mechanically. Saves time, catches obvious stuff, lets you focus on harder cross-package work.
 
 ```bash
 # Compile check — catches unused imports and variables
@@ -122,42 +122,42 @@ staticcheck ./... 2>/dev/null || echo "staticcheck not installed"
 deadcode ./... 2>/dev/null || echo "deadcode not installed"
 ```
 
-If `staticcheck` or `deadcode` aren't installed, that's fine — note it and proceed with manual analysis. Don't try to install them unless the user asks.
+`staticcheck` or `deadcode` not installed? Fine — note it, proceed manually. No install unless user asks.
 
 ### Step 2: Scope the hunt
 
-- If the user points you at specific files or packages, focus there
-- If no specific scope is given, check recently changed files: `git diff --name-only HEAD~10 -- '*.go'`
-- For whole-repo sweeps, start with the highest-impact items: dead files and dead packages first, then unused exports, then work down the list
+- User points at specific files/packages → focus there
+- No scope given → check recently changed files: `git diff --name-only HEAD~10 -- '*.go'`
+- Whole-repo sweeps → highest-impact first: dead files and packages, then unused exports, then down the list
 
 ### Step 3: Cross-package analysis
 
-This is where you add value beyond what tools catch. Think like a detective:
+Where you add value beyond tools. Think detective:
 
-1. **Map the package graph.** Understand which packages import which. Start from `cmd/*/main.go` or the main entry points and work outward. Packages that nothing imports (except tests) are candidates for removal.
+1. **Map package graph.** Understand which packages import which. Start from `cmd/*/main.go` or main entry points, work outward. Packages nothing imports (except tests) = removal candidates.
 
-2. **Use the Grep tool as your primary weapon.** For every suspect symbol, search the entire project using the Grep tool (not raw `grep` in bash — the Grep tool handles permissions and access correctly):
-   - Search for `packagename\.FunctionName` with glob `*.go` to find exported function usage
-   - Search for `TypeName` with glob `*.go` to find type usage (including type assertions and composite literals)
-   - Search for the symbol name as a plain string too — it might be referenced via reflection or struct tags
+2. **Grep tool = primary weapon.** For every suspect symbol, search whole project with Grep tool (not raw `grep` in bash — Grep tool handles permissions correctly):
+   - Search `packagename\.FunctionName` with glob `*.go` for exported function usage
+   - Search `TypeName` with glob `*.go` for type usage (including type assertions and composite literals)
+   - Search symbol name as plain string too — may be referenced via reflection or struct tags
 
-3. **Use `gopls` if the LSP tool is available.** LSP `references` and `implementations` queries are more reliable than text search for finding all callers of a function or all implementors of an interface, because they understand Go's type system. Fall back to Grep when LSP is unavailable.
+3. **Use `gopls` if LSP tool available.** LSP `references` and `implementations` queries more reliable than text search for finding callers/implementors — they understand Go's type system. Fall back to Grep when LSP unavailable.
 
-4. **Follow the dependency chain.** Removing one unused function may make others unused too. After each removal, check if anything else became orphaned — especially imports that were only needed for the removed code.
+4. **Follow dependency chain.** Removing one unused function may orphan others. After each removal, check what became orphaned — especially imports only needed for removed code.
 
-5. **Check the interface contract.** Before removing any method, verify using Grep:
-   - Search for `interface \{` with glob `*.go` and check surrounding lines for `MethodName`
-   - Search for assignments where the type is used as an interface: `var.*InterfaceName.*=.*&TypeName`
+5. **Check interface contract.** Before removing method, verify with Grep:
+   - Search `interface \{` with glob `*.go`, check surrounding lines for `MethodName`
+   - Search assignments where type used as interface: `var.*InterfaceName.*=.*&TypeName`
 
 ### Step 4: Make changes
 
-Be aggressive but precise:
+Aggressive but precise:
 
-- **Remove dead code entirely** — don't comment it out, don't leave `// removed: oldFunction` markers
-- **Clean up cascading dead imports** — after removing code, `goimports` or `go build` will tell you what imports are now unused
-- **Remove dead files completely** — if removing exports from a file leaves it empty or purposeless, delete the file
-- **After removing code, run `go build ./...`** to verify everything still compiles
-- **Run `go vet ./...`** after changes to catch anything you missed
+- **Remove dead code entirely** — no comment out, no `// removed: oldFunction` markers
+- **Clean cascading dead imports** — after removing code, `goimports` or `go build` reveal newly unused imports
+- **Remove dead files completely** — if removing exports leaves file empty/purposeless, delete file
+- **After removing code, run `go build ./...`** to verify still compiles
+- **Run `go vet ./...`** after changes to catch misses
 
 ### Step 5: Verify
 
@@ -176,7 +176,7 @@ go vet ./...
 
 ## Go-specific traps to avoid
 
-These are the things that look like dead code but aren't. Getting these wrong breaks the build or causes subtle runtime failures:
+Things that look dead but aren't. Wrong = broken build or subtle runtime failures:
 
 | Pattern | Why it's not dead |
 |---------|-------------------|
@@ -195,7 +195,7 @@ These are the things that look like dead code but aren't. Getting these wrong br
 
 ## Output format
 
-After making changes, provide a concise summary:
+After changes, concise summary:
 
 ```
 ## Dead Code Removed
@@ -222,4 +222,4 @@ After making changes, provide a concise summary:
 - [ ] `go test ./...` (run to confirm)
 ```
 
-Keep the summary focused on what was removed and why. The "why" for each removal gives the user confidence that nothing important was deleted.
+Summary focused on what removed and why. "Why" per removal = confidence nothing important deleted.

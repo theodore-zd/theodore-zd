@@ -16,25 +16,25 @@ compatibility: |
 
 # Go Test Reviewer
 
-Review Go tests for gaps, inaccurate assertions, and quality issues. Focus on **accuracy over percentage** — a codebase with 60% coverage of carefully-tested critical paths is healthier than 90% coverage of trivial happy paths.
+Review Go tests for gaps, wrong assertions, quality issues. Focus **accuracy over percentage** — 60% coverage of critical paths healthier than 90% of trivial happy paths.
 
 ## Workflow
 
 ### Step 1: Discover the code under test
 
-Start by understanding what you're reviewing:
+Understand what you review:
 
-1. Read the `*_test.go` file(s) the user provided (or find all test files in the given directory)
-2. Check the `package` declaration — is it the same package (white-box) or `_test` suffix (black-box)?
-3. Find the source files being tested:
-   - List non-test `.go` files in the same directory
-   - Follow function calls in tests back to their definitions using Grep
-   - Check imports for internal packages being exercised
-4. Read the source files so you understand what the code actually does before judging the tests
+1. Read `*_test.go` file(s) user gave (or find all test files in directory)
+2. Check `package` decl — same package (white-box) or `_test` suffix (black-box)?
+3. Find source files tested:
+   - List non-test `.go` files in same directory
+   - Follow function calls in tests back to definitions via Grep
+   - Check imports for internal packages exercised
+4. Read source files before judging tests
 
 ### Step 2: Run Go tooling
 
-Before doing manual analysis, get baseline data from Go's built-in tools. This grounds your review in real numbers rather than guesswork.
+Get baseline from Go built-in tools before manual analysis. Grounds review in real numbers.
 
 ```bash
 # Coverage baseline — what percentage of statements are exercised?
@@ -50,43 +50,43 @@ go test -race ./path/to/package/... -count=1
 go test ./path/to/package/...
 ```
 
-If any command fails, that's a finding. Report it. If coverage is below 50%, call that out prominently.
+Any command fails → finding. Report it. Coverage below 50% → call out loud.
 
 ### Step 3: Build a function-to-test map
 
-This is where you add value beyond what tools catch:
+Where you add value beyond tools:
 
-1. List every exported and unexported function/method in the source files
-2. For each, search the test files for corresponding test coverage
-3. Categorize each function:
-   - **Untested** — no test calls it at all
-   - **Smoke-tested** — called but results aren't checked, or only happy path
+1. List every exported/unexported function/method in source
+2. For each, search tests for coverage
+3. Categorize:
+   - **Untested** — no test calls it
+   - **Smoke-tested** — called but results unchecked, or only happy path
    - **Partially tested** — some paths covered, others missing
-   - **Well tested** — happy path, error cases, and edge cases covered
-4. Pay special attention to:
-   - Functions that return `error` — is the error path tested?
-   - Functions with multiple code paths (if/switch) — are all branches exercised?
-   - Public API surface — exported functions need more thorough testing
+   - **Well tested** — happy path, errors, edge cases covered
+4. Watch:
+   - Functions returning `error` — error path tested?
+   - Functions with multiple paths (if/switch) — all branches hit?
+   - Public API — exported functions need thorough tests
 
 ### Step 4: Analyze test quality
 
-For each test function, check:
+For each test, check:
 
-- **Assertions exist** — does the test actually verify something, or just call code and hope it doesn't panic?
-- **Assertions are meaningful** — `if err != nil` is good, but does it also check the returned value?
-- **Table-driven test opportunities** — if you see 3+ test functions with the same structure but different inputs, suggest consolidating into a table-driven test
-- **`t.Helper()`** — are helper functions marked so failure output points to the right line?
-- **`t.Parallel()`** — could independent tests run in parallel for faster feedback?
-- **`t.Run()` subtests** — are subtest names descriptive enough to identify failures?
-- **`t.Fatal` vs `t.Error`** — is the test continuing after a failure that should abort? (e.g., nil-checking a pointer then dereferencing it)
-- **Cleanup** — are resources cleaned up with `t.Cleanup()` or deferred calls?
-- **Hardcoded values** — magic numbers/strings that should be named constants or test fixtures
+- **Assertions exist** — test verifies something, or just runs code hoping no panic?
+- **Assertions meaningful** — `if err != nil` good, but return value also checked?
+- **Table-driven opportunities** — 3+ tests same structure, different inputs → consolidate
+- **`t.Helper()`** — helpers marked so failure points to right line?
+- **`t.Parallel()`** — independent tests run parallel for faster feedback?
+- **`t.Run()` subtests** — subtest names descriptive enough to ID failures?
+- **`t.Fatal` vs `t.Error`** — test continuing after failure that should abort? (e.g. nil-check pointer then deref)
+- **Cleanup** — resources cleaned via `t.Cleanup()` or defer?
+- **Hardcoded values** — magic numbers/strings should be named constants or fixtures
 
 ### Step 5: Check Go-specific patterns
 
-Go has strong testing idioms. Flag deviations and suggest improvements:
+Go strong test idioms. Flag deviations, suggest fixes:
 
-**Table-driven tests** — Go's most important testing pattern. When appropriate, recommend this structure:
+**Table-driven tests** — Go's most important pattern. Recommend:
 
 ```go
 func TestParseSize(t *testing.T) {
@@ -117,17 +117,17 @@ func TestParseSize(t *testing.T) {
 }
 ```
 
-**Other patterns to check:**
-- **TestMain** — is there setup/teardown that should use `TestMain` instead of being duplicated across tests?
-- **Interface compliance** — are there `var _ Interface = (*Type)(nil)` checks for types that must satisfy interfaces?
-- **Benchmark tests** — for performance-critical code, are there `Benchmark*` functions?
-- **Example tests** — for public APIs, are there `Example*` functions that serve as documentation?
-- **Race conditions** — does concurrent code have tests that exercise parallel access?
-- **Golden files** — for complex output, are golden file patterns used instead of inline expected strings?
+**Other patterns:**
+- **TestMain** — setup/teardown duplicated across tests should use `TestMain`?
+- **Interface compliance** — `var _ Interface = (*Type)(nil)` checks for types needing interfaces?
+- **Benchmark tests** — perf-critical code has `Benchmark*` functions?
+- **Example tests** — public APIs have `Example*` as docs?
+- **Race conditions** — concurrent code tested with parallel access?
+- **Golden files** — complex output uses golden files vs inline expected strings?
 
 ## Output Template
 
-ALWAYS structure your report using this template:
+ALWAYS use this template:
 
 ```markdown
 # Test Review: [package name]
@@ -165,4 +165,4 @@ ALWAYS structure your report using this template:
 [Easiest improvements that deliver the most value, bulleted list]
 ```
 
-Adapt the template as needed — skip sections that have no findings, expand sections that have many. The structure exists to keep the review scannable, not to force empty sections.
+Adapt as needed — skip empty sections, expand full ones. Structure keeps review scannable, not forces empty sections.
