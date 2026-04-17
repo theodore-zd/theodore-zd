@@ -1,0 +1,33 @@
+---
+import { getCollection } from "astro:content"
+import SectionLabel from "./SectionLabel.astro"
+import BlogCard from "./BlogCard.astro"
+
+const posts = (
+    await getCollection("blog", ({ data }) => import.meta.env.PROD ? !data.draft : true)
+)
+    .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+    .slice(0, 3)
+---
+
+<section id="blog" class="border-b border-border py-24">
+    <div class="mx-auto max-w-6xl px-6">
+        <div class="mb-12 flex items-end justify-between gap-4">
+            <SectionLabel label="blog" />
+            <a
+                href="/blog"
+                class="mb-5 text-sm text-muted-foreground transition-colors hover:text-primary link-underline"
+            >
+                All posts <span class="text-2xl mb-1">→</span>
+            </a>
+        </div>
+
+        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {posts.map((post, index) => (
+                <div class:list={["h-full animate-fade-up", `delay-${((index % 3) + 1) * 100}`]}>
+                    <BlogCard post={post} />
+                </div>
+            ))}
+        </div>
+    </div>
+</section>

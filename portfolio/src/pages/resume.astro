@@ -99,6 +99,15 @@ if (resumeModule) {
         line-height: 1.1;
       }
 
+      .contact a {
+        color: #0969da;
+        text-decoration: none;
+      }
+
+      .contact a:hover {
+        text-decoration: underline;
+      }
+
       /* Content sections */
       .section {
         margin-top: var(--sp-xl);
@@ -201,7 +210,15 @@ if (resumeModule) {
       <header>
         <h1 class="name">{resume?.name ?? ''}</h1>
         <div class="title">{resume?.seniority ?? ''} | {resume?.yearsExperience ?? ''}</div>
-        <div class="contact">{[resume?.location, resume?.email, resume?.phone].filter(Boolean).join(' • ')}</div>
+        <div class="contact">
+          {resume?.location && <span>{resume.location}</span>}
+          {resume?.email && <span>•</span>}
+          {resume?.email && <a href={`mailto:${resume.email}`}>{resume.email}</a>}
+          {resume?.linkedin && <span>•</span>}
+          {resume?.linkedin && <a href={resume.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>}
+          {resume?.portfolioUrl && <span>•</span>}
+          {resume?.portfolioUrl && <a href={resume.portfolioUrl} target="_blank" rel="noopener noreferrer">Portfolio</a>}
+        </div>
       </header>
 
       {resume?.professionalSummary ? (

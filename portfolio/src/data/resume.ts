@@ -80,6 +80,7 @@ export interface Resume {
   phone?: string
   github: string
   linkedin: string
+  portfolioUrl: string
   resumeUrl: string
   professionalSummary: string
   location: string
@@ -133,10 +134,10 @@ const resumeData = {
     "DevOps: Docker, CI/CD, cloud deployment",
   ],
   email: "99theodore@gmail.com",
-  phone: "+1 (555) 010-9876",
   github: "https://github.com/theodore-zd",
   linkedin: "https://www.linkedin.com/in/theodore-zurek-dunne-37885b164/",
-  resumeUrl: "/Theodore_Zurek-Dunne_Resume-2025.pdf",
+  portfolioUrl: "https://zurek-dunne.dev",
+  resumeUrl: "/Theodore_Zurek-Dunne_Resume-2026.pdf",
   professionalSummary: `Seasoned software engineer delivering fast, reliable, scalable full-stack solutions. Expert in TypeScript, Go, Python, and modern cloud architectures. I collaborate with cross-functional teams to translate complex requirements into high-quality software that drives business results and measurable impact.`,
   location,
   availability,

@@ -1,0 +1,130 @@
+---
+import Layout from "@/layouts/main.astro"
+import { getCollection, render } from "astro:content"
+import type { GetStaticPaths } from "astro"
+
+export const getStaticPaths = (async () => {
+    const posts = await getCollection("blog", ({ data }) =>
+        import.meta.env.PROD ? !data.draft : true
+    )
+    return posts.map((post) => ({
+        params: { slug: post.id },
+        props: { post },
+    }))
+}) satisfies GetStaticPaths
+
+const { post } = Astro.props
+const { Content } = await render(post)
+
+function formatDate(date: Date) {
+    return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+    })
+}
+---
+
+<Layout title={post.data.title} description={post.data.description}>
+    <section class="border-b border-border py-24">
+        <div class="mx-auto max-w-3xl px-6">
+            <a href="/blog" class="text-xs font-mono text-muted-foreground link-underline">
+                ← back to blog
+            </a>
+
+            <header class="mt-8 mb-10">
+                <div class="flex flex-wrap items-center gap-3 mb-3">
+                    <time class="text-xs font-mono text-muted-foreground">
+                        {formatDate(post.data.date)}
+                    </time>
+                    {post.data.readTime && (
+                        <>
+                            <span class="text-xs text-muted-foreground">·</span>
+                            <span class="text-xs text-muted-foreground">{post.data.readTime}</span>
+                        </>
+                    )}
+                </div>
+                <h1 class="text-3xl md:text-4xl font-bold mb-4">{post.data.title}</h1>
+                <p class="text-muted-foreground">{post.data.description}</p>
+                {post.data.thumbnail && (
+                    <img
+                        src={post.data.thumbnail}
+                        alt={post.data.thumbnailAlt ?? post.data.title}
+                        class="mt-8 w-full rounded-lg border border-border object-cover aspect-[16/9]"
+                    />
+                )}
+                {post.data.tags.length > 0 && (
+                    <div class="flex flex-wrap gap-1.5 mt-5">
+                        {post.data.tags.map((tag) => (
+                            <span class="inline-flex items-center rounded-md bg-muted/50 px-2 py-0.5 text-xs text-muted-foreground">
+                                {tag}
+                            </span>
+                        ))}
+                    </div>
+                )}
+            </header>
+
+            <article class="post-body">
+                <Content />
+            </article>
+        </div>
+    </section>
+</Layout>
+
+<style is:global>
+    .post-body {
+        line-height: 1.7;
+    }
+    .post-body h2 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-top: 2.5rem;
+        margin-bottom: 1rem;
+    }
+    .post-body h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-top: 2rem;
+        margin-bottom: 0.75rem;
+    }
+    .post-body p {
+        margin-bottom: 1.25rem;
+    }
+    .post-body a {
+        color: var(--color-primary);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+    }
+    .post-body ul,
+    .post-body ol {
+        margin: 1.25rem 0;
+        padding-left: 1.5rem;
+    }
+    .post-body ul { list-style: disc; }
+    .post-body ol { list-style: decimal; }
+    .post-body li { margin-bottom: 0.4rem; }
+    .post-body code {
+        font-family: var(--font-mono, monospace);
+        background: var(--color-muted, rgba(127,127,127,0.15));
+        padding: 0.1em 0.35em;
+        border-radius: 0.25rem;
+        font-size: 0.9em;
+    }
+    .post-body pre {
+        background: var(--color-muted, rgba(127,127,127,0.1));
+        padding: 1rem;
+        border-radius: 0.5rem;
+        overflow-x: auto;
+        margin: 1.5rem 0;
+    }
+    .post-body pre code {
+        background: transparent;
+        padding: 0;
+    }
+    .post-body blockquote {
+        border-left: 3px solid var(--color-border, #333);
+        padding-left: 1rem;
+        color: var(--color-muted-foreground, #888);
+        margin: 1.5rem 0;
+    }
+</style>

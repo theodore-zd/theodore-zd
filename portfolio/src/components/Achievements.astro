@@ -1,0 +1,21 @@
+---
+import { resume } from "@/data/resume"
+import SectionLabel from "./SectionLabel.astro"
+import BasicCard from "./BasicCard.astro"
+
+const achievements = resume.achievements
+---
+
+<section class="border-b border-border py-24">
+    <div class="mx-auto max-w-6xl px-6">
+        <SectionLabel label="achievements" />
+
+        <div class="grid gap-4 text-muted-foreground md:grid-cols-3">
+            {achievements.map((achievement, index) => (
+                <BasicCard index={index}>
+                    {achievement}
+                </BasicCard>
+            ))}
+        </div>
+    </div>
+</section>
