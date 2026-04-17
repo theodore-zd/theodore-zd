@@ -55,35 +55,54 @@ if (resumeModule) {
 
       <header>
         <h1 class="name">{resume?.name ?? ''}</h1>
-        <div class="title">{resume?.title ?? ''}</div>
-        <div class="contact">{[(resume?.location), resume?.email, resume?.phone, resume?.linkedin, resume?.website].filter(Boolean).join(' • ')}</div>
+        <div class="title">{resume?.seniority ?? ''} | {resume?.yearsExperience ?? ''}</div>
+        <div class="contact">{[resume?.location, resume?.email, resume?.phone].filter(Boolean).join(' • ')}</div>
       </header>
 
-      {resume?.summary ? (
-        <section class="section" aria-label="Professional summary">
-          <p style="margin:0; font-size:0.98rem; color:#333;">{resume.summary}</p>
-        </section>
-      ) : null}
-      <hr class="separator" aria-label="section separator" />
-
-      {resume?.skills?.length ? (
-        <section class="section" aria-label="Skills">
-          <h3>Skills</h3>
-          <p style="margin:0;">{resume.skills.join(', ')}</p>
-        </section>
+      {resume?.professionalSummary ? (
+        <>
+          <section class="section" aria-label="Professional summary">
+            <p style="margin:0; font-size:0.98rem; color:#333;">{resume.professionalSummary}</p>
+          </section>
+          <hr class="separator" aria-label="section separator" />
+        </>
       ) : null}
 
-      {resume?.experience?.length ? (
-        <section class="section" aria-label="Experience">
-          <h3>Experience</h3>
-          <p style="margin:0;">{(resume.experience).map((e: any) => `${e.title ?? e.role ?? ''} at ${e.company ?? ''}${e.location ? ', ' + e.location : ''} (${e.period ?? ''})`).join(' | ')}</p>
-        </section>
+      {resume?.skills?.favorite?.length ? (
+        <>
+          <section class="section" aria-label="Skills">
+            <h3>Core Skills</h3>
+            <p style="margin:0;">{resume.skills.favorite.slice(0, 12).join(', ')}</p>
+          </section>
+          <hr class="separator" aria-label="section separator" />
+        </>
       ) : null}
 
-      {resume?.awards?.length ? (
-        <section class="section" aria-label="Awards">
-          <h3>Awards</h3>
-          <p style="margin:0;">{resume.awards.join(' | ')}</p>
+      {resume?.experiences?.length ? (
+        <>
+          <section class="section" aria-label="Experience">
+            <h3>Experience</h3>
+            <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+              {(resume.experiences).map((e: any) => (
+                <div>
+                  <div style="font-weight: 600; margin-bottom: 0.2rem;">{e.title} — {e.role} <span style="color: var(--muted); font-weight: 400;">({e.desc})</span></div>
+                  <ul style="margin: 0.3rem 0; padding-left: 1.2rem;">
+                    {e.info?.slice(0, 2).map((bullet: string) => <li style="margin: 0.2rem 0; font-size: 0.93rem;">{bullet}</li>)}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </section>
+          <hr class="separator" aria-label="section separator" />
+        </>
+      ) : null}
+
+      {resume?.achievements?.length ? (
+        <section class="section" aria-label="Achievements">
+          <h3>Achievements</h3>
+          <ul style="margin: 0; padding-left: 1.2rem;">
+            {resume.achievements.map((a: string) => <li style="margin: 0.2rem 0; font-size: 0.93rem;">{a}</li>)}
+          </ul>
         </section>
       ) : null}
     </main>
