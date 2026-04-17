@@ -73,7 +73,7 @@ export interface Resume {
   title: string
   tagline: string
   headline: string
-  valueProps: string[]
+  // valueProps: string[]
   /** Computed alias for first 8 items of skills.favorite */
   readonly coreStack: string[]
   email: string
@@ -127,12 +127,7 @@ const resumeData = {
   tagline:
     "Senior software engineer with 9+ years of experience delivering high-performance, scalable systems",
   headline:
-    "Senior Software Engineer | TypeScript, Go, Svelte, React | Building scalable, high‑performance full‑stack applications with measurable business impact.",
-  valueProps: [
-    "Frontend: React, Next.js, TypeScript, Tailwind, Svelte",
-    "Backend: Node.js, Python, Go, PostgreSQL, MongoDB",
-    "DevOps: Docker, CI/CD, cloud deployment",
-  ],
+    "Senior Software Engineer | Go, TypeScript, Svelte, React | Building scalable, high‑performance full‑stack applications with measurable business impact.",
   email: "99theodore@gmail.com",
   github: "https://github.com/theodore-zd",
   linkedin: "https://www.linkedin.com/in/theodore-zurek-dunne-37885b164/",

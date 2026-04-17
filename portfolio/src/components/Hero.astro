@@ -13,17 +13,19 @@ const { metaItems, impactBullets } = resume
         <div class="flex max-w-3xl flex-col gap-1">
             <StatusLabel label=" --available" />
 
-            <p class="animate-fade-up delay-100 text-lg text-muted-foreground md:text-2xl">Hi, my name is</p>
+            <p class="animate-fade-up delay-100 text-muted-foreground ">Hi, my name is</p>
 
             <h1 class="animate-fade-up delay-200 text-4xl font-bold tracking-tight md:text-6xl py-2">
                 {resume.name}
             </h1>
 
-            <p class="animate-fade-up delay-300 text-xl text-muted-foreground md:text-2xl pb-2">
+            <p class="animate-fade-up delay-300 text-xl text-muted-foreground  pb-2">
                 {resume.headline || resume.tagline}<span class="cursor-blink"></span>
             </p>
 
-            <ul class="animate-fade-up delay-350 flex flex-wrap items-center gap-x-2 gap-y-1 pt-1 pb-3 text-xs text-muted-foreground">
+            <hr/>
+
+            <ul class="animate-fade-up delay-350 flex flex-wrap items-center gap-x-2 gap-y-1 pt-2 pb-2 text-xs text-muted-foreground">
                 {metaItems.map((item, i) => (
                     <>
                         <li class={item.accent ? "text-primary font-medium" : ""}>{item.text}</li>
@@ -31,6 +33,9 @@ const { metaItems, impactBullets } = resume
                     </>
                 ))}
             </ul>
+
+            <hr/>
+
 
             <ul class="animate-fade-up delay-400 flex flex-col gap-3 pt-2">
                 {impactBullets.map((bullet) => (
