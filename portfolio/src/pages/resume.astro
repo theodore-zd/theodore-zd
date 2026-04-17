@@ -49,10 +49,6 @@ if (resumeModule) {
   </head>
   <body>
     <main class="resume-page" aria-label="Printable resume">
-      <div class="print-actions no-print">
-        <button class="print" onclick="window.print()">Print</button>
-      </div>
-
       <header>
         <h1 class="name">{resume?.name ?? ''}</h1>
         <div class="title">{resume?.seniority ?? ''} | {resume?.yearsExperience ?? ''}</div>
@@ -87,7 +83,7 @@ if (resumeModule) {
                 <div>
                   <div style="font-weight: 600; margin-bottom: 0.2rem;">{e.title} — {e.role} <span style="color: var(--muted); font-weight: 400;">({e.desc})</span></div>
                   <ul style="margin: 0.3rem 0; padding-left: 1.2rem;">
-                    {e.info?.slice(0, 2).map((bullet: string) => <li style="margin: 0.2rem 0; font-size: 0.93rem;">{bullet}</li>)}
+                    {e.info?.map((bullet: string) => <li style="margin: 0.2rem 0; font-size: 0.93rem;">{bullet}</li>)}
                   </ul>
                 </div>
               ))}
