@@ -40,7 +40,7 @@ const baseClasses = "inline-flex shrink-0 items-center justify-center gap-2 roun
     href={href} 
     target={target}
     rel={rel}
-    class:list={[baseClasses, "terminal-card text-muted-foreground hover:text-primary p-2", className]}
+    class:list={[baseClasses, " text-muted-foreground hover:text-primary p-2", className]}
   >
     <slot />
   </a>
@@ -49,7 +49,7 @@ const baseClasses = "inline-flex shrink-0 items-center justify-center gap-2 roun
     href={href} 
     target={target}
     rel={rel}
-    class:list={[baseClasses, "terminal-card border border-border bg-background hover:text-primary", sizeClasses[size], className]}
+    class:list={[baseClasses, " border border-border bg-background hover:text-primary", sizeClasses[size], className]}
   >
     <slot />
   </a>

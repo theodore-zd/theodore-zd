@@ -1,3 +1,5 @@
+import { githubProjects, type GithubProject } from "./githubProjects"
+
 // Type definitions for resume data
 export interface Resume {
   name: string
@@ -30,6 +32,7 @@ export interface Resume {
     live: string
     git: string
   }>
+  githubProjects: GithubProject[]
   awards: string[]
 }
 
@@ -169,35 +172,10 @@ const resumeData = {
       ],
     },
   ],
-  projects: [
-    // {
-    //   title: "Kato CMS",
-    //   description:
-    //     "Kato CMS is a custom content management system built on a microservice architecture operating as a headless facilitate additional functionality for my clients.",
-    //   tools: ["Node.js", "React", "MongoDB", "Socket.io", "Express", "Docker"],
-    //   live: "#",
-    //   git: "#",
-    // },
-    // {
-    //   title: "Simplified Web Scraper",
-    //   description:
-    //     "This is a simplified demo of a web scraper built to scrape business contact details from a business's website. This can be used to confirm or add to data collected from sites like HomeStars or Yellow Pages.",
-    //   tools: ["Next.js", "Puppeteer", "TypeScript"],
-    //   live: "#",
-    //   git: "#",
-    // },
-    // {
-    //   title: "Nexxt Construction",
-    //   description:
-    //     "Nexxt Construction is a single page website template built on Next.js, TypeScript & Tailwind made open source under the MIT license.",
-    //   tools: ["Next.js", "TypeScript", "Tailwind"],
-    //   live: "#",
-    //   git: "#",
-    // },
-  ],
+  projects: [],
+  githubProjects,
   awards: [
     "Winner of the 2019 McMaster Design League UI/UX Designathon",
-    "Achieved 100% on-time project delivery rate across all roles",
     "Consistently received 5-star client ratings for freelance projects",
   ],
 }

@@ -18,7 +18,7 @@ const experiences = resume.experiences
                 {experiences.map((exp, index) => (
                     <button
                         data-index={index}
-                        class="experience-tab terminal-card whitespace-nowrap rounded-lg border border-border px-4 py-3 text-left text-sm font-medium transition-all hover:text-primary"
+                        class="experience-tab hover:border-primary cursor-pointer whitespace-nowrap rounded-lg border border-border px-4 py-3 text-left text-sm font-medium transition-all hover:text-primary"
                         data-active={index === 0 ? "true" : "false"}
                     >
                         <span class="text-primary opacity-50">./</span>{exp.title}
@@ -33,7 +33,7 @@ const experiences = resume.experiences
                         data-index={index}
                         style={index === 0 ? "" : "display: none;"}
                     >
-                        <Card class="terminal-card rounded-lg">
+                        <Card class=" rounded-lg">
                             <CardContent class="p-6">
                                 <div class="mb-4 flex flex-col gap-1">
                                     <div class="flex items-center gap-2">

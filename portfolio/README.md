@@ -69,7 +69,6 @@ All portfolio content is managed in `src/data/resume.ts` as a single source of t
 
 Uses Tailwind CSS + custom utilities in `src/styles/global.css`:
 
-- `.terminal-card` - bordered cards with glow effect
 - `.terminal-prompt` - terminal prompt style
 - `.cursor-blink` - animated cursor
 - `.text-gradient` - gradient text effect

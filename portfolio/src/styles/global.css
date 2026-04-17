@@ -116,16 +116,6 @@
     @apply text-2xl font-bold tracking-tight md:text-3xl;
   }
 
-  .terminal-card {
-    @apply border-border transition-all duration-200;
-  }
-
-  .terminal-card:hover {
-    box-shadow:
-      0 0 0 1px oklch(from var(--primary) l c h / 0.3),
-      0 0 20px oklch(from var(--primary) l c h / 0.08);
-  }
-
   .terminal-prompt::before {
     content: "$ ";
     color: var(--primary);

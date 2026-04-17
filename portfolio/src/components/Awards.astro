@@ -1,6 +1,7 @@
 ---
 import { resume } from "@/data/resume"
 import SectionLabel from "./SectionLabel.astro"
+import BasicCard from "./BasicCard.astro"
 
 const awards = resume.awards
 ---
@@ -11,10 +12,9 @@ const awards = resume.awards
         
         <div class="grid gap-4 md:grid-cols-3">
             {awards.map((award, index) => (
-                <div class={`flex items-start gap-3 rounded-lg border border-border bg-card/50 p-4 animate-fade-up delay-${(index + 1) * 100}`}>
-                    <span class="shrink-0 text-muted-foreground/40 text-xs font-mono w-5 text-right">{String(index + 1).padStart(2, '0')}</span>
-                    <p class="text-sm text-muted-foreground">{award}</p>
-                </div>
+                <BasicCard index={index}>
+                    {award}
+                </BasicCard>
             ))}
         </div>
     </div>
