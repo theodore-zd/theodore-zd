@@ -263,7 +263,8 @@ if [ -n "$cwd" ]; then
     git_line="${cyan}${display_dir}${reset}"
     if [ -n "$git_branch" ]; then
         git_line+="${dim}@${reset}${green}${git_branch}${reset}"
-        git_stat=$(git -C "${cwd}" diff HEAD --numstat 2>/dev/null | awk '{a+=$1; d+=$2} END {if (a+d>0) printf "+%d -%d", a, d}')
+        # Combine staged + unstaged changes
+        git_stat=$( (git -C "${cwd}" diff HEAD --numstat 2>/dev/null; git -C "${cwd}" diff --cached --numstat 2>/dev/null) | awk '{a+=$1; d+=$2} END {if (a+d>0) printf "+%d -%d", a, d}')
         [ -n "$git_stat" ] && git_line+=" ${dim}(${reset}${green}${git_stat%% *}${reset} ${red}${git_stat##* }${reset}${dim})${reset}"
     fi
 
@@ -369,7 +370,8 @@ if $effective_builtin; then
     if [ -n "$builtin_five_hour_pct" ]; then
         fh_pct_int=$(printf '%.0f' "$builtin_five_hour_pct" 2>/dev/null || echo 0)
         fh_bar=$(make_bar "$fh_pct_int" 8)
-        out+="${sep}${white}5h${reset} $fh_bar"
+        [ -n "$out" ] && out+="${sep}"
+        out+="${white}5h${reset} $fh_bar"
         if [ -n "$_fh_iso" ]; then
             five_hour_reset=$(format_reset_time "$_fh_iso" "hour12")
             [ -n "$five_hour_reset" ] && out+=" ${dim}@${five_hour_reset}${reset}"
@@ -379,7 +381,8 @@ if $effective_builtin; then
     if [ -n "$builtin_seven_day_pct" ]; then
         sd_pct_int=$(printf '%.0f' "$builtin_seven_day_pct" 2>/dev/null || echo 0)
         sd_bar=$(make_bar "$sd_pct_int" 8)
-        out+="${sep}${white}week${reset} $sd_bar"
+        [ -n "$out" ] && out+="${sep}"
+        out+="${white}week${reset} $sd_bar"
         if [ -n "$_sd_iso" ]; then
             seven_day_reset=$(format_reset_time "$_sd_iso" "datetime12")
             [ -n "$seven_day_reset" ] && out+=" ${dim}@${seven_day_reset}${reset}"
@@ -394,13 +397,15 @@ elif [ -n "$usage_data" ] && echo "$usage_data" | jq -e '.five_hour' >/dev/null 
     five_hour_reset_iso=$(echo "$usage_data" | jq -r '.five_hour.resets_at // empty')
     five_hour_reset=$(format_reset_time "$five_hour_reset_iso" "hour12")
     fh_bar=$(make_bar "$five_hour_pct" 8)
-    out+="${sep}${white}5h${reset} $fh_bar"
+    [ -n "$out" ] && out+="${sep}"
+    out+="${white}5h${reset} $fh_bar"
     [ -n "$five_hour_reset" ] && out+=" ${dim}@${five_hour_reset}${reset}"
     seven_day_pct=$(echo "$usage_data" | jq -r '.seven_day.utilization // 0' | awk '{printf "%.0f", $1}')
     seven_day_reset_iso=$(echo "$usage_data" | jq -r '.seven_day.resets_at // empty')
     seven_day_reset=$(format_reset_time "$seven_day_reset_iso" "datetime12")
     sd_bar=$(make_bar "$seven_day_pct" 8)
-    out+="${sep}${white}week${reset} $sd_bar"
+    [ -n "$out" ] && out+="${sep}"
+    out+="${white}week${reset} $sd_bar"
     [ -n "$seven_day_reset" ] && out+=" ${dim}@${seven_day_reset}${reset}"
     extra_enabled=$(echo "$usage_data" | jq -r '.extra_usage.is_enabled // false')
     if [ "$extra_enabled" = "true" ]; then
@@ -436,7 +441,7 @@ line1="${blue}${model_name}${reset}${dim}-${reset}${effort_display}${sep}${ctx_b
 
 total_cost=$(echo "$input" | jq -r '.cost.total_cost_usd // empty')
 
-line2="${out#${sep}}"
+line2="$out"
 [ -n "$extra_segment" ] && line2+="$extra_segment"
 if [ -n "$total_cost" ] && [ "$total_cost" != "null" ]; then
     cost_fmt=$(LC_NUMERIC=C awk "BEGIN {printf \"%.2f\", $total_cost}")
