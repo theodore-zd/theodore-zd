@@ -436,7 +436,7 @@ line1="${blue}${model_name}${reset}${dim}-${reset}${effort_display}${sep}${ctx_b
 
 total_cost=$(echo "$input" | jq -r '.cost.total_cost_usd // empty')
 
-line2="$out"
+line2="${out#${sep}}"
 [ -n "$extra_segment" ] && line2+="$extra_segment"
 if [ -n "$total_cost" ] && [ "$total_cost" != "null" ]; then
     cost_fmt=$(LC_NUMERIC=C awk "BEGIN {printf \"%.2f\", $total_cost}")
