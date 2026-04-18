@@ -12,6 +12,7 @@ if [ -z "$input" ]; then
     exit 0
 fi
 
+# # ─── COLORS + CONSTANTS ─────────────────────────────────────────────────────
 # Muted palette — 4 hues + dim, lower contrast
 blue='\033[38;2;122;162;199m'
 orange='\033[38;2;209;163;113m'
@@ -22,6 +23,9 @@ yellow="$orange"
 white='\033[38;2;170;170;170m'
 dim='\033[2m'
 reset='\033[0m'
+sep=" ${dim}|${reset} "
+
+# # ─── UTILITIES ──────────────────────────────────────────────────────────────
 
 # Format token counts (e.g., 50k / 200k)
 format_tokens() {
@@ -50,8 +54,23 @@ usage_color() {
     fi
 }
 
-# Resolve config directory: CLAUDE_CONFIG_DIR (set by alias) or default ~/.claude
-claude_config_dir="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
+# Build progress bar (compact, filled ▓ + empty ░)
+make_bar() {
+    local pct=$1
+    local width=${2:-10}
+    [ "$pct" -gt 100 ] && pct=100
+    [ "$pct" -lt 0 ] && pct=0
+    local filled=$(( pct * width / 100 ))
+    local empty=$(( width - filled ))
+    local bar_color
+    bar_color=$(usage_color "$pct")
+    local b=""
+    local i
+    for (( i=0; i<filled; i++ )); do b+="▓"; done
+    local e=""
+    for (( i=0; i<empty; i++ )); do e+="░"; done
+    printf "%b%s%b%b%s%b" "$bar_color" "$b" "$reset" "$dim" "$e" "$reset"
+}
 
 # Return 0 (true) if $1 > $2 using semantic versioning
 version_gt() {
@@ -68,71 +87,74 @@ version_gt() {
     [ "$a3" -gt "$b3" ] 2>/dev/null && return 0
     return 1
 }
-# ===== Extract data from JSON =====
-model_name=$(echo "$input" | jq -r '.model.display_name // "Claude"')
-model_name=$(echo "$model_name" | sed 's/ *(\([0-9.]*[kKmM]*\) context)/ \1/')  # "(1M context)" → "1M"
 
-# Context window
-size=$(echo "$input" | jq -r '.context_window.context_window_size // 200000')
-[ "$size" -eq 0 ] 2>/dev/null && size=200000
-
-# Token usage
-input_tokens=$(echo "$input" | jq -r '.context_window.current_usage.input_tokens // 0')
-cache_create=$(echo "$input" | jq -r '.context_window.current_usage.cache_creation_input_tokens // 0')
-cache_read=$(echo "$input" | jq -r '.context_window.current_usage.cache_read_input_tokens // 0')
-current=$(( input_tokens + cache_create + cache_read ))
-
-used_tokens=$(format_tokens $current)
-total_tokens=$(format_tokens $size)
-
-if [ "$size" -gt 0 ]; then
-    pct_used=$(( current * 100 / size ))
-else
-    pct_used=0
-fi
-pct_remain=$(( 100 - pct_used ))
-
-used_comma=$(format_commas $current)
-remain_comma=$(format_commas $(( size - current )))
-
-# Check reasoning effort
-settings_path="$claude_config_dir/settings.json"
-effort_level="medium"
-if [ -n "$CLAUDE_CODE_EFFORT_LEVEL" ]; then
-    effort_level="$CLAUDE_CODE_EFFORT_LEVEL"
-elif [ -f "$settings_path" ]; then
-    effort_val=$(jq -r '.effortLevel // empty' "$settings_path" 2>/dev/null)
-    [ -n "$effort_val" ] && effort_level="$effort_val"
-fi
-
-# ===== Build single-line output =====
-out=""
-
-# Current working directory
-cwd=$(echo "$input" | jq -r '.cwd // empty')
-if [ -n "$cwd" ]; then
-    display_dir="${cwd##*/}"
-    git_branch=$(git -C "${cwd}" rev-parse --abbrev-ref HEAD 2>/dev/null)
-    out+="${cyan}${display_dir}${reset}"
-    if [ -n "$git_branch" ]; then
-        out+="${dim}@${reset}${green}${git_branch}${reset}"
-        git_stat=$(git -C "${cwd}" diff --numstat 2>/dev/null | awk '{a+=$1; d+=$2} END {if (a+d>0) printf "+%d -%d", a, d}')
-        [ -n "$git_stat" ] && out+=" ${dim}(${reset}${green}${git_stat%% *}${reset} ${red}${git_stat##* }${reset}${dim})${reset}"
+# Cross-platform ISO to epoch conversion
+iso_to_epoch() {
+    local iso_str="$1"
+    local epoch
+    epoch=$(date -d "${iso_str}" +%s 2>/dev/null)
+    if [ -n "$epoch" ]; then
+        echo "$epoch"
+        return 0
     fi
-fi
+    local stripped="${iso_str%%.*}"
+    stripped="${stripped%%Z}"
+    stripped="${stripped%%+*}"
+    stripped="${stripped%%-[0-9][0-9]:[0-9][0-9]}"
+    if [[ "$iso_str" == *"Z"* ]] || [[ "$iso_str" == *"+00:00"* ]] || [[ "$iso_str" == *"-00:00"* ]]; then
+        epoch=$(env TZ=UTC date -j -f "%Y-%m-%dT%H:%M:%S" "$stripped" +%s 2>/dev/null)
+    else
+        epoch=$(date -j -f "%Y-%m-%dT%H:%M:%S" "$stripped" +%s 2>/dev/null)
+    fi
+    if [ -n "$epoch" ]; then
+        echo "$epoch"
+        return 0
+    fi
+    return 1
+}
 
-out+=" ${dim}|${reset} "
-out+="${orange}${used_tokens}/${total_tokens}${reset} ${dim}(${reset}${green}${pct_used}%${reset}${dim})${reset}"
-out+=" ${dim}|${reset} "
-out+="effort: "
-case "$effort_level" in
-    low)    out+="${dim}${effort_level}${reset}" ;;
-    medium) out+="${orange}med${reset}" ;;
-    max)    out+="${red}${effort_level}${reset}" ;;
-    *)      out+="${green}${effort_level}${reset}" ;;
-esac
+# Format ISO reset time to compact local time
+format_reset_time() {
+    local iso_str="$1"
+    local style="$2"
+    { [ -z "$iso_str" ] || [ "$iso_str" = "null" ]; } && return
+    local epoch
+    epoch=$(iso_to_epoch "$iso_str")
+    [ -z "$epoch" ] && return
+    local formatted=""
+    case "$style" in
+        hour)
+            formatted=$(date -d "@$epoch" +"%H" 2>/dev/null) || \
+            formatted=$(date -j -r "$epoch" +"%H" 2>/dev/null)
+            ;;
+        hour12)
+            formatted=$(date -d "@$epoch" +"%I%p" 2>/dev/null) || \
+            formatted=$(date -j -r "$epoch" +"%I%p" 2>/dev/null)
+            formatted="${formatted#0}"
+            ;;
+        datetimehour)
+            formatted=$(date -d "@$epoch" +"%b %-d, %H" 2>/dev/null) || \
+            formatted=$(date -j -r "$epoch" +"%b %-d, %H" 2>/dev/null)
+            ;;
+        datetime12)
+            formatted=$(date -d "@$epoch" +"%-d %I%p" 2>/dev/null) || \
+            formatted=$(date -j -r "$epoch" +"%-d %I%p" 2>/dev/null)
+            formatted="${formatted#0}"
+            ;;
+        *)
+            formatted=$(date -d "@$epoch" +"%b %-d" 2>/dev/null) || \
+            formatted=$(date -j -r "$epoch" +"%b %-d" 2>/dev/null)
+            ;;
+    esac
+    [ -n "$formatted" ] && echo "$formatted"
+}
 
-# ===== Cross-platform OAuth token resolution (from statusline.sh) =====
+# # ─── CONFIG ─────────────────────────────────────────────────────────────────
+
+# Resolve config directory: CLAUDE_CONFIG_DIR (set by alias) or default ~/.claude
+claude_config_dir="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
+
+# Cross-platform OAuth token resolution
 # Tries credential sources in order: env var → macOS Keychain → Linux creds file → GNOME Keyring
 get_oauth_token() {
     local token=""
@@ -188,9 +210,73 @@ get_oauth_token() {
     echo ""
 }
 
-# ===== LINE 2 & 3: Usage limits with progress bars =====
-# First, try to use rate_limits data provided directly by Claude Code in the JSON input.
-# This is the most reliable source — no OAuth token or API call required.
+# # ─── INPUT EXTRACTION ───────────────────────────────────────────────────────
+
+# Extract data from JSON
+model_name=$(echo "$input" | jq -r '.model.display_name // "Claude"')
+model_name=$(echo "$model_name" | sed 's/ *(\([0-9.]*[kKmM]*\) context)/ \1/')  # "(1M context)" → "1M"
+
+# Context window
+size=$(echo "$input" | jq -r '.context_window.context_window_size // 200000')
+[ "$size" -eq 0 ] 2>/dev/null && size=200000
+
+# Token usage
+input_tokens=$(echo "$input" | jq -r '.context_window.current_usage.input_tokens // 0')
+cache_create=$(echo "$input" | jq -r '.context_window.current_usage.cache_creation_input_tokens // 0')
+cache_read=$(echo "$input" | jq -r '.context_window.current_usage.cache_read_input_tokens // 0')
+current=$(( input_tokens + cache_create + cache_read ))
+
+used_tokens=$(format_tokens $current)
+total_tokens=$(format_tokens $size)
+
+if [ "$size" -gt 0 ]; then
+    pct_used=$(( current * 100 / size ))
+else
+    pct_used=0
+fi
+pct_remain=$(( 100 - pct_used ))
+
+used_comma=$(format_commas $current)
+remain_comma=$(format_commas $(( size - current )))
+
+# Check reasoning effort
+settings_path="$claude_config_dir/settings.json"
+effort_level="medium"
+if [ -n "$CLAUDE_CODE_EFFORT_LEVEL" ]; then
+    effort_level="$CLAUDE_CODE_EFFORT_LEVEL"
+elif [ -f "$settings_path" ]; then
+    effort_val=$(jq -r '.effortLevel // empty' "$settings_path" 2>/dev/null)
+    [ -n "$effort_val" ] && effort_level="$effort_val"
+fi
+
+# Extract session metrics for line 3
+lines_added=$(echo "$input" | jq -r '.cost.total_lines_added // 0')
+lines_removed=$(echo "$input" | jq -r '.cost.total_lines_removed // 0')
+api_ms=$(echo "$input" | jq -r '.cost.total_api_duration_ms // 0')
+
+# Build git info line (line 3)
+git_line=""
+cwd=$(echo "$input" | jq -r '.cwd // empty')
+if [ -n "$cwd" ]; then
+    display_dir="${cwd##*/}"
+    git_branch=$(git -C "${cwd}" rev-parse --abbrev-ref HEAD 2>/dev/null)
+    git_line="${cyan}${display_dir}${reset}"
+    if [ -n "$git_branch" ]; then
+        git_line+="${dim}@${reset}${green}${git_branch}${reset}"
+        git_stat=$(git -C "${cwd}" diff HEAD --numstat 2>/dev/null | awk '{a+=$1; d+=$2} END {if (a+d>0) printf "+%d -%d", a, d}')
+        [ -n "$git_stat" ] && git_line+=" ${dim}(${reset}${green}${git_stat%% *}${reset} ${red}${git_stat##* }${reset}${dim})${reset}"
+    fi
+
+    # Add session metrics (lines changed + API time)
+    git_line+=" ${white}Sesh:${reset}"
+    if [ "$lines_added" != "0" ] || [ "$lines_removed" != "0" ]; then
+        git_line+=" ${green}+${lines_added}${reset} ${red}-${lines_removed}${reset}"
+    fi
+fi
+
+# # ─── LINE 1: USAGE LIMITS ───────────────────────────────────────────────────
+
+# Try to use rate_limits data from Claude Code JSON first (most reliable, no OAuth needed)
 builtin_five_hour_pct=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // empty')
 builtin_five_hour_reset=$(echo "$input" | jq -r '.rate_limits.five_hour.resets_at // empty')
 builtin_seven_day_pct=$(echo "$input" | jq -r '.rate_limits.seven_day.used_percentage // empty')
@@ -242,8 +328,8 @@ if $use_builtin; then
     fi
 fi
 
+# Fetch fresh data if cache is stale (shared across all Claude Code instances to avoid rate limits)
 if ! $effective_builtin; then
-    # Fetch fresh data if cache is stale (shared across all Claude Code instances to avoid rate limits)
     if $needs_refresh; then
         touch "$cache_file"  # stampede lock: prevent parallel panes from fetching simultaneously
         token=$(get_oauth_token)
@@ -264,141 +350,58 @@ if ! $effective_builtin; then
     fi
 fi
 
-# Cross-platform ISO to epoch conversion
-# Converts ISO 8601 timestamp (e.g. "2025-06-15T12:30:00Z" or "2025-06-15T12:30:00.123+00:00") to epoch seconds.
-# Properly handles UTC timestamps and converts to local time.
-iso_to_epoch() {
-    local iso_str="$1"
-
-    # Try GNU date first (Linux) — handles ISO 8601 format automatically
-    local epoch
-    epoch=$(date -d "${iso_str}" +%s 2>/dev/null)
-    if [ -n "$epoch" ]; then
-        echo "$epoch"
-        return 0
-    fi
-
-    # BSD date (macOS) - handle various ISO 8601 formats
-    local stripped="${iso_str%%.*}"          # Remove fractional seconds (.123456)
-    stripped="${stripped%%Z}"                 # Remove trailing Z
-    stripped="${stripped%%+*}"               # Remove timezone offset (+00:00)
-    stripped="${stripped%%-[0-9][0-9]:[0-9][0-9]}"  # Remove negative timezone offset
-
-    # Check if timestamp is UTC (has Z or +00:00 or -00:00)
-    if [[ "$iso_str" == *"Z"* ]] || [[ "$iso_str" == *"+00:00"* ]] || [[ "$iso_str" == *"-00:00"* ]]; then
-        # For UTC timestamps, parse with timezone set to UTC
-        epoch=$(env TZ=UTC date -j -f "%Y-%m-%dT%H:%M:%S" "$stripped" +%s 2>/dev/null)
-    else
-        epoch=$(date -j -f "%Y-%m-%dT%H:%M:%S" "$stripped" +%s 2>/dev/null)
-    fi
-
-    if [ -n "$epoch" ]; then
-        echo "$epoch"
-        return 0
-    fi
-
-    return 1
-}
-
-# Format ISO reset time to compact local time
-# Usage: format_reset_time <iso_string> <style: time|datetime|date>
-format_reset_time() {
-    local iso_str="$1"
-    local style="$2"
-    { [ -z "$iso_str" ] || [ "$iso_str" = "null" ]; } && return
-
-    # Parse ISO datetime and convert to local time (cross-platform)
-    local epoch
-    epoch=$(iso_to_epoch "$iso_str")
-    [ -z "$epoch" ] && return
-
-    # Format based on style
-    # Try GNU date first (Linux), then BSD date (macOS)
-    # Previous implementation piped BSD date through sed/tr, which always returned
-    # exit code 0 from the last pipe stage, preventing the GNU date fallback from
-    # ever executing on Linux.
-    local formatted=""
-    case "$style" in
-        time)
-            formatted=$(date -d "@$epoch" +"%H:%M" 2>/dev/null) || \
-            formatted=$(date -j -r "$epoch" +"%H:%M" 2>/dev/null)
-            ;;
-        datetime)
-            formatted=$(date -d "@$epoch" +"%b %-d, %H:%M" 2>/dev/null) || \
-            formatted=$(date -j -r "$epoch" +"%b %-d, %H:%M" 2>/dev/null)
-            ;;
-        *)
-            formatted=$(date -d "@$epoch" +"%b %-d" 2>/dev/null) || \
-            formatted=$(date -j -r "$epoch" +"%b %-d" 2>/dev/null)
-            ;;
-    esac
-    [ -n "$formatted" ] && echo "$formatted"
-}
-
-sep=" ${dim}|${reset} "
+# Build output (line 1)
+out=""
+extra_segment=""
 
 if $effective_builtin; then
-    # ---- Use rate_limits data provided directly by Claude Code in JSON input ----
-    # resets_at values are Unix epoch integers in this source
+    _fh_iso=""
+    _sd_iso=""
+    if [ -n "$builtin_five_hour_reset" ] && [ "$builtin_five_hour_reset" != "null" ] && [ "$builtin_five_hour_reset" != "0" ]; then
+        _fh_iso=$(date -u -r "$builtin_five_hour_reset" +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || \
+                  date -u -d "@$builtin_five_hour_reset" +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null)
+    fi
+    if [ -n "$builtin_seven_day_reset" ] && [ "$builtin_seven_day_reset" != "null" ] && [ "$builtin_seven_day_reset" != "0" ]; then
+        _sd_iso=$(date -u -r "$builtin_seven_day_reset" +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || \
+                  date -u -d "@$builtin_seven_day_reset" +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null)
+    fi
+
     if [ -n "$builtin_five_hour_pct" ]; then
-        five_hour_pct=$(printf "%.0f" "$builtin_five_hour_pct")
-        five_hour_color=$(usage_color "$five_hour_pct")
-        out+="${sep}${white}5h${reset} ${five_hour_color}${five_hour_pct}%${reset}"
-        if [ -n "$builtin_five_hour_reset" ] && [ "$builtin_five_hour_reset" != "null" ]; then
-            five_hour_reset=$(date -j -r "$builtin_five_hour_reset" +"%H:%M" 2>/dev/null || date -d "@$builtin_five_hour_reset" +"%H:%M" 2>/dev/null)
+        fh_pct_int=$(printf '%.0f' "$builtin_five_hour_pct" 2>/dev/null || echo 0)
+        fh_bar=$(make_bar "$fh_pct_int" 8)
+        out+="${sep}${white}5h${reset} $fh_bar"
+        if [ -n "$_fh_iso" ]; then
+            five_hour_reset=$(format_reset_time "$_fh_iso" "hour12")
             [ -n "$five_hour_reset" ] && out+=" ${dim}@${five_hour_reset}${reset}"
         fi
     fi
 
     if [ -n "$builtin_seven_day_pct" ]; then
-        seven_day_pct=$(printf "%.0f" "$builtin_seven_day_pct")
-        seven_day_color=$(usage_color "$seven_day_pct")
-        out+="${sep}${white}7d${reset} ${seven_day_color}${seven_day_pct}%${reset}"
-        if [ -n "$builtin_seven_day_reset" ] && [ "$builtin_seven_day_reset" != "null" ]; then
-            seven_day_reset=$(date -j -r "$builtin_seven_day_reset" +"%b %-d, %H:%M" 2>/dev/null || date -d "@$builtin_seven_day_reset" +"%b %-d, %H:%M" 2>/dev/null)
+        sd_pct_int=$(printf '%.0f' "$builtin_seven_day_pct" 2>/dev/null || echo 0)
+        sd_bar=$(make_bar "$sd_pct_int" 8)
+        out+="${sep}${white}week${reset} $sd_bar"
+        if [ -n "$_sd_iso" ]; then
+            seven_day_reset=$(format_reset_time "$_sd_iso" "datetime12")
             [ -n "$seven_day_reset" ] && out+=" ${dim}@${seven_day_reset}${reset}"
         fi
     fi
 
-    # Cache builtin values so they're available as fallback when API is unavailable.
-    # Convert epoch resets_at to ISO 8601 for compatibility with the API-format cache parser.
-    _fh_reset_json="null"
-    if [ -n "$builtin_five_hour_reset" ] && [ "$builtin_five_hour_reset" != "null" ] && [ "$builtin_five_hour_reset" != "0" ]; then
-        _fh_iso=$(date -u -r "$builtin_five_hour_reset" +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || \
-                  date -u -d "@$builtin_five_hour_reset" +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null)
-        [ -n "$_fh_iso" ] && _fh_reset_json="\"$_fh_iso\""
-    fi
-    _sd_reset_json="null"
-    if [ -n "$builtin_seven_day_reset" ] && [ "$builtin_seven_day_reset" != "null" ] && [ "$builtin_seven_day_reset" != "0" ]; then
-        _sd_iso=$(date -u -r "$builtin_seven_day_reset" +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || \
-                  date -u -d "@$builtin_seven_day_reset" +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null)
-        [ -n "$_sd_iso" ] && _sd_reset_json="\"$_sd_iso\""
-    fi
     printf '{"five_hour":{"utilization":%s,"resets_at":%s},"seven_day":{"utilization":%s,"resets_at":%s}}' \
-        "${builtin_five_hour_pct:-0}" "$_fh_reset_json" \
-        "${builtin_seven_day_pct:-0}" "$_sd_reset_json" > "$cache_file" 2>/dev/null
+        "${builtin_five_hour_pct:-0}" "$([ -n "$_fh_iso" ] && echo "\"$_fh_iso\"" || echo "null")" \
+        "${builtin_seven_day_pct:-0}" "$([ -n "$_sd_iso" ] && echo "\"$_sd_iso\"" || echo "null")" > "$cache_file" 2>/dev/null
 elif [ -n "$usage_data" ] && echo "$usage_data" | jq -e '.five_hour' >/dev/null 2>&1; then
-    # ---- Fall back: API-fetched usage data ----
-    # ---- 5-hour (current) ----
     five_hour_pct=$(echo "$usage_data" | jq -r '.five_hour.utilization // 0' | awk '{printf "%.0f", $1}')
     five_hour_reset_iso=$(echo "$usage_data" | jq -r '.five_hour.resets_at // empty')
-    five_hour_reset=$(format_reset_time "$five_hour_reset_iso" "time")
-    five_hour_color=$(usage_color "$five_hour_pct")
-
-    out+="${sep}${white}5h${reset} ${five_hour_color}${five_hour_pct}%${reset}"
+    five_hour_reset=$(format_reset_time "$five_hour_reset_iso" "hour12")
+    fh_bar=$(make_bar "$five_hour_pct" 8)
+    out+="${sep}${white}5h${reset} $fh_bar"
     [ -n "$five_hour_reset" ] && out+=" ${dim}@${five_hour_reset}${reset}"
-
-    # ---- 7-day (weekly) ----
     seven_day_pct=$(echo "$usage_data" | jq -r '.seven_day.utilization // 0' | awk '{printf "%.0f", $1}')
     seven_day_reset_iso=$(echo "$usage_data" | jq -r '.seven_day.resets_at // empty')
-    seven_day_reset=$(format_reset_time "$seven_day_reset_iso" "datetime")
-    seven_day_color=$(usage_color "$seven_day_pct")
-
-    out+="${sep}${white}7d${reset} ${seven_day_color}${seven_day_pct}%${reset}"
+    seven_day_reset=$(format_reset_time "$seven_day_reset_iso" "datetime12")
+    sd_bar=$(make_bar "$seven_day_pct" 8)
+    out+="${sep}${white}week${reset} $sd_bar"
     [ -n "$seven_day_reset" ] && out+=" ${dim}@${seven_day_reset}${reset}"
-
-    # ---- Extra usage (deferred — appended to line 2) ----
-    extra_segment=""
     extra_enabled=$(echo "$usage_data" | jq -r '.extra_usage.is_enabled // false')
     if [ "$extra_enabled" = "true" ]; then
         extra_pct=$(echo "$usage_data" | jq -r '.extra_usage.utilization // 0' | awk '{printf "%.0f", $1}')
@@ -412,93 +415,38 @@ elif [ -n "$usage_data" ] && echo "$usage_data" | jq -e '.five_hour' >/dev/null 
         fi
     fi
 else
-    # No valid usage data — show placeholders
     out+="${sep}${white}5h${reset} ${dim}-${reset}"
     out+="${sep}${white}7d${reset} ${dim}-${reset}"
 fi
 
-# ===== LINE 2: Context bar + token/cost info =====
-make_bar() {
-    local pct=$1
-    local width=${2:-20}
-    [ "$pct" -gt 100 ] && pct=100
-    [ "$pct" -lt 0 ] && pct=0
-    local filled=$(( pct * width / 100 ))
-    local empty=$(( width - filled ))
-    local bar_color
-    bar_color=$(usage_color "$pct")
-    local b=""
-    local i
-    for (( i=0; i<filled; i++ )); do b+="█"; done
-    local e=""
-    for (( i=0; i<empty; i++ )); do e+="░"; done
-    printf "%b%s%b%b%s%b" "$bar_color" "$b" "$reset" "$dim" "$e" "$reset"
-}
+# # ─── LINE 1: CONTEXT + RATE LIMITS ─────────────────────────────────────────
 
-ctx_color=$(usage_color "$pct_used")
-ctx_bar=$(make_bar "$pct_used" 20)
-ctx_line="${blue}${model_name}${reset}${sep}${white}ctx${reset} ${ctx_bar} ${ctx_color}${pct_used}%${reset} ${dim}${used_comma}/${reset}${orange}${used_tokens}${reset}${dim}·${reset}${orange}${total_tokens}${reset}"
+ctx_bar=$(make_bar "$pct_used")
+
+# Build effort display
+effort_display=""
+case "$effort_level" in
+    low)    effort_display="${dim}${effort_level}${reset}" ;;
+    medium) effort_display="${orange}med${reset}" ;;
+    max)    effort_display="${red}${effort_level}${reset}" ;;
+    *)      effort_display="${green}${effort_level}${reset}" ;;
+esac
+
+line1="${blue}${model_name}${reset}${dim}-${reset}${effort_display}${sep}${ctx_bar} ${dim}${used_comma}/${reset}${orange}${used_tokens}${reset}${dim}·${reset}${orange}${total_tokens}${reset}"
 
 total_cost=$(echo "$input" | jq -r '.cost.total_cost_usd // empty')
-lines_added=$(echo "$input" | jq -r '.cost.total_lines_added // 0')
-lines_removed=$(echo "$input" | jq -r '.cost.total_lines_removed // 0')
-api_ms=$(echo "$input" | jq -r '.cost.total_api_duration_ms // 0')
 
+line2="$out"
+[ -n "$extra_segment" ] && line2+="$extra_segment"
 if [ -n "$total_cost" ] && [ "$total_cost" != "null" ]; then
     cost_fmt=$(LC_NUMERIC=C awk "BEGIN {printf \"%.2f\", $total_cost}")
-    ctx_line+="${sep}${white}cost${reset} ${green}\$${cost_fmt}${reset}"
+    line2+="${sep}${white}cost${reset} ${green}\$${cost_fmt}${reset}"
 fi
+# # ─── OUTPUT ─────────────────────────────────────────────────────────────────
 
-if [ "$lines_added" != "0" ] || [ "$lines_removed" != "0" ]; then
-    ctx_line+="${sep}${green}+${lines_added}${reset} ${red}-${lines_removed}${reset}"
-fi
-
-if [ "$api_ms" != "0" ] && [ "$api_ms" != "null" ]; then
-    api_sec=$(awk "BEGIN {printf \"%.1f\", $api_ms/1000}")
-    ctx_line+="${sep}${dim}api ${api_sec}s${reset}"
-fi
-
-[ -n "$extra_segment" ] && ctx_line+="$extra_segment"
-
-out+="\n${ctx_line}"
-
-# ===== Update check (cached, 24h TTL) =====
-version_cache_file="/tmp/claude/statusline-version-cache.json"
-version_cache_max_age=86400  # 24 hours
-
-version_needs_refresh=true
-version_data=""
-
-if [ -f "$version_cache_file" ]; then
-    vc_mtime=$(stat -c %Y "$version_cache_file" 2>/dev/null || stat -f %m "$version_cache_file" 2>/dev/null)
-    vc_now=$(date +%s)
-    vc_age=$(( vc_now - vc_mtime ))
-    if [ "$vc_age" -lt "$version_cache_max_age" ]; then
-        version_needs_refresh=false
-    fi
-    version_data=$(cat "$version_cache_file" 2>/dev/null)
-fi
-
-if $version_needs_refresh; then
-    touch "$version_cache_file" 2>/dev/null
-    vc_response=$(curl -s --max-time 5 \
-        -H "Accept: application/vnd.github+json" \
-        "https://api.github.com/repos/daniel3303/ClaudeCodeStatusLine/releases/latest" 2>/dev/null)
-    if [ -n "$vc_response" ] && echo "$vc_response" | jq -e '.tag_name' >/dev/null 2>&1; then
-        version_data="$vc_response"
-        echo "$vc_response" > "$version_cache_file"
-    fi
-fi
-
-update_line=""
-if [ -n "$version_data" ]; then
-    latest_tag=$(echo "$version_data" | jq -r '.tag_name // empty')
-    if [ -n "$latest_tag" ] && version_gt "$latest_tag" "$VERSION"; then
-        update_line="\n${dim}Update available: ${latest_tag} → https://github.com/daniel3303/ClaudeCodeStatusLine${reset}"
-    fi
-fi
-
-# Output
-printf "%b" "$out$update_line"
+# Output 3 lines: model + ctx | cost + rate limits | git info
+printf "%b\n" "$line1"
+printf "%b\n" "$line2"
+printf "%b" "$git_line"
 
 exit 0
