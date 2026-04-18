@@ -1,14 +1,15 @@
-# > theodore-zd
+### Hi, I’m Theodore, a Senior Software Engineer based in Toronto with over 9 years of experience.
 
-**Senior Software Engineer** | TypeScript | Go | Python | React/Next.js | Node.js
+I build fast, scalable systems with TypeScript, Go, React, and Svelte. I’ve led Node.js → Go migrations that reduced latency and infrastructure costs, created design systems that sped up delivery, and delivered UI/UX improvements that boosted user testing scores and cut support tickets.
 
-Seasoned software engineer delivering fast, reliable, scalable full-stack solutions. Expert in TypeScript, Go, Python, and modern cloud architectures. I collaborate with cross-functional teams to translate complex requirements into high-quality software that drives business results and measurable impact.
+What I care about is clear impact: faster performance, lower costs, better UX, and less technical debt.
+
+Currently freelancing and open to interesting opportunities. Happy to chat if you think I could be a good fit.
 
 [![Portfolio](https://img.shields.io/badge/Portfolio-000000?style=for-the-badge&logo=firefox&logoColor=white)](https://theodorezd.com)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/theodore-zurek-dunne-37885b164/)
 [![Email](https://img.shields.io/badge/Email-EA4335?style=for-the-badge&logo=gmail&logoColor=white)](mailto:theodore.zd@example.com)
 
-## $ ls tech-stack/
 
 **Languages**
 
@@ -46,7 +47,6 @@ Seasoned software engineer delivering fast, reliable, scalable full-stack soluti
 
 ---
 
-## $ ls ./
 
 | Directory | Description |
 |-----------|-------------|
