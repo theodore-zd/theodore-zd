@@ -6,9 +6,9 @@ What I care about is clear impact: faster performance, lower costs, better UX, a
 
 Currently freelancing and open to interesting opportunities. Happy to chat if you think I could be a good fit.
 
-[![Portfolio](https://img.shields.io/badge/Portfolio-000000?style=for-the-badge&logo=firefox&logoColor=white)](https://theodorezd.com)
+[![Portfolio](https://img.shields.io/badge/Portfolio-000000?style=for-the-badge&logo=firefox&logoColor=white)](https://zurek-dunne.dev/)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/theodore-zurek-dunne-37885b164/)
-[![Email](https://img.shields.io/badge/Email-EA4335?style=for-the-badge&logo=gmail&logoColor=white)](mailto:theodore.zd@example.com)
+[![Email](https://img.shields.io/badge/Email-EA4335?style=for-the-badge&logo=gmail&logoColor=white)](mailto:99theodore@gmail.com)
 
 
 **Languages**
