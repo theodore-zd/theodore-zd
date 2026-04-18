@@ -236,8 +236,6 @@ else
 fi
 pct_remain=$(( 100 - pct_used ))
 
-used_comma=$(format_commas $current)
-remain_comma=$(format_commas $(( size - current )))
 
 # Check reasoning effort
 settings_path="$claude_config_dir/settings.json"
@@ -249,10 +247,6 @@ elif [ -f "$settings_path" ]; then
     [ -n "$effort_val" ] && effort_level="$effort_val"
 fi
 
-# Extract session metrics for line 3
-lines_added=$(echo "$input" | jq -r '.cost.total_lines_added // 0')
-lines_removed=$(echo "$input" | jq -r '.cost.total_lines_removed // 0')
-api_ms=$(echo "$input" | jq -r '.cost.total_api_duration_ms // 0')
 
 # Build git info line (line 3)
 git_line=""
@@ -268,11 +262,6 @@ if [ -n "$cwd" ]; then
         [ -n "$git_stat" ] && git_line+=" ${dim}(${reset}${green}${git_stat%% *}${reset} ${red}${git_stat##* }${reset}${dim})${reset}"
     fi
 
-    # Add session metrics (lines changed + API time)
-    git_line+=" ${white}Sesh:${reset}"
-    if [ "$lines_added" != "0" ] || [ "$lines_removed" != "0" ]; then
-        git_line+=" ${green}+${lines_added}${reset} ${red}-${lines_removed}${reset}"
-    fi
 fi
 
 # # ─── LINE 1: USAGE LIMITS ───────────────────────────────────────────────────
@@ -369,9 +358,9 @@ if $effective_builtin; then
 
     if [ -n "$builtin_five_hour_pct" ]; then
         fh_pct_int=$(printf '%.0f' "$builtin_five_hour_pct" 2>/dev/null || echo 0)
-        fh_bar=$(make_bar "$fh_pct_int" 8)
+        fh_color=$(usage_color "$fh_pct_int")
         [ -n "$out" ] && out+="${sep}"
-        out+="${white}5h${reset} $fh_bar"
+        out+="${white}5h${reset}${dim}:${reset}${fh_color}${fh_pct_int}%${reset}"
         if [ -n "$_fh_iso" ]; then
             five_hour_reset=$(format_reset_time "$_fh_iso" "hour12")
             [ -n "$five_hour_reset" ] && out+=" ${dim}@${five_hour_reset}${reset}"
@@ -380,9 +369,9 @@ if $effective_builtin; then
 
     if [ -n "$builtin_seven_day_pct" ]; then
         sd_pct_int=$(printf '%.0f' "$builtin_seven_day_pct" 2>/dev/null || echo 0)
-        sd_bar=$(make_bar "$sd_pct_int" 8)
+        sd_color=$(usage_color "$sd_pct_int")
         [ -n "$out" ] && out+="${sep}"
-        out+="${white}week${reset} $sd_bar"
+        out+="${white}week${reset}${dim}:${reset}${sd_color}${sd_pct_int}%${reset}"
         if [ -n "$_sd_iso" ]; then
             seven_day_reset=$(format_reset_time "$_sd_iso" "datetime12")
             [ -n "$seven_day_reset" ] && out+=" ${dim}@${seven_day_reset}${reset}"
@@ -396,16 +385,16 @@ elif [ -n "$usage_data" ] && echo "$usage_data" | jq -e '.five_hour' >/dev/null 
     five_hour_pct=$(echo "$usage_data" | jq -r '.five_hour.utilization // 0' | awk '{printf "%.0f", $1}')
     five_hour_reset_iso=$(echo "$usage_data" | jq -r '.five_hour.resets_at // empty')
     five_hour_reset=$(format_reset_time "$five_hour_reset_iso" "hour12")
-    fh_bar=$(make_bar "$five_hour_pct" 8)
+    fh_color=$(usage_color "$five_hour_pct")
     [ -n "$out" ] && out+="${sep}"
-    out+="${white}5h${reset} $fh_bar"
+    out+="${white}5h${reset}${dim}:${reset}${fh_color}${five_hour_pct}%${reset}"
     [ -n "$five_hour_reset" ] && out+=" ${dim}@${five_hour_reset}${reset}"
     seven_day_pct=$(echo "$usage_data" | jq -r '.seven_day.utilization // 0' | awk '{printf "%.0f", $1}')
     seven_day_reset_iso=$(echo "$usage_data" | jq -r '.seven_day.resets_at // empty')
     seven_day_reset=$(format_reset_time "$seven_day_reset_iso" "datetime12")
-    sd_bar=$(make_bar "$seven_day_pct" 8)
+    sd_color=$(usage_color "$seven_day_pct")
     [ -n "$out" ] && out+="${sep}"
-    out+="${white}week${reset} $sd_bar"
+    out+="${white}week${reset}${dim}:${reset}${sd_color}${seven_day_pct}%${reset}"
     [ -n "$seven_day_reset" ] && out+=" ${dim}@${seven_day_reset}${reset}"
     extra_enabled=$(echo "$usage_data" | jq -r '.extra_usage.is_enabled // false')
     if [ "$extra_enabled" = "true" ]; then
@@ -426,8 +415,6 @@ fi
 
 # # ─── LINE 1: CONTEXT + RATE LIMITS ─────────────────────────────────────────
 
-ctx_bar=$(make_bar "$pct_used")
-
 # Build effort display
 effort_display=""
 case "$effort_level" in
@@ -437,7 +424,7 @@ case "$effort_level" in
     *)      effort_display="${green}${effort_level}${reset}" ;;
 esac
 
-line1="${blue}${model_name}${reset}${dim}-${reset}${effort_display}${sep}${ctx_bar} ${dim}${used_comma}/${reset}${orange}${used_tokens}${reset}${dim}·${reset}${orange}${total_tokens}${reset}"
+line1="${blue}${model_name}${reset}${dim}-${reset}${effort_display}${sep}${orange}${used_tokens}${reset}${dim}/${reset}${orange}${total_tokens}${reset}"
 
 total_cost=$(echo "$input" | jq -r '.cost.total_cost_usd // empty')
 
