@@ -127,7 +127,7 @@ const resumeData = {
   tagline:
     "Senior software engineer with 9+ years of experience delivering high-performance, scalable systems",
   headline:
-    "Senior Software Engineer | Go, TypeScript, Svelte, React | Building scalable, high‑performance full‑stack applications with measurable business impact.",
+    "Senior Software Engineer | Go, TypeScript, Svelte, React | Building scalable, high‑performance systems with measurable business impact.",
   email: "99theodore@gmail.com",
   github: "https://github.com/theodore-zd",
   linkedin: "https://www.linkedin.com/in/theodore-zurek-dunne-37885b164/",
@@ -152,9 +152,9 @@ const resumeData = {
     "Mentored 4 engineers; founded Kato.Studio; shipped 95+ Lighthouse production sites",
   ],
   aboutDescription:
-    "9+ years shipping high-performance full-stack applications in TypeScript, Go, React, and Next.js. I've led Node.js→Go migrations cutting latency and infrastructure costs, built design systems that accelerated delivery, and shipped UX overhauls that improved user metrics.",
+    "9+ years shipping high-performance systems in TypeScript, Go, React, and Next.js. I've led Node.js→Go migrations cutting latency and infrastructure costs, built design systems that accelerated delivery, and shipped UX overhauls that improved user metrics.",
   ctaDescription:
-    "Scaling full-stack applications with TypeScript, Go, React, and Next.js. I focus on what matters: faster systems, lower costs, better user experience.",
+    "Scaling systems with TypeScript, Go, React, and Next.js. I focus on what matters: faster systems, lower costs, better user experience.",
   footerTagline: "9+ years. TypeScript, Go, React. Measurable impact.",
   skills: {
     favorite: [
