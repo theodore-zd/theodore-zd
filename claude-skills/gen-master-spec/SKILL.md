@@ -1,7 +1,9 @@
 ---
 name: gen-master-spec
-description: Create comprehensive master specification files that document a project's architecture, organization, and how all components work together. Generates ./docs/master-spec.md (single-layer) or separate backend/frontend specs (full-stack) based on detected project structure.
-compatibility: Requires Glob, Grep, Read, Write tools
+description: |
+  Create comprehensive master specification files that document a project's architecture, organization, and how all components work together. Generates ./docs/master-spec.md (single-layer) or separate ./docs/master-backend-spec.md + ./docs/master-frontend-spec.md (full-stack) based on detected project structure.
+  Trigger on phrases like "generate master spec", "document the architecture", "write a spec for this project", "summarize the codebase", "create a project spec", "architecture overview", or when the user asks for a top-level reference doc describing what the codebase does and how it fits together.
+allowed-tools: Glob, Grep, Read, Write
 ---
 
 # Codebase Spec Generator

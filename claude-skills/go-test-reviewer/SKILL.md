@@ -8,10 +8,7 @@ description: |
   - Find missing edge cases, error paths, or concurrency test gaps
   - Check if tests actually verify behavior or just run code without assertions
   Trigger on phrases like "review my Go tests", "test coverage", "test quality", "what am I missing in my tests", "audit tests", "improve tests", "test gaps", or any request involving *_test.go files. Also trigger when the user shares Go test code and asks for feedback, even if they don't explicitly say "review".
-compatibility: |
-  - Requires Go source code files (*_test.go and the code being tested)
-  - Works with any Go module structure
-  - No external dependencies needed for analysis
+allowed-tools: Bash, Read, Grep, Glob
 ---
 
 # Go Test Reviewer
