@@ -83,7 +83,7 @@ For each test, check:
 
 Go strong test idioms. Flag deviations, suggest fixes:
 
-**Table-driven tests** — Go's most important pattern. Recommend whenever a file has 3+ tests with the same structure. Canonical example in `references/table-driven-example.go`.
+**Table-driven tests** — Go's most important pattern. Recommend whenever a file has 3+ tests with the same structure. Canonical example in `references/table-driven-example.md`.
 
 **Other patterns:**
 - **TestMain** — setup/teardown duplicated across tests should use `TestMain`?
