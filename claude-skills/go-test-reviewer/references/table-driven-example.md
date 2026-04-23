@@ -1,6 +1,8 @@
-// Canonical table-driven test pattern for Go. Recommend whenever a test file
-// has three or more tests with the same structure but different inputs.
+# Canonical Table-Driven Test Pattern
 
+Recommend whenever a test file has three or more tests with the same structure but different inputs.
+
+```go
 package example
 
 import "testing"
@@ -31,3 +33,4 @@ func TestParseSize(t *testing.T) {
 		})
 	}
 }
+```
