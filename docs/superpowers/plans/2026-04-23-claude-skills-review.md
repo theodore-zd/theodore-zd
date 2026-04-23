@@ -285,16 +285,15 @@ git commit -m "refactor(go-janitor): move trap table + output template to refere
 ## Task 5: Extract `go-test-reviewer` Reference Files
 
 **Files:**
-- Create: `claude-skills/go-test-reviewer/references/table-driven-example.go`
+- Create: `claude-skills/go-test-reviewer/references/table-driven-example.md`
 - Create: `claude-skills/go-test-reviewer/references/output-template.md`
 - Modify: `claude-skills/go-test-reviewer/SKILL.md:87-166`
 
-- [ ] **Step 1: Create `references/table-driven-example.go`**
+- [ ] **Step 1: Create `references/table-driven-example.md`**
+
+Wrap the Go sample in a fenced block inside a markdown file — keeps Go LSP from complaining about the standalone file referencing an undefined `ParseSize`.
 
 ```go
-// Canonical table-driven test pattern for Go. Recommend whenever a test file
-// has three or more tests with the same structure but different inputs.
-
 package example
 
 import "testing"
@@ -376,7 +375,7 @@ Always use this structure. Skip empty sections, expand full ones.
 In `claude-skills/go-test-reviewer/SKILL.md`, replace the inline table-driven example (`**Table-driven tests**` through the code fence, lines ~89–118) with:
 
 ```markdown
-**Table-driven tests** — Go's most important pattern. Recommend whenever a file has 3+ tests with the same structure. Canonical example in `references/table-driven-example.go`.
+**Table-driven tests** — Go's most important pattern. Recommend whenever a file has 3+ tests with the same structure. Canonical example in `references/table-driven-example.md`.
 ```
 
 Replace the `## Output Template` section (lines ~128–166) with:
