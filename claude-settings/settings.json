@@ -79,15 +79,6 @@
     "code-simplifier@claude-plugins-official": true,
     "feature-dev@claude-plugins-official": true,
     "skill-creator@claude-plugins-official": true,
-    "bencium-controlled-ux-designer@bencium-marketplace": true,
-    "bencium-impact-designer@bencium-marketplace": true,
-    "bencium-innovative-ux-designer@bencium-marketplace": true,
-    "design-audit@bencium-marketplace": true,
-    "human-architect-mindset@bencium-marketplace": true,
-    "negentropy-lens@bencium-marketplace": true,
-    "relationship-design@bencium-marketplace": true,
-    "renaissance-architecture@bencium-marketplace": true,
-    "typography@bencium-marketplace": true,
     "caveman@caveman": true
   },
   "extraKnownMarketplaces": {
@@ -116,6 +107,6 @@
       }
     }
   },
-  "effortLevel": "medium",
+  "effortLevel": "high",
   "skipAutoPermissionPrompt": true
 }

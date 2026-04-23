@@ -53,11 +53,7 @@
       "Bash(sed:*)",
       "Bash(awk:*)",
       "Skill(agent-browser:agent-browser)",
-      "Bash(agent-browser --auto-connect open 'http://localhost:*)",
-      "Bash(agent-browser --auto-connect wait --load networkidle)",
-      "Bash(agent-browser --auto-connect network requests --type xhr,fetch)",
-      "Bash(agent-browser network:*)",
-      "Bash(agent-browser open:*)"
+      "Bash(agent-browser*)"
     ]
   },
   "sandbox": {
@@ -82,8 +78,7 @@
         "~/.1password/agent.sock",
         "~/.gitconfig",
         "/opt/1Password",
-        "$TMPDIR",
-        "/home/theo/Work/atluo"
+        "$TMPDIR"
       ]
     }
   }

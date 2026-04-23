@@ -107,7 +107,6 @@ Default policy: deny reads to `~/` (home directory) to prevent access to dotfile
 | `~/.gitconfig` | Git configuration (needed for commits, aliases, etc.) |
 | `/opt/1Password` | 1Password CLI/browser integration binaries |
 | `$TMPDIR` | Temporary files -- used by statusline and build tools for intermediate output |
-| `/home/theo/Work/atluo` | The atluo project directory -- allows cross-project reference |
 
 ### Filesystem -- Write Access
 
