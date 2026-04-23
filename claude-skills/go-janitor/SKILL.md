@@ -3,6 +3,7 @@ name: go-janitor
 description: |
   Find and remove dead code in Go codebases: unused functions, exports, imports, variables, constants, and unreachable code paths. Simplifies and consolidates remaining code for a leaner codebase.
   Use this skill whenever the user wants to clean up Go code, find unused functions, remove dead code, audit for unused exports, slim down a package, or asks about code that's not being used. Also trigger when the user mentions "dead code", "unused code", "code cleanup", "go cleanup", "remove unused", "slim down", "lean codebase", "unused functions", "unused exports", or wants to make a Go codebase leaner — even if they don't explicitly ask for a "janitor" or "dead code hunter".
+allowed-tools: Bash, Read, Edit, Grep, Glob
 ---
 
 # Dead Code Hunter (Go)
