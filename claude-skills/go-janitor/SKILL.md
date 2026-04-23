@@ -177,50 +177,8 @@ go vet ./...
 
 ## Go-specific traps to avoid
 
-Things that look dead but aren't. Wrong = broken build or subtle runtime failures:
-
-| Pattern | Why it's not dead |
-|---------|-------------------|
-| `var _ Interface = (*Type)(nil)` | Compile-time interface check |
-| `func init() { ... }` | Runs on package import, no explicit caller |
-| `_ "database/sql/driver"` | Side-effect import, registers a driver |
-| `//go:embed files/*` | Compiler directive, referenced at build time |
-| `//go:generate ...` | Build tooling directive |
-| `//go:linkname localName pkg.remoteName` | Links to unexported symbol in another package |
-| `//export FuncName` | CGo export, called from C code |
-| `func (t *Type) MarshalJSON() ...` | Called by `encoding/json` via interface, never explicitly |
-| `func (t *Type) String() string` | Called by `fmt` via `Stringer` interface |
-| `func (t *Type) Error() string` | Called by error handling via `error` interface |
-| Methods matching `Scan`, `Value` | Called by `database/sql` via interfaces |
-| Unexported fields with struct tags | Populated by reflection-based unmarshalers |
+Before removing any symbol, consult `references/go-traps.md` — a table of patterns that look dead but are load-bearing (interface compliance, CGo exports, side-effect imports, etc.).
 
 ## Output format
 
-After changes, concise summary:
-
-```
-## Dead Code Removed
-
-### Files removed (N)
-- path/to/dead_file.go — package `foo`, never imported
-
-### Unused exports removed (N)
-- `ExportedFunc` from path/to/file.go — no callers outside package `bar`
-- `HelperType` from path/to/types.go — no references found
-
-### Unused functions removed (N)
-- `helperFunc` in path/to/file.go — no call sites in package
-
-### Dead imports cleaned (N)
-- Removed `_ "image/gif"` from path/to/file.go — no GIF decoding in project
-
-### Other cleanup (N)
-- Removed 15 lines of commented-out code from path/to/old.go
-
-### Verification
-- [x] `go build ./...` passes
-- [x] `go vet ./...` clean
-- [ ] `go test ./...` (run to confirm)
-```
-
-Summary focused on what removed and why. "Why" per removal = confidence nothing important deleted.
+After changes, emit a concise summary using the template in `references/output-format.md`.
