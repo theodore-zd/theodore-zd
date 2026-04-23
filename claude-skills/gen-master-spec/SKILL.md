@@ -8,11 +8,11 @@ allowed-tools: Glob, Grep, Read, Write
 
 # Codebase Spec Generator
 
-Skill analyze whole codebase, create master spec files documenting architecture, organization, components, how fit together.
+This skill analyzes the whole codebase and creates master spec files documenting architecture, organization, components, and how they fit together.
 
 ## Your Task
 
-Create technical master spec doc(s) = complete reference for project. Spec explain:
+Create technical master spec doc(s) — a complete reference for the project. The spec explains:
 
 - What project do
 - How organized (dirs, modules)

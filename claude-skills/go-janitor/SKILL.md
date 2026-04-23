@@ -16,7 +16,7 @@ Priority order:
 
 ### 1. Dead files
 
-Files nothing imports or references. Biggest wins — whole files project no need.
+Files nothing imports or references. Biggest wins — whole files the project doesn't need.
 
 **How to find them:**
 - Grep package name + symbol usage across project
@@ -34,7 +34,7 @@ Files nothing imports or references. Biggest wins — whole files project no nee
 
 ### 2. Unused exported symbols
 
-Exported functions, types, constants, variables (capitalized) nothing outside package uses. Insidious — compiler no catch. Go errors on unused *imports* and *local variables* only, not exports.
+Exported functions, types, constants, variables (capitalized) nothing outside package uses. Insidious — compiler won't catch. Go errors on unused *imports* and *local variables* only, not exports.
 
 **How to find them:**
 - For each exported symbol, grep project for `packagename.SymbolName`
@@ -49,7 +49,7 @@ Exported functions, types, constants, variables (capitalized) nothing outside pa
 - Symbols part of public API of library package (if project is library, exported symbols *are* the product)
 - Symbols registered as handlers: HTTP (`http.HandleFunc`), gRPC service, CLI command (cobra, urfave/cli)
 - Symbols in wire/fx DI containers
-- Protobuf/gRPC generated code — no touch generated files
+- Protobuf/gRPC generated code — don't touch generated files
 
 ### 3. Unused unexported functions and methods
 
@@ -123,7 +123,7 @@ staticcheck ./... 2>/dev/null || echo "staticcheck not installed"
 deadcode ./... 2>/dev/null || echo "deadcode not installed"
 ```
 
-`staticcheck` or `deadcode` not installed? Fine — note it, proceed manually. No install unless user asks.
+`staticcheck` or `deadcode` not installed? Fine — note it, proceed manually. Do not install unless the user asks.
 
 ### Step 2: Scope the hunt
 
