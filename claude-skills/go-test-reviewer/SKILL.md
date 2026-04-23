@@ -83,36 +83,7 @@ For each test, check:
 
 Go strong test idioms. Flag deviations, suggest fixes:
 
-**Table-driven tests** — Go's most important pattern. Recommend:
-
-```go
-func TestParseSize(t *testing.T) {
-    tests := []struct {
-        name    string
-        input   string
-        want    int64
-        wantErr bool
-    }{
-        {"valid bytes", "1024B", 1024, false},
-        {"valid kilobytes", "5KB", 5120, false},
-        {"empty string", "", 0, true},
-        {"negative value", "-1B", 0, true},
-        {"no unit", "1024", 0, true},
-    }
-    for _, tt := range tests {
-        t.Run(tt.name, func(t *testing.T) {
-            got, err := ParseSize(tt.input)
-            if (err != nil) != tt.wantErr {
-                t.Errorf("ParseSize(%q) error = %v, wantErr %v", tt.input, err, tt.wantErr)
-                return
-            }
-            if got != tt.want {
-                t.Errorf("ParseSize(%q) = %v, want %v", tt.input, got, tt.want)
-            }
-        })
-    }
-}
-```
+**Table-driven tests** — Go's most important pattern. Recommend whenever a file has 3+ tests with the same structure. Canonical example in `references/table-driven-example.go`.
 
 **Other patterns:**
 - **TestMain** — setup/teardown duplicated across tests should use `TestMain`?
@@ -124,42 +95,4 @@ func TestParseSize(t *testing.T) {
 
 ## Output Template
 
-ALWAYS use this template:
-
-```markdown
-# Test Review: [package name]
-
-## Summary
-- **Coverage**: [X%] (from `go test -cover`)
-- **Test count**: [N] test functions across [M] files
-- **Overall health**: [Solid / Needs work / Critical gaps]
-- **Top priority**: [one-line description of the most important finding]
-
-## Critical Issues
-[Tests that are actively misleading — passing when they shouldn't, asserting wrong things, hiding bugs]
-
-### [Issue title]
-- **Location**: `file_test.go:TestFunctionName`
-- **Problem**: [what's wrong and why it matters]
-- **Impact**: [what could break in production]
-- **Fix**:
-\`\`\`go
-// concrete code showing the fix
-\`\`\`
-
-## Coverage Gaps
-[Functions or code paths with no test coverage, ordered by risk]
-
-### [Untested function/path]
-- **Location**: `file.go:FunctionName`
-- **Risk**: [why this needs tests — what breaks if it regresses?]
-- **Suggested tests**: [list the specific test cases to add]
-
-## Quality Improvements
-[Tests that work but could be better — structure, readability, idioms]
-
-## Quick Wins
-[Easiest improvements that deliver the most value, bulleted list]
-```
-
-Adapt as needed — skip empty sections, expand full ones. Structure keeps review scannable, not forces empty sections.
+Always use the format in `references/output-template.md`. Skip empty sections, expand full ones — structure keeps review scannable without forcing empty blocks.
