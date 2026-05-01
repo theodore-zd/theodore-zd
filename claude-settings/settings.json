@@ -88,7 +88,13 @@
     "relationship-design@bencium-marketplace": true,
     "renaissance-architecture@bencium-marketplace": true,
     "typography@bencium-marketplace": true,
-    "caveman@caveman": true
+    "caveman@caveman": true,
+    "superpowers@claude-plugins-official": true,
+    "playwright@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "figma@claude-plugins-official": true,
+    "pyright-lsp@claude-plugins-official": true,
+    "chrome-devtools-mcp@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "claude-plugins-official": {
@@ -117,5 +123,6 @@
     }
   },
   "effortLevel": "medium",
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "theme": "light-ansi"
 }

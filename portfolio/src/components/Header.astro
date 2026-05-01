@@ -96,15 +96,18 @@ const currentPath = Astro.url.pathname
     </div>
     
     <script>
-        document.addEventListener('astro:page-load', () => {
+        function setupMobileMenuToggle() {
             const toggle = document.getElementById('mobile-menu-toggle')
             const menu = document.getElementById('mobile-menu')
-            
-            if (toggle && menu) {
+            if (toggle && menu && !toggle.dataset.menuListener) {
                 toggle.addEventListener('click', () => {
                     menu.classList.toggle('hidden')
                 })
+                toggle.dataset.menuListener = 'true'
             }
-        })
+        }
+
+        document.addEventListener('astro:page-load', setupMobileMenuToggle)
+        document.addEventListener('DOMContentLoaded', setupMobileMenuToggle)
     </script>
 </header>
