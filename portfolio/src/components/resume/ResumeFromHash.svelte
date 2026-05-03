@@ -27,10 +27,43 @@
     return parsed as Partial<Resume>
   }
 
+  function mergeResume(base: Partial<Resume>, overrides: Partial<Resume>): Partial<Resume> {
+    const merged: Partial<Resume> = { ...base, ...overrides }
+
+    // skills: merge by key so favorite-only override doesn't clobber toolbox
+    if (overrides.skills) {
+      merged.skills = { ...(base.skills ?? { favorite: [], toolbox: [] }), ...overrides.skills }
+    }
+
+    // experiences: merge by id so a one-role override doesn't replace the array
+    if (overrides.experiences && base.experiences) {
+      const overrideById = new Map<string, Partial<Resume['experiences'][number]>>()
+      for (const o of overrides.experiences as Array<Partial<Resume['experiences'][number]> & { id?: string }>) {
+        if (typeof o.id === 'string' && o.id.length > 0) {
+          overrideById.set(o.id, o)
+        } else {
+          console.warn('[resume/tailor] experience override missing id, ignored:', o)
+        }
+      }
+      const seen = new Set<string>()
+      merged.experiences = base.experiences.map((exp) => {
+        const o = overrideById.get(exp.id)
+        if (!o) return exp
+        seen.add(exp.id)
+        return { ...exp, ...o }
+      })
+      for (const id of overrideById.keys()) {
+        if (!seen.has(id)) console.warn(`[resume/tailor] experience override id "${id}" not found in defaults, ignored`)
+      }
+    }
+
+    return merged
+  }
+
   onMount(() => {
     try {
       const overrides = decodeHash(window.location.hash)
-      resume = overrides ? { ...defaultResume, ...overrides } : defaultResume
+      resume = overrides ? mergeResume(defaultResume, overrides) : defaultResume
     } catch (e) {
       error = e instanceof Error ? e.message : String(e)
       console.error('[resume/tailor] failed to load tailored resume from hash:', e)
