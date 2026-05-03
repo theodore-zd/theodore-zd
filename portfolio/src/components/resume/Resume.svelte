@@ -162,4 +162,10 @@
   @media (max-width: 600px) {
     .resume-page { padding: var(--sp-mobile); }
   }
+
+  @media print {
+    .section,
+    .experience-items > div { break-inside: avoid; }
+    .section h3 { break-after: avoid; }
+  }
 </style>

@@ -39,6 +39,8 @@ body {
 }
 
 @media print {
+  @page { margin: 0; }
+  :root { --sp-page: 0.15in; --sp-mobile: 0.15in; }
   html, body { margin: 0; padding: 0; background: #fff; }
   .no-print { display: none !important; }
 }

@@ -122,4 +122,8 @@
   @media (max-width: 600px) {
     .letter-page { padding: var(--sp-mobile); }
   }
+
+  @media print {
+    .letter-page { max-width: none; }
+  }
 </style>
