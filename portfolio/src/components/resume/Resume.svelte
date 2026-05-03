@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Resume } from '../../data/resume'
+  import './resume-styles.css'
 
   export let resume: Partial<Resume> = {}
 </script>
@@ -68,51 +69,6 @@
 </main>
 
 <style>
-  :global(:root) {
-    --text: #111;
-    --text-secondary: #333;
-    --muted: #555;
-    --border: #eee;
-    --bg-button: #f7f7f7;
-    --border-button: #ccc;
-
-    --font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    --line-height: 1.15;
-
-    --fs-name: 1.45rem;
-    --fs-subtitle: 0.8rem;
-    --fs-section-title: 0.8rem;
-    --fs-body: 0.8rem;
-    --fs-summary: 0.8rem;
-    --fs-bullet: 0.8rem;
-
-    --sp-xs: 0.08rem;
-    --sp-sm: 0.12rem;
-    --sp-md: 0.2rem;
-    --sp-lg: 0.3rem;
-    --sp-xl: 0.45rem;
-    --sp-2xl: 0.5rem;
-    --sp-page: 0.6in;
-    --sp-mobile: 0.5in;
-
-    --margin-contact: 3px;
-    --list-indent: 1rem;
-    --list-indent-alt: 0.9rem;
-  }
-
-  @media print {
-    :global(html), :global(body) { margin: 0; padding: 0; background: #fff; }
-    .resume-page { margin: 0 auto; }
-    :global(.no-print) { display: none !important; }
-  }
-
-  :global(body) {
-    font-family: var(--font-family);
-    color: var(--text);
-    line-height: var(--line-height);
-    background: #fff;
-  }
-
   .resume-page {
     width: 100%;
     padding: var(--sp-page);
