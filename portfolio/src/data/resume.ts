@@ -1,3 +1,5 @@
+import { getDefaultFavoriteSkills, getDefaultToolboxSkills } from './skills'
+
 // GitHub project types and data
 export interface GithubProject {
   repo: string
@@ -98,6 +100,7 @@ export interface Resume {
     toolbox: string[]
   }
   experiences: Array<{
+    id: string
     title: string
     desc: string
     role: string
@@ -157,49 +160,12 @@ const resumeData = {
     "Scaling systems with TypeScript, Go, React, and Next.js. I focus on what matters: faster systems, lower costs, better user experience.",
   footerTagline: "9+ years. TypeScript, Go, React. Measurable impact.",
   skills: {
-    favorite: [
-      "TypeScript",
-      "Go",
-      "Python",
-      "Alpine.js",
-      "JavaScript/Typescript",
-      "React",
-      "Next.js",
-      "Node.js",
-      "Bun",
-      "Docker",
-      "PostgreSQL",
-      "SvelteKit",
-      "Git",
-
-    ],
-    toolbox: [
-      "Netlify",
-      "HTML5",
-      "CSS3",
-      "Nest.js",
-      "GraphQL",
-      "SASS",
-      "Socket.io",
-      "Vue",
-      "Pnpm",
-      "MongoDB",
-      "Npm",
-      "GraphQL",
-      "Playwright",
-      "Cypress",
-      "HTTP/REST",
-      "Design Systems",
-      "Agile Methodologies",
-      "SEO Optimization",
-      "UI/UX Design",
-      "Team Management",
-      "Design Systems",
-      "CI/CD",
-    ],
+    favorite: getDefaultFavoriteSkills(),
+    toolbox: getDefaultToolboxSkills(),
   },
   experiences: [
     {
+      id: 'freelance-current',
       title: "Freelance",
       desc: "September 2024 - Present",
       role: "Systems Performance Engineer",
@@ -210,6 +176,7 @@ const resumeData = {
       ],
     },
     {
+      id: 'indie-tech',
       title: "Indie Tech",
       desc: "May 2022 - July 2024",
       role: "Full-Stack Developer, UI/UX Designer",
@@ -222,6 +189,7 @@ const resumeData = {
       ],
     },
     {
+      id: 'kato-studio',
       title: "Kato.Studio",
       desc: "October 2020 - July 2021",
       role: "Founder",
@@ -233,6 +201,7 @@ const resumeData = {
       ],
     },
     {
+      id: 'freelance-2019',
       title: "Freelance",
       desc: "December 2019 - October 2020",
       role: "Full-Stack Developer, UI/UX Designer",
@@ -243,6 +212,7 @@ const resumeData = {
       ],
     },
     {
+      id: 'salesgrowth-dev',
       title: "SalesGrowth Development Inc",
       desc: "December 2018 - December 2019",
       role: "Frontend Developer, UI/UX Designer",
@@ -253,6 +223,7 @@ const resumeData = {
       ],
     },
     {
+      id: 'freelance-graphic',
       title: "Freelance",
       desc: "January 2016 - December 2018",
       role: "Freelance Graphic Designer",
