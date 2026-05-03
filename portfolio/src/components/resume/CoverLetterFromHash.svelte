@@ -17,7 +17,7 @@
     if (raw == null) throw new Error('Missing "data" parameter in URL hash')
     let parsed: unknown
     try {
-      parsed = JSON.parse(decodeURIComponent(raw))
+      parsed = JSON.parse(raw)
     } catch {
       throw new Error('Hash data is not valid JSON')
     }

@@ -31,7 +31,7 @@ All fields are optional — anything you omit falls back to the default values f
 | `portfolioUrl`        | `string` (URL)                    | Contact line.                               |
 | `professionalSummary` | `string`                          | Single paragraph.                           |
 | `skills.favorite`     | `string[]`                        | First 12 joined with `, ` under "Favorite Tools". |
-| `experiences`         | `Array<{title, role, desc, info[]}>` | `info` is bullet list per experience.    |
+| `experiences`         | `Array<{title, role, desc, info[]}>` | Renders as `{title} — {role} ({desc})`. `title` = company, `role` = job title, `desc` = duration (e.g. "September 2024 – Present"), `info` = bullets. |
 | `achievements`        | `string[]`                        | Bullet list.                                |
 
 Other fields from the full `Resume` interface (in `src/data/resume.ts`) are accepted but not rendered. Pass them or omit them — same result.
@@ -61,7 +61,7 @@ The merge is shallow at the top level — `skills`, `experiences`, and `achievem
     {
       "title": "Acme",
       "role": "Lead Engineer",
-      "desc": "2022 – present",
+      "desc": "January 2022 – Present",
       "info": [
         "Cut p99 latency 40% migrating Node services to Go.",
         "Owned the design system used by 12 frontend squads."
@@ -117,6 +117,14 @@ A missing or empty hash is no longer an error — the page renders the full defa
 
 - Plain JSON in the URL hash. No compression. Browsers handle hashes well past 30 KB; if a real payload ever exceeds that, add `CompressionStream`-based gzip + base64url to both ends.
 - The page does no schema validation beyond "is the parsed value an object". The agent producing the JSON is trusted.
+
+## QA fixture
+
+End-to-end fixture for verifying the round-trip — exercises `%`, `&`, `<`, `/`, `+`, `#`, `:`, `;`, `$`, `×`, `→`, en/em dashes, and nested arrays. Verified rendered DOM matches every input field exactly (run via `bun run dev` then load the URL with a fresh page load — hash-only navigations don't re-mount the Svelte island).
+
+```json
+{"name":"Ada Q. Lovelace-Test","professionalSummary":"Achieved 20% cost reduction & 35% throughput gain. Delivered <50ms p99 latency, A/B testing wins, and 100%-coverage tests.","seniority":"Senior Engineer","yearsExperience":"10+ yrs","location":"Berlin, DE — EU/UK","email":"qa+test@example.com","skills":{"favorite":["TypeScript","Go","Svelte","C#","F#","Node.js→Bun"]},"experiences":[{"title":"Acme Corp","role":"Staff Engineer","desc":"January 2022 – Present","info":["Led 5-person team delivering A/B testing framework w/ 99.9% uptime.","Rewrote billing service: 10× throughput, <100ms p95, $250k/yr saved.","Mentored 3 engineers; introduced TDD & RFC process."]},{"title":"Beta Labs","role":"Senior Engineer","desc":"March 2019 – December 2021","info":["Built C#/F# interop layer for legacy services.","Reduced bundle size by 35% via code-splitting & tree-shaking."]}]}
+```
 
 ---
 

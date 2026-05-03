@@ -17,7 +17,7 @@
     if (raw == null) return null
     let parsed: unknown
     try {
-      parsed = JSON.parse(decodeURIComponent(raw))
+      parsed = JSON.parse(raw)
     } catch {
       throw new Error('Hash data is not valid JSON')
     }
