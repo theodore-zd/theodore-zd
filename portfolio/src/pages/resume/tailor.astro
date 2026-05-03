@@ -1,5 +1,6 @@
 ---
 import ResumeFromHash from '../../components/resume/ResumeFromHash.svelte'
+import { resume } from '../../data/resume'
 ---
 <html lang="en">
   <head>
@@ -9,6 +10,6 @@ import ResumeFromHash from '../../components/resume/ResumeFromHash.svelte'
     <title>Tailored Resume</title>
   </head>
   <body>
-    <ResumeFromHash client:only="svelte" />
+    <ResumeFromHash client:only="svelte" defaultResume={resume} />
   </body>
 </html>
