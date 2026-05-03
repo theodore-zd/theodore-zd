@@ -102,7 +102,7 @@ export interface Resume {
   experiences: Array<{
     id: string
     title: string
-    desc: string
+    dates: string
     role: string
     info: string[]
   }>
@@ -167,7 +167,7 @@ const resumeData = {
     {
       id: 'freelance-current',
       title: "Freelance",
-      desc: "September 2024 - Present",
+      dates: "September 2024 - Present",
       role: "Systems Performance Engineer",
       info: [
         "Migrated Node.js APIs to Golang, achieving 20% infrastructure cost reduction and 35% faster response times.",
@@ -178,7 +178,7 @@ const resumeData = {
     {
       id: 'indie-tech',
       title: "Indie Tech",
-      desc: "May 2022 - July 2024",
+      dates: "May 2022 - July 2024",
       role: "Full-Stack Developer, UI/UX Designer",
       info: [
         "Spearheaded UI/UX overhaul, resulting in a 43% improvement in user testing scores and a 27% decrease in UI-related support tickets.",
@@ -191,7 +191,7 @@ const resumeData = {
     {
       id: 'kato-studio',
       title: "Kato.Studio",
-      desc: "October 2020 - July 2021",
+      dates: "October 2020 - July 2021",
       role: "Founder",
       info: [
         "Elevated client websites to achieve 95+ Lighthouse scores, resulting in an average increase of 53% in organic traffic and a 152% decrease in bounce rates.",
@@ -203,7 +203,7 @@ const resumeData = {
     {
       id: 'freelance-2019',
       title: "Freelance",
-      desc: "December 2019 - October 2020",
+      dates: "December 2019 - October 2020",
       role: "Full-Stack Developer, UI/UX Designer",
       info: [
         "Collaborated with cross-functional teams to integrate design concepts and backend functionality, reducing project timelines by 27%.",
@@ -214,7 +214,7 @@ const resumeData = {
     {
       id: 'salesgrowth-dev',
       title: "SalesGrowth Development Inc",
-      desc: "December 2018 - December 2019",
+      dates: "December 2018 - December 2019",
       role: "Frontend Developer, UI/UX Designer",
       info: [
         "Optimized four client websites, improving SEO rankings by an average of 21%, accessibility scores by 42%, and load times by 22%.",
@@ -225,7 +225,7 @@ const resumeData = {
     {
       id: 'freelance-graphic',
       title: "Freelance",
-      desc: "January 2016 - December 2018",
+      dates: "January 2016 - December 2018",
       role: "Freelance Graphic Designer",
       info: [
         "Collaborated with 23 clients to identify and execute optimal design solutions.",

@@ -247,7 +247,7 @@ if (resumeModule) {
             <div class="experience-items">
               {(resume.experiences).map((e: any) => (
                 <div>
-                  <div class="experience-header">{e.title} — {e.role} <span class="experience-description">({e.desc})</span></div>
+                  <div class="experience-header">{e.title} — {e.role} <span class="experience-description">({e.dates})</span></div>
                   <ul class="experience-bullets">
                     {e.info?.map((bullet: string) => <li>{bullet}</li>)}
                   </ul>

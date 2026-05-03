@@ -43,7 +43,7 @@
       <div class="experience-items">
         {#each resume.experiences as e}
           <div>
-            <div class="experience-header">{e.title} — {e.role} <span class="experience-description">({e.desc})</span></div>
+            <div class="experience-header">{e.title} — {e.role} <span class="experience-description">({e.dates})</span></div>
             <ul class="experience-bullets">
               {#each e.info ?? [] as bullet}
                 <li>{bullet}</li>
