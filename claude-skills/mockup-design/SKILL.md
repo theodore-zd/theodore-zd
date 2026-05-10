@@ -1,6 +1,6 @@
 ---
 name: mockup-design
-description: Generate a new design concept for the portfolio as a self-contained HTML mockup at `mockups/<iteration>.html`, grounded in the current Astro UI. Interactive — interviews the user about target page, design direction, and references before generating. Use when the user says "new mockup", "design concept", "try a redesign", "explore a new look", "iterate on the UI", or asks to mock up a section of the portfolio.
+description: Generate a new design concept for the portfolio as a self-contained HTML mockup at `docs/mocks/<iteration>.html`, grounded in the current Astro UI. Interactive — interviews the user about target page, design direction, and references before generating. Use when the user says "new mockup", "design concept", "try a redesign", "explore a new look", "iterate on the UI", or asks to mock up a section of the portfolio.
 user_invocable: true
 ---
 
@@ -8,9 +8,9 @@ user_invocable: true
 
 Act as a design partner for the portfolio in this repo. Produce a single self-contained HTML file that explores a new visual direction for an existing page or section, grounded in the current implementation so the concept is realistic, not generic.
 
-The output is a *concept*, not production code. It lives in `mockups/` (relative to the repo root) and is meant to be opened in a browser, reviewed, and iterated on. Do not modify the live Astro source during this skill.
+The output is a *concept*, not production code. It lives in `docs/mocks/` (relative to the repo root) and is meant to be opened in a browser, reviewed, and iterated on. Do not modify the live Astro source during this skill.
 
-Before starting, confirm you're operating from the repo root (the directory containing both `portfolio/` and `mockups/`). If the working directory is elsewhere, prefix paths accordingly — but never write the mockup outside `mockups/`.
+Before starting, confirm you're operating from the repo root (the directory containing both `portfolio/` and `docs/mocks/`). If the working directory is elsewhere, prefix paths accordingly — but never write the mockup outside `docs/mocks/`.
 
 ## Operating principles
 
@@ -89,9 +89,9 @@ If the page is large, focus reads on the target section; you don't need to read 
 
 ### Phase 3 — Pick the iteration filename
 
-Mockups live at `mockups/<iteration>.html`.
+Mockups live at `docs/mocks/<iteration>.html`.
 
-1. List existing files: ``ls mockups/``. If the directory doesn't exist, create it and start at `01`.
+1. List existing files: ``ls docs/mocks/``. If the directory doesn't exist, create it and start at `01`.
 2. Pick the next filename using this scheme: `NN-<short-slug>.html` where `NN` is zero-padded two digits, increments past the highest existing number, and `<short-slug>` is a 2–4 word kebab-case description of the concept (e.g. `03-editorial-serif.html`, `04-brutalist-terminal.html`).
 3. If the user explicitly named the iteration, honor that — but still prefix with the next `NN-` so ordering stays clean.
 
@@ -121,21 +121,21 @@ Quality bar:
 - **Theme parity**: if both themes are shown, both must look intentional — dark isn't just "light with inverted colors".
 - **Accessibility basics**: correct heading order, sufficient contrast (WCAG AA), alt text on any imagery.
 
-For execution craft on ambitious visual directions, draw on the principles documented in the `frontend-design` skill (distinctive design, avoiding generic patterns) — but stay in this skill; do not invoke another skill mid-run. The deliverable belongs in `mockups/`.
+For execution craft on ambitious visual directions, draw on the principles documented in the `frontend-design` skill (distinctive design, avoiding generic patterns) — but stay in this skill; do not invoke another skill mid-run. The deliverable belongs in `docs/mocks/`.
 
 ### Phase 5 — Hand off
 
 After writing the file:
 
 1. Print the absolute path and a one-line description of what's in it.
-2. Suggest the user open it: `open mockups/<file>.html` (macOS) — offer to run it if they want.
+2. Suggest the user open it: `open docs/mocks/<file>.html` (macOS) — offer to run it if they want.
 3. Ask whether to iterate (next numbered file, refining direction) or stop. Don't assume.
 
 ## Things you must not do
 
 - Do **not** modify files under `portfolio/src/` while running this skill. Mockups only.
 - Do **not** generate placeholder lorem ipsum when real content exists in the Astro pages — read it.
-- Do **not** overwrite existing mockups. Always add a new numbered file.
+- Do **not** overwrite existing mockups. Always add a new numbered file to `docs/mocks/`.
 - Do **not** introduce a build step, npm install, or framework runtime in the mockup. One HTML file, opens via double-click.
 - Do **not** skip the interview unless the user's prompt already specifies target + direction + scope clearly.
 
