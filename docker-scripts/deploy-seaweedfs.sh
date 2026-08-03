@@ -123,6 +123,18 @@ generate_secret_key() {
     tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 32
 }
 
+# Expand a leading ~ to $HOME (read/mkdir don't do this themselves)
+expand_path() {
+    local path=$1
+    if [[ "$path" == "~" ]]; then
+        echo "$HOME"
+    elif [[ "$path" == "~/"* ]]; then
+        echo "$HOME/${path:2}"
+    else
+        echo "$path"
+    fi
+}
+
 # Log functions for consistent output formatting
 log_info() {
     echo -e "${BLUE}ℹ${NC} $1"
@@ -159,6 +171,7 @@ SEAWEEDFS_VOLUME_PORT=$(prompt_with_default "Volume port" "$DEFAULT_SEAWEEDFS_VO
 SEAWEEDFS_S3_PORT=$(prompt_with_default "S3 API port" "$DEFAULT_SEAWEEDFS_S3_PORT")
 SEAWEEDFS_FILER_PORT=$(prompt_with_default "Filer port" "$DEFAULT_SEAWEEDFS_FILER_PORT")
 DATA_DIR=$(prompt_with_default "Data directory" "$DEFAULT_DATA_DIR")
+DATA_DIR=$(expand_path "$DATA_DIR")
 
 # S3 credentials
 if [[ -n "$DEFAULT_S3_ACCESS_KEY" ]]; then
