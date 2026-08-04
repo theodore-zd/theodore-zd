@@ -1,0 +1,16 @@
+    window-rule {
+        geometry-corner-radius 20 // Set every window radius to 20
+        clip-to-geometry true
+    }
+
+    // Steam notifications: place bottom-right, don't steal focus
+    window-rule {
+        match app-id="steam" title=r#"notificationtoasts_\d+_desktop$"#
+        default-floating-position x=0 y=0 relative-to="bottom-right"
+        open-focused false
+    }
+
+    layer-rule {
+        match namespace="^noctalia-wallpaper*"
+        place-within-backdrop true
+    }

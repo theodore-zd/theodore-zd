@@ -129,6 +129,18 @@ generate_password() {
     tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 32
 }
 
+# Expand a leading ~ to $HOME (read/mkdir don't do this themselves)
+expand_path() {
+    local path=$1
+    if [[ "$path" == "~" ]]; then
+        echo "$HOME"
+    elif [[ "$path" == "~/"* ]]; then
+        echo "$HOME/${path:2}"
+    else
+        echo "$path"
+    fi
+}
+
 # Log functions for consistent output formatting
 log_info() {
     echo -e "${BLUE}ℹ${NC} $1"
@@ -165,6 +177,7 @@ POSTGRES_PASSWORD=$(generate_password)
 POSTGRES_DB=$(prompt_with_default "Database name" "$DEFAULT_POSTGRES_DB")
 POSTGRES_PORT=$(prompt_with_default "PostgreSQL port" "$DEFAULT_POSTGRES_PORT")
 DATA_DIR=$(prompt_with_default "Data directory" "$DEFAULT_DATA_DIR")
+DATA_DIR=$(expand_path "$DATA_DIR")
 
 echo ""
 log_info "Configuration Summary:"
@@ -179,6 +192,15 @@ echo ""
 # Create postgres.env file with the configuration
 POSTGRES_ENV_FILE="postgres.env"
 log_info "Creating postgres.env file..."
+
+# Get absolute path for display and env file (correctly handles both relative and absolute paths)
+# First ensure the directory exists, then get the canonical path via parent directories
+mkdir -p "$DATA_DIR"
+if [[ "$DATA_DIR" = /* ]]; then
+    DATA_DIR_ABSOLUTE="$DATA_DIR"
+else
+    DATA_DIR_ABSOLUTE="$(cd "$(dirname "$DATA_DIR")" && pwd)/$(basename "$DATA_DIR")"
+fi
 
 # URL-encode the password for use in DATABASE_URL
 ENCODED_PASSWORD=$(urlencode "$POSTGRES_PASSWORD")
@@ -210,6 +232,7 @@ EOF
 
 log_success "postgres.env file created"
 log_info "Location: $(pwd)/$POSTGRES_ENV_FILE"
+log_info "Data Directory: $DATA_DIR_ABSOLUTE"
 echo ""
 log_info "Usage:"
 echo "  1. Add DATABASE_URL to your .env file"
@@ -276,9 +299,7 @@ if lsof -Pi :$POSTGRES_PORT -sTCP:LISTEN -t >/dev/null 2>&1; then
     exit 1
 fi
 
-# Create data directory
-log_info "Creating data directory..."
-mkdir -p "$DATA_DIR"
+# Data directory was already created above when resolving the absolute path
 
 # Run PostgreSQL container
 log_info "Creating PostgreSQL container..."
@@ -288,7 +309,7 @@ docker run -d \
     -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" \
     -e POSTGRES_DB="$POSTGRES_DB" \
     -p "$POSTGRES_PORT:5432" \
-    -v "$(pwd)/$DATA_DIR:/var/lib/postgresql/data" \
+    -v "$DATA_DIR_ABSOLUTE:/var/lib/postgresql/data" \
     postgres:15-alpine
 
 # Wait for PostgreSQL to be ready
@@ -305,7 +326,7 @@ if docker container inspect "$CONTAINER_NAME" 2>/dev/null | grep -q '"Status": "
     log_info "Container Details:"
     echo "  Name:           $CONTAINER_NAME"
     echo "  Database URL:   postgresql://$POSTGRES_USER:***@localhost:$POSTGRES_PORT/$POSTGRES_DB"
-    echo "  Data Directory: $(pwd)/$DATA_DIR"
+    echo "  Data Directory: $DATA_DIR_ABSOLUTE"
     echo ""
     log_info "Next Steps:"
     echo "  1. Add DATABASE_URL to .env file (from postgres.env)"
