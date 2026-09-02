@@ -50,9 +50,9 @@ Run every file in your slice against each family:
 
 2. Component reuse — markup matching a lib/ component's contract rendered
    inline instead: EmptyState, Spinner/LoadingState, ErrorBanner,
-   ConfirmDialog/ConfirmDelete, TagChip, StatusMenu, Kbd, etc. → REUSE.
-   Inline loading/error scaffolding or empty-state blocks where a shared
-   component exists are guilt.
+   ConfirmDialog/ConfirmDelete, TagChip, StatusMenu, Kbd, Button, IconButton,
+   Input, MenuRow, TabBar, etc. → REUSE. Inline loading/error scaffolding or
+   empty-state blocks where a shared component exists are guilt.
 
 3. Repeated view scaffolding — identical `loading`/`error` `$state` blocks,
    emptyState `$derived.by` descriptors, list-header/controls markup repeated
@@ -77,6 +77,29 @@ Run every file in your slice against each family:
 8. Runes anti-patterns that compound duplication — `$effect` re-implementing
    derived state, `$state` copies of server data with hand-rolled sync where a
    store pattern exists, duplicated async-load boilerplate.
+
+9. Raw controls against the component catalog — every raw `<button>` /
+   `<input>` / `<textarea>` / `<select>` in view/shell/component code whose
+   catalog primitive exists → REUSE of the primitive, ONE site is enough:
+   Button (boxed primary/soft/ghost/danger + chromeless link/chip/field),
+   IconButton, Input (incl. `variant="plain"` chromeless), MenuRow (tight/md/lg
+   densities for picker/option rows), TabBar (settings/panel tab strips).
+   Transfer the site's class string BYTE-FOR-BYTE into the primitive's `class`
+   prop — never reorder, reformat, or "improve" it. Preserve every handler,
+   `aria-*`, `data-testid`, `data-menu-trigger` (via the primitives'
+   `dataMenuTrigger` prop), and `bind:this` → `bind:el`. Pick the primitive
+   VARIANT/geometry that matches the site, not a boxed variant + override
+   classes: Tailwind v4 resolves same-property conflicts by compiled
+   stylesheet order, not class-attribute order, so an appended class can lose
+   to the base (arbitrary values like `text-[13px]` sort after named classes
+   and win; named-vs-named follows the sheet). Chromeless variants contribute
+   no competing geometry, so sites that differ from boxed geometry pass the
+   full site string instead.
+   KEEP-raw whitelist (convert nothing here; comment `<!-- KEEP-raw: … -->`
+   where sensible): overlay backdrops/click-catchers, hidden file inputs,
+   upload dropzones, roving calendar-grid day cells, complex per-kind tree
+   rows, row-card `<div role="button">` selectors, and primitive internals
+   (Button/Input/MenuRow/TabBar themselves, Select's `<option>`s).
 
 Every finding = one move-ledger row:
 `TYPE | file:line | what exists now → what it becomes | reuse target (existing

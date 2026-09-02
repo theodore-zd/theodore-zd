@@ -18,6 +18,8 @@ Not for: bug hunting (`feral-audit`), deleting dead weight (`strip` — if feral
 2. **Reuse before write**: if a shared component/util already exists that satisfies the need, replace the inline copy even at ONE site (no rule-of-three for existing assets). API mismatch is not an excuse — adapt the callsite; if the shared thing is wrong for all sites, that is a RULE-NEW candidate, not license to fork it.
 3. **Extract at first duplication**: a NEW abstraction is created only when the SAME logic/markup appears 2+ times in the target slice or its repo-wide siblings (see Dispatch). 2nd occurrence → extract; never extract a singleton into a helper with one caller (that is a simplification, see below, not an extraction).
 4. **Componentize toward own components**: markup matching a lib/component's contract is swapped in; repeated view markup patterns (empty states, loading/error scaffolding, row actions, list headers) are extracted into the repo's shared component dir; new components are named and shaped per the repo's design doc conventions.
+   - **Raw controls are guilt until proven otherwise**: a raw `<button>` / `<input>` / `<textarea>` / `<select>` rendered in view/component/shell code while the repo's component catalog ships a primitive for it (Button, IconButton, Input, MenuRow, TabBar, Select, Checkbox, …) is a REUSE row even at ONE site — swap the catalog primitive in, transferring the site's class string BYTE-FOR-BYTE through the primitive's `class` prop (see `frontend-organizer.md` checklist family 9). The primitive's own variants are the override mechanism — chromeless button variants (`link`/`chip`/`field`) and `Input variant="plain"` contribute no conflicting geometry/colors, so sites pass their full original class string verbatim; never fight a base class by appending a different value for the same property (Tailwind v4 resolves same-property conflicts by compiled stylesheet order, not class-attribute order — the base class wins).
+   - **Where raw elements are legal**: inside the catalog primitives' own internals (they are the extraction home — e.g. Button/Input themselves, Select's `<option>`s, DatePicker's roving day-cells), plus a documented KEEP-raw whitelist of non-control structural elements — overlay backdrops/click-catchers, hidden file inputs, upload dropzones, roving calendar-grid day cells, complex per-kind tree rows, row-card `<div role="button">`s. Anything outside that whitelist converts in the same run; whitelist items get a `<!-- KEEP-raw: reason -->` comment where sensible.
 5. **Simplify with a tax**: every simplification (dead arg, redundant branch, collapse, merge) must carry a simplicity tax — lines/abstractions removed vs added. Simplifications that remove code beat extractions that add layers; when a rule conflicts, prefer fewer total moving parts.
 6. Nothing is above reorganization — stores, api modules, shell chrome, services, db helpers. But NEVER delete code (that's strip's job) and NEVER change behavior or public API shape without flagging it in the proposal (see Contract).
 
@@ -41,6 +43,12 @@ Not for: bug hunting (`feral-audit`), deleting dead weight (`strip` — if feral
 **Move ledger row format** (each row is one concrete, reviewable move):
 `TYPE | file:line | what exists now → what it becomes | reuse target (existing symbol or new) | simplicity tax (+X/-Y lines) | gate needed`
 Types: `REUSE` (swap inline → existing shared), `EXTRACT` (new util/component from 2+ sites), `SIMPLIFY` (delete/merge/collapse), `COMPONENTIZE` (new component), `DOC-SYNC` (design-doc entry), `RULE-NEW` (AGENTS.md rule proposal), `LINT-ENFORCE` (hand to feral-lang), `API:` prefix when exported shape/behavior changes.
+
+**REUSE default**: when a finding's remedy could be either reuse of an existing
+shared asset or a new abstraction, propose the REUSE row — even at one site —
+and let `EXTRACT` fall out only where the target slice shows 2+ occurrences of
+a pattern with no shared home. Reuse rows need no rule-of-three; the catalog or
+utils home is the extraction home already done.
 
 ## Approval — batched, strip-style
 
@@ -94,6 +102,8 @@ If ≥1 `LINT-ENFORCE` rule was approved, the final phase loads `skill://feral-l
 - Skip the repo-wide sibling scan before declaring a pattern unique or duplicated.
 - Create a new abstraction where an existing shared component/util already satisfies the need.
 - Extract a singleton (one caller) into a helper.
+- Leave a raw `<button>`/`<input>`/`<textarea>`/`<select>` in view/shell/component code when the repo's catalog already ships the primitive (swap it; controls outside primitives and the KEEP-raw whitelist are guilt until replaced).
+- Convert something on the KEEP-raw whitelist (backdrops, hidden file inputs, dropzones, roving grid cells, complex tree rows, row-card divs) or "fix" a primitive's internals — those are the extraction home, not violations.
 - Edit without running the batch gate; commit a batch that failed its gate.
 - Leave the design doc stale after touching shared components (DOC-SYNC is mandatory, not optional).
 - Delete or rewrite dead code — flag it and defer to `strip`.
