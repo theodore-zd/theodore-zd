@@ -52,3 +52,4 @@ Currently freelancing and open to interesting opportunities. Happy to chat if yo
 |-----------|-------------|
 | `claude-settings/` | Claude Code configuration |
 | `docker-scripts/` | Common Docker utilities |
+| `agent-skills/` | Symlink mirror of `~/.omp/agent/skills` (global omp skills); refresh with `personal-scripts/sync-omp-skills.sh` |
