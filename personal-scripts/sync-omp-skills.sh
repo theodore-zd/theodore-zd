@@ -1,74 +1,87 @@
 #!/usr/bin/env bash
-# Sync the global omp skills folder (~/.omp/agent/skills) into this repo's
-# agent-skills/ dir as per-skill symlinks, then commit the link set.
+# Sync ~/.omp/agent/skills (live omp folder) with this repo's agent-skills/ dir.
 #
-# Why symlinks: editing a skill in ~/.omp/agent/skills is instantly reflected
-# here (git stores only the link). NOTE: a clone of this repo does NOT carry
-# skill content — the links point at ~/.omp/agent/skills on this machine.
+# The repo's agent-skills/ is the COMMITTED STORE: real skill content lives
+# here in git (clone-portable backup). Each live omp skill dir is a symlink
+# into the store, so editing a skill through ~/.omp/agent/skills/<name> writes
+# the repo's file directly; commit captures it.
 #
 # Safety rules:
-#  - A real dir in agent-skills/ is replaced ONLY when byte-identical to the
-#    matching omp skill; anything different aborts (never destroy content).
-#  - Real dirs with no matching omp skill (Atluo-repo mirrors, archived) are
-#    left untouched and reported.
+#  - agent-skills/ entries with NO matching omp skill (Atluo-repo mirrors,
+#    archived skills) are never touched.
+#  - A real dir in the live omp folder whose name already exists in the store
+#    with DIFFERENT content aborts (never destroy either copy).
 #  - Only agent-skills/ is staged; unrelated repo changes are never committed.
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-OMP_SKILLS="$HOME/.omp/agent/skills"
-BACKUP_SKILLS="$REPO_DIR/agent-skills"
-REL_TARGET_PREFIX="../../../.omp/agent/skills"
+LIVE_DIR="$HOME/.omp/agent/skills"
+STORE_DIR="$REPO_DIR/agent-skills"
 
-echo "==> Syncing $OMP_SKILLS -> $BACKUP_SKILLS"
+echo "==> Syncing $LIVE_DIR <-> $STORE_DIR (store is authoritative)"
 
-[ -d "$OMP_SKILLS" ] || { echo "!! $OMP_SKILLS not found; nothing to sync" >&2; exit 1; }
-mkdir -p "$BACKUP_SKILLS"
+[ -d "$LIVE_DIR" ] || { echo "!! $LIVE_DIR not found; nothing to sync" >&2; exit 1; }
+[ -d "$STORE_DIR" ] || mkdir -p "$STORE_DIR"
 
-for skill_dir in "$OMP_SKILLS"/*/; do
-    name="$(basename "$skill_dir")"
-    link="$BACKUP_SKILLS/$name"
-    target="$REL_TARGET_PREFIX/$name"
+changed=0
 
-    if [ -L "$link" ]; then
-        current="$(readlink "$link")"
-        if [ "$current" = "$target" ]; then
-            echo "  = $name (already linked)"
-        else
-            echo "  ~ $name relink: $current -> $target"
-            ln -sfn "$target" "$link"
-        fi
-    elif [ -e "$link" ]; then
-        # Real dir/copy exists. Replace only when byte-identical to the omp skill.
-        if diff -rq "$skill_dir" "$link" >/dev/null 2>&1; then
-            echo "  ~ $name (identical copy -> symlink)"
-            rm -rf "$link"
-            ln -s "$target" "$link"
-        else
-            echo "!! $name exists in $BACKUP_SKILLS and DIFFERS from $OMP_SKILLS/$name" >&2
-            echo "   Refusing to replace; resolve by hand and re-run." >&2
-            exit 1
-        fi
-    else
-        echo "  + $name"
-        ln -s "$target" "$link"
-    fi
-done
-
-# Report backup entries with no matching omp skill (never touched by this script).
-for entry in "$BACKUP_SKILLS"/*; do
+# 1. Live side: adopt real dirs into the store, verify links point at the store.
+for entry in "$LIVE_DIR"/*; do
     [ -e "$entry" ] || continue
     name="$(basename "$entry")"
+    store_path="$STORE_DIR/$name"
+
     if [ -L "$entry" ]; then
-        [ -d "$OMP_SKILLS/$name" ] || echo "  ! $name: symlink with no omp skill (stale? left untouched)"
-    else
-        [ -d "$OMP_SKILLS/$name" ] || echo "  ! $name: real dir, no matching omp skill (left untouched)"
+        current="$(readlink -f "$entry")"
+        want="$(readlink -f "$store_path" 2>/dev/null || echo "$store_path")"
+        if [ "$current" != "$want" ]; then
+            if [ -e "$store_path" ] || [ -L "$store_path" ]; then
+                echo "  ~ $name relink: $(readlink "$entry") -> $(realpath --relative-to "$LIVE_DIR" "$store_path")"
+                ln -sfn "$(realpath --relative-to "$LIVE_DIR" "$store_path")" "$entry"
+                changed=1
+            else
+                echo "  ! $name: live link has no store entry (stale; left as-is)"
+            fi
+        fi
+        # else: already linked correctly; nothing to do
+    elif [ -d "$entry" ]; then
+        # Real dir in the live omp folder. Is it already in the store?
+        if [ -d "$store_path" ] || [ -L "$store_path" ]; then
+            # Conflict check: store copy must match, or we refuse to clobber.
+            if diff -rq "$entry" "$store_path" >/dev/null 2>&1; then
+                echo "  ~ $name (identical copy in omp -> symlink into store)"
+                rm -rf "$entry"
+                ln -s "$(realpath --relative-to "$LIVE_DIR" "$store_path")" "$entry"
+                changed=1
+            else
+                echo "!! $name: real dir in $LIVE_DIR DIFFERS from store copy $STORE_DIR/$name" >&2
+                echo "   Two divergent sources; resolve by hand and re-run." >&2
+                exit 1
+            fi
+        else
+            # New skill authored in the live omp folder: adopt into the store.
+            echo "  + $name (new in omp -> store + symlink)"
+            mv "$entry" "$store_path"
+            ln -s "$(realpath --relative-to "$LIVE_DIR" "$store_path")" "$entry"
+            changed=1
+        fi
     fi
 done
 
+# 2. Store side: report committed entries the live folder no longer links.
+for entry in "$STORE_DIR"/*; do
+    [ -e "$entry" ] || continue
+    name="$(basename "$entry")"
+    if [ ! -e "$LIVE_DIR/$name" ] && [ ! -L "$LIVE_DIR/$name" ]; then
+        echo "  ! $name: in store, no live omp entry (backup-only or unlinked; left untouched)"
+    fi
+done
+
+# 3. Commit store changes.
 git -C "$REPO_DIR" add agent-skills
 if git -C "$REPO_DIR" diff --cached --quiet; then
     echo "==> No changes to commit"
 else
-    git -C "$REPO_DIR" commit -m "sync agent-skills symlinks with ~/.omp/agent/skills"
+    git -C "$REPO_DIR" commit -m "sync agent-skills store with ~/.omp/agent/skills"
     echo "==> Committed"
 fi
