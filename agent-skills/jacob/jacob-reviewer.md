@@ -40,15 +40,16 @@ Subagent (general-purpose):
 
     ### Props & Typing
 
-    - [ ] **interface Props, never type Props** — component props must use `interface Props { ... }` with `let { ... }: Props = $props()`. Not `type Props = { ... }`, not inline `$props<{ ... }>()`, not generated `$props<{}>()`.
-    - [ ] **No unnecessary casts** — no `as Record<string, unknown>`, no `as object`, no `Array.isArray()` on data already typed as an array. If the type is correct, the cast is dead code.
+    - [ ] **interface Props, never type Props** — component props must use `interface Props { ... }` with `let { ... }: Props = $props()`. Not `type Props = { ... }`, not inline `$props<{ ... }>()`, not generated `$props<{}>()`. Element-wrapping primitives extend: `interface Props extends WithElementRef<HTMLAttributes<HTMLElement>> { ... }`. Context/registration types are interfaces too, in their own module.
+    - [ ] **No unnecessary casts** — no `as Record<string, unknown>`, no `as object`, no `Array.isArray()` on data already typed as an array, no `as any`/`as never` where narrowing or the type definition already constrains the value. If the type is correct, the cast is dead code.
     - [ ] **No non-null assertions** — avoid `!` scattered through expressions. Consolidate with `$derived.by(() => { ... })` that resolves the value once.
     - [ ] **Exhaustive switch defaults** — every `switch` on a discriminant union must have a `default:` case that throws. Otherwise extending the union silently breaks things.
     - [ ] **Prefers `const` over `let`** — if a binding is never reassigned, it should be `const`.
+    - [ ] **Dedicated named types** — query/action payloads and context data get named `interface`s, not inline anonymous types; reusable domain/GraphQL types live in `$lib/types`. Flag unused props/fields (e.g. an added `url` prop nothing reads).
 
     ### Svelte 5 Runes
 
-    - [ ] **`$derived` over `$state`** — computed values derived from other state must use `$derived` or `$derived.by`, not `$state` with manual sync logic. `$derived` can still be reassigned if needed.
+    - [ ] **`$derived` over `$state`** — computed values derived from other state must use `$derived` or `$derived.by`, not `$state` with manual sync logic. `$derived` can still be reassigned if needed — use it (not `$state`) to fix Svelte's "state referenced locally" warnings.
     - [ ] **Avoid `$effect`** — prefer explicit functions triggered by user actions (e.g. `onclick={finishEdit}`) over `$effect` that watches state changes. If you must react to changes, use `watch` from runed which makes the dependency explicit.
     - [ ] **No `$effect` with unused deps** — if the effect body calls `void rows` just to trigger it, use `watch(() => rows, ...)` instead.
     - [ ] **Optional snippet children render with `{@render children?.()}`** — not `{#if children}{@render children()}{/if}`. Svelte 5 renders optional snippets null-safely.
@@ -56,10 +57,22 @@ Subagent (general-purpose):
     ### Async Data & Fetching
 
     - [ ] **Runed `resource` for async component data** — a component that fetches data should use `resource(source, fetcher, { signal })` from `runed`, not `$effect` + raw `fetch` + a hand-rolled `cancelled` boolean. The abort `signal` cancels stale requests; don't reinvent it.
-    - [ ] **No raw `fetch`** — client requests use `clientFetch`/`clientFetchJson` from `$lib/fetch`. Bare `fetch` skips error-body normalization (`CodedError`/`HttpResponseError`) and the `LOGIN_REQUIRED` redirect. Checking `response.ok` yourself is not error handling.
     - [ ] **Server-first data** — data that only serves one page belongs in `+page.server.ts` as a `streamedResult`, not in a client-fetched `/api/*` GET route that re-fetches everything server-side. If an API route is genuinely shared it must be wrapped in `fetchApi` and consumed via `clientFetchJson`.
     - [ ] **Trust the types — no dead defensive guards** — a runtime null check on a field the type defines as non-nullable (e.g. `created_at`) is dead code; flag it.
     - [ ] **Reuse project helpers** — inline re-implementations of existing helpers (`new Date(ts * 1000)` instead of `mapInteractionCreatedAt(interaction)`) are duplication; flag and point at the helper.
+
+    ### API Routes, Errors & SvelteKit Data
+
+    - [ ] **Use the project route/action wrappers** — API handlers use `jsonFetchApi(schema, ...)`/`fetchApi` from `$lib/server/api` and form actions use `superFormAction`; never hand-roll body parsing/validation and never set `locals.inAPI` manually. Errors thrown are proper `CodedError`s.
+    - [ ] **Client errors are handled, not swallowed** — catch and log via `logger.error`, surfacing any error ref/requestId; use `Promise.allSettled` for batch operations so partial failures are reported separately.
+    - [ ] **Invalidate page/layout data, don't `.refetch()`** — TanStack Query `.refetch()` doesn't reload SvelteKit SSR-provided page data; use `invalidateAll()` or a targeted `invalidate(...)`.
+    - [ ] **Loading states travel with the data** — pass the unawaited promise through as `streamedResult(...)` from the load and pass `loading` down to children rendering async data, so nothing renders as empty while loading.
+    - [ ] **Route URLs via `resolve` from `$app/paths`** — not hand-built template strings.
+    - [ ] **GraphQL fragments for repeated field sets** — don't spell the same fields out twice; extract a fragment.
+
+    ### Money & Numeric Precision
+
+    - [ ] **Decimal, never floats, for money** — financial/percentage values parse with `safeParseDecimal`/`parseDecimalOrNull` (from `$lib/parsing/decimal.ts`), never `parseFloat`/`Number(...)`; keep values as `Decimal` and format via `.toString()` rather than round-tripping through `asNumber`.
 
     ### Context & Utilities
 
@@ -67,6 +80,8 @@ Subagent (general-purpose):
     - [ ] **Context generics with Snippet** — if a context function accepts `Snippet<[{ row: unknown }]>` but the caller provides `Snippet<[{ row: Row }]>`, the cast or `any` widening is intentional, not dead code. Snippet is contravariant — this is a structural type system limitation, not an unnecessary assertion.
     - [ ] **Use runed `PersistedState`** — not hand-rolled localStorage. `import { PersistedState } from 'runed'` handles serialization, SSR, and edge cases.
     - [ ] **Use runed `watch`** — not `$effect` for observation. Explicit dependency makes intent clear.
+    - [ ] **`.get()` throws; optional contexts read via `.getOr(undefined)`** — a runed `Context`.get() throws when unset; if a context can be absent, use `.getOr(undefined)` (or the getter pattern the file already uses) instead of crashing or `?? true` masking.
+    - [ ] **Accept `MaybeGetter<T>` for value-or-getter props** — resolve with `extract(...)` from runed rather than hand-rolling value/getter detection.
 
     ### Code Organization
 
@@ -80,9 +95,11 @@ Subagent (general-purpose):
     ### Clean Code
 
     - [ ] **No stray comments** — remove TODO comments, HTML `<!-- -->` comments, and commented-out code. Leaving these in signals unfinished work.
-    - [ ] **Remove unnecessary default values** — if a default is the same as what the caller would naturally pass, it adds noise. Only keep defaults that provide genuine fallback value.
+    - [ ] **Remove unnecessary default values** — if a default is the same as what the caller would naturally pass, it adds noise. Only keep defaults that provide genuine fallback value. Drop `= undefined` on optional props, don't give required context members defaults, and don't parameterize a component that has a single call site — bake the props in.
     - [ ] **Use `{@const}` for repeated sub-expressions** — if you access `otherUses.length - 5` in two places, use `{@const remaining = otherUses.length - 5}`.
     - [ ] **No nested ternaries** — a simple two-way ternary is fine; nested or multi-expression ternary chains must be `if`/`else` statements or a named helper function with early returns. Check data loading, render logic, and column config helpers alike.
+    - [ ] **Reuse existing components & libraries** — bits-ui `Portal`, an existing `MonthSelect`, `uuid` `v4()` for generated ids: if the abstraction already exists in the codebase or a dependency, use it instead of re-implementing.
+    - [ ] **No per-call allocation in hot paths** — don't rebuild formatter/parser functions or closures inside functions invoked per-row/per-cell; hoist to module scope.
 
     ### CSS & Styling
 
@@ -182,14 +199,14 @@ Subagent (general-purpose):
 2. **Raw getContext instead of runed Context**
    - File: src/lib/components/atoms/table/table-header.svelte:18
    - Issue: Uses `getContext()` directly without runed wrapper
-   - Why: Untyped context — Jacob standard #2
+   - Why: Untyped context — Jacob standard #8 (runed Context)
    - Fix: Import `Context` from runed
 
 #### Minor
 1. **Stray HTML comment in template**
    - File: src/lib/components/custom/tax/TaxClientRow.svelte:97
    - Issue: `<!-- Client Name -->` comment in production code
-   - Why: Remove before committing — Jacob standard #8
+   - Why: Remove before committing — Jacob standard #20 (no stray comments)
    - Fix: Remove the comment
 
 ### Recommendations
