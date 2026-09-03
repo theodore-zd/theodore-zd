@@ -91,6 +91,7 @@ Subagent (general-purpose):
     - [ ] **Placement mirrors what the component serves** — a storybook-only provider stubbing app-level context belongs next to the module it stubs (e.g. `$lib/launchDarkly/`), not inside a feature/domain folder. Flag domain-folder infra as Important.
     - [ ] **Guard divisions derived from array lengths** — width/percent math dividing by `columns.length`/`rows.length` needs an empty-array guard; unguarded division yields `Infinity`/`NaN` layout values.
     - [ ] **Stable keys: know the uniqueness domain** — synthesized keys for legacy entities should use the runtime-assigned globally-unique field (e.g. `interaction.index`); keep only segments that protect against real historical collisions and drop decorative ones.
+    - [ ] **Placement at the lowest level that fits** — search domain/ → organisms/ → molecules/ → atoms/ → ui/ before creating; atoms stay structural (no business logic, no domain imports). See the structure reference below for what groups where.
 
     ### Clean Code
 
@@ -111,6 +112,12 @@ Subagent (general-purpose):
 
     - [ ] **Import sorting** — enforce `perfectionist/sort-imports` rules. External packages come first, then internals grouped by type, then relative imports. Check that there are no blank-line or ordering violations.
     - [ ] **Type imports separate** — use `import type { ... }` for type-only imports where the linter expects it.
+
+    ## Codebase Structure Reference (placement)
+
+    Components under `src/lib/components/`, lowest level that fits: `domain/<feature>/` (feature-scoped) → `organisms/` (composed structures + shared context: `tables/{base,editable,tree,reconciliation}-table`, `app/`, `charts/`) → `molecules/` (small reusable renderers: `table/cells/` TextCell/CurrencyCell/…, `feedback/`) → `atoms/` (pure HTML/design-token primitives: `table/`, `text/`, `card/`, `layout/`) → `ui/` (vendored shadcn/bits-ui wrappers; `ui/table` is deprecated → `atoms/table`).
+
+    Non-component logic mirrors that grouping: feature logic in `src/lib/<feature>/` (`job/`, `workpapers/`, …); server-only in `src/lib/server/` (`server/job/review/`, GraphQL per domain in `server/graphql/`); shared client types in `src/lib/types/<domain>.ts`; flags + helpers + `LaunchDarklyStoryProvider` in `src/lib/launchDarkly/`; generic helpers in `src/lib/utils/`; `CodedError`s in `src/lib/errors/`. Stories/tests colocate (`X.stories.svelte`, `x.test.ts`); route fixtures under the route's `__fixtures__/`.
 
     ## Calibration
 

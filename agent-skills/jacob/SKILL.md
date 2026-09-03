@@ -79,6 +79,57 @@ The reviewer enforces these specific rules compiled from Jacob's PR feedback (so
 32. **Reuse project helpers over inline re-implementations** — Before writing an inline conversion (e.g. `new Date(ts * 1000)` or a manual try/catch parse), look for the existing helper (`mapInteractionCreatedAt(interaction)`, `parseDecimalOrNull`) and use it.
 33. **No per-call allocation in hot paths** — Don't rebuild formatter/parser functions or closures inside functions called per-row/per-cell; hoist them to module scope.
 
+### Component Hierarchy
+
+34. **Place components at the lowest level that fits** — Search `domain/` → `organisms/` → `molecules/` → `atoms/` → `ui/` before creating anything new, and put a component in the level that its content dictates (reference tree below). A pure primitive with design tokens only is an atom; a small reusable renderer is a molecule; a composed structure with shared context is an organism; a feature-scoped piece belongs in `domain/<feature>/`. **Atoms are structural — no business logic, no data fetching, no domain imports.**
+
+## Component Structure Reference
+
+The component tree under `src/lib/components/` (deep table rules live in `src/lib/components/organisms/tables/references.md` + `docs/agent/references/table-styling.md`):
+
+```
+src/lib/components/
+├── ui/                    # Vendored generic primitives (shadcn/bits-ui wrappers)
+│   ├── button/ dialog/ select/ form/ field/ popover/ sheet/ skeleton/ …
+│   └── table/  ← deprecated; use atoms/table
+├── atoms/                 # Pure primitives — structure & design tokens ONLY
+│   ├── table/             # HTML table primitives: Root, Header, Body, Row, Cell,
+│   │                      #   HeadCell, Caption, Footer + context/token modules
+│   ├── text/              # Heading
+│   ├── inputs/            # input/ link-tabs/ upload/
+│   ├── media/avatar/      # avatar
+│   ├── layout/            # ContentContainer
+│   ├── card/ card-list/ pill/ status-icon/ indicator/ tooltip/ context-menu/
+│   └── client/            # ClientOnly
+├── molecules/             # Reusable compositions — formatting + interaction, no structure
+│   ├── table/
+│   │   ├── cells/         # TextCell, CurrencyCell, NumericCell, DateCell, SelectCell, …
+│   │   └── SortableHeader, CellShell, CommentCellPopover, XeroAccountCell, …
+│   ├── feedback/          # empty/ error/ hint/ info/ loading/ progress/ streamed/
+│   ├── surfaces/card/     # card surfaces (skeleton, status)
+│   ├── markdown/ stats/ breadcrumbs/ checklist/ xlsx/
+├── organisms/             # Large composed structures, shared context
+│   ├── tables/            # base-table/ editable-table/ tree-table/
+│   │                      #   reconciliation-table/ workpaper/ + TablePagination
+│   ├── app/               # sidebar/ page/ app-banner/ demo-tools/ debug/ Logo
+│   ├── charts/            # Trend* charts + trend utils
+│   ├── auth/ search/ marketing/
+└── domain/                # Feature-scoped, one folder per product domain
+    ├── exception-report/  # ExceptionReportRow, TrafficLightLegend, … (stories/tests colocated)
+    ├── workpapers/ worksheets/ gather/ general-ledger/ chart-of-accounts/
+    ├── review/ review-checklist/ client-queries/ shareholders/ gst/ insights/
+    └── jobs/              # list/ print/ sections/ single/
+```
+
+**Rules of thumb**
+
+- **Lowest level that fits.** Domain page → `domain/` or compose in the route. Reusable across pages → `organisms/`. Small shared renderer → `molecules/`. HTML/design-token primitive → `atoms/`. Vendored generic → `ui/`.
+- **Atoms stay structural** — no business logic, no data fetching, no domain imports.
+- **Storybook providers/context stubs live next to the module they stub** (standard 24), never in the feature folder.
+- **Stories & tests colocate** with their component (`X.stories.svelte`, `x.test.ts`); route fixtures live under the route's `__fixtures__/`.
+- **Tables**: structure from `atoms/table`, reusable cell renderers from `molecules/table/cells`, context shells from `organisms/tables/*`, columns defined per page/domain. Never raw `<td>` in rows, never wrapper row components; `ui/table` is deprecated.
+- **Non-component logic mirrors the same grouping**: feature logic in `src/lib/job/`, `src/lib/workpapers/`, `src/lib/worksheets/`…; server-only code under `src/lib/server/` (`server/job/review/`…); GraphQL per domain in `server/graphql/` (`jobs.ts`, `tax.ts`, `client.ts`); shared client types in `src/lib/types/<domain>.ts`; feature flags + flag helpers + `LaunchDarklyStoryProvider` in `src/lib/launchDarkly/`; generic helpers in `src/lib/utils/` (`date.ts`, `format.ts`, `url.ts`); `CodedError`s in `src/lib/errors/`.
+
 ## How to Dispatch
 
 **1. Get git SHAs:**
