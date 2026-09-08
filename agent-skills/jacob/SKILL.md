@@ -84,6 +84,11 @@ The reviewer enforces these specific rules compiled from Jacob's PR feedback (so
 34. **Place components at the lowest level that fits** — Search `domain/` → `organisms/` → `molecules/` → `atoms/` → `ui/` before creating anything new, and put a component in the level that its content dictates (reference tree below). A pure primitive with design tokens only is an atom; a small reusable renderer is a molecule; a composed structure with shared context is an organism; a feature-scoped piece belongs in `domain/<feature>/`. **Atoms are structural — no business logic, no data fetching, no domain imports.**
 35. **No duplicated logic across sibling files — write it once, use it twice** — When near-identical routes/pages need the same logic (sibling loaders, report variants), extract a shared parameterized helper and keep the per-variant files thin. A diff that **adds the same block a second time** is the opposite of reuse: it doubles the maintenance surface and every future fix must be applied twice. This is not premature abstraction (Rule of Three) — a file that is a >80%-identical copy of a sibling is already-compounded debt, and a diff that adds the second copy is merge-blocking regardless of per-file quality. Concretely: normalize per-variant identifiers (report names, titles, data paths) and diff the siblings; if only a handful of lines differ, flag it and require extraction.
 
+### Central Systems & Cross-Boundary
+
+36. **Route through central resolvers — never re-implement their contract at call sites** — When a concern has a central resolver (variation lookups: `variation()` client-side and `resolveDarklyVariation` server-side — both fold `DEV_FLAG_OVERRIDES`; fetches: `clientFetch`/`jsonFetchApi`; decimals: `safeParseDecimal`/`parseDecimalOrNull`), call sites call the resolver with plain arguments and nothing more. A call site that adds `DEV_FLAG_OVERRIDES[key] === true || await resolveDarklyVariation(...)` copies a slice of the resolver's behavior: it re-derives what the resolver already owns, drifts independently when the resolver contract changes, and teaches future readers there are two sources of truth. If a call site needs override-aware or special behavior, extend the resolver — don't bolt a second copy beside the call.
+37. **Cross-boundary string constants must stay in lockstep (or be single-sourced)** — Feature flags appear in both `clientFeatureFlags.ts` (`CLIENT_FEATURE_FLAGS`) and `serverFeatureFlags.server.ts` (`SERVER_FEATURE_FLAGS`); the dev-override map is keyed on the **client** enum while server-side lookups use the **server** enum. The override system silently breaks if the string values diverge (dev behaves like prod, no error). When a diff adds/renames a flag used on both sides, or touches the override map, reviewer MUST verify the strings stay identical in both enums; prefer deriving one enum from the other (or a shared constants module) when realistic.
+
 ## Component Structure Reference
 
 The component tree under `src/lib/components/` (deep table rules live in `src/lib/components/organisms/tables/references.md` + `docs/agent/references/table-styling.md`):
@@ -142,7 +147,7 @@ HEAD_SHA=$(git rev-parse HEAD)
 
 **2. Dispatch the Jacob reviewer subagent:**
 
-Use a `general-purpose` subagent, filling the template at [jacob-reviewer.md](jacob-reviewer.md).
+Use the harness `reviewer` subagent (or a general-purpose subagent), filling the template at [jacob-reviewer.md](jacob-reviewer.md).
 
 **Placeholders:**
 
@@ -167,6 +172,8 @@ Use a `general-purpose` subagent, filling the template at [jacob-reviewer.md](ja
 - Introduce new `type Props` or inline `$props<{}>` violations
 - Add new `getContext`/`setContext` without runed
 - Let a PR ship the same new logic twice (two sibling loaders/pages differing only by report-type identifiers) — duplicated code is code that will be fixed twice
+- Let a call site re-implement central resolver behavior (`DEV_FLAG_OVERRIDES` copies next to `resolveDarklyVariation`) — redundant code that drifts and gets fixed N times
+- Let client/server flag-key strings drift apart — dev overrides silently stop working
 - File duplication as "Minor / nice-to-have" — it is merge-blocking whenever the diff itself adds the second copy
 
 **If reviewer flags something you disagree with:**
