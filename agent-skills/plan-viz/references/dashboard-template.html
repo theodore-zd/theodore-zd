@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<!-- @plan:title (also used in <title>) -->
+<title>Plan — interactive preview</title>
+<style>
+/* ================= theme ================= */
+:root{
+  --bg:#0d1117; --panel:#161b26; --panel2:#1d2432; --ink:#e8ecf3; --mut:#8b95a7;
+  --acc:#5ad1ff; --acc2:#ffb454; --ok:#3dd68c; --warn:#ffd166; --bad:#ff6b6b;
+  --border:#26303f; --radius:14px; --shadow:0 10px 28px rgba(0,0,0,.45);
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+}
+html[data-theme="light"]{
+  --bg:#f5f7fb; --panel:#ffffff; --panel2:#edf1f7; --ink:#1a2233; --mut:#5c6780;
+  --border:#d7dee9; --shadow:0 8px 22px rgba(20,30,60,.10);
+}
+*{box-sizing:border-box}
+html,body{margin:0;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans)}
+h1,h2,h3{line-height:1.15;margin:0}
+a{color:var(--acc)}
+button{font:inherit;cursor:pointer;color:inherit}
+canvas{display:block;max-width:100%;background:#0a0e15}
+html[data-theme="light"] canvas{background:#fafcff}
+
+/* ================= layout ================= */
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px 90px}
+.hero{padding:54px 0 26px;border-bottom:1px solid var(--border);margin-bottom:30px}
+.hero .kicker{font:600 12px/1 var(--mono);color:var(--mut);text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px}
+.hero h1{font-size:clamp(28px,5vw,44px);font-weight:800;letter-spacing:-.02em}
+.hero .sub{color:var(--mut);max-width:70ch;margin-top:10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border:1px solid var(--border);border-radius:999px;
+  font:500 12px/1 var(--mono);background:var(--panel)}
+.chip b{color:var(--acc)}
+.chip .dot{width:9px;height:9px;border-radius:50%}
+.dot.ok{background:var(--ok)} .dot.warn{background:var(--warn)} .dot.bad{background:var(--bad)}
+
+/* ================= rail ================= */
+.rail{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+.rail .in{max-width:1180px;margin:0 auto;padding:8px 20px;display:flex;align-items:center;gap:10px;overflow-x:auto}
+.rail button{background:none;border:1px solid transparent;border-radius:8px;padding:5px 10px;font:600 12.5px/1 var(--sans);
+  color:var(--mut);white-space:nowrap}
+.rail button.on{color:var(--acc);border-color:var(--border);background:var(--panel)}
+.rail .fill{flex:1;height:4px;background:var(--panel2);border-radius:2px;overflow:hidden;min-width:60px}
+.rail .fill i{display:block;height:100%;width:0;background:var(--acc);transition:width .2s}
+
+/* ================= sections ================= */
+section{margin:44px 0;scroll-margin-top:70px}
+.sec-head{display:flex;align-items:baseline;gap:10px;margin-bottom:16px}
+.sec-head h2{font-size:22px;font-weight:800}
+.sec-head .time{font:600 12px/1 var(--mono);color:var(--mut)}
+.sec-head .skip{margin-left:auto;font:600 12px/1 var(--sans);color:var(--mut);background:none;border:none;text-decoration:underline}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+.card .ico{font-size:24px;margin-bottom:8px}
+.card h3{font-size:15px;font-weight:700}
+.card p{margin:6px 0 0;color:var(--mut);font-size:13.5px}
+
+/* expandable detail */
+details{border:1px solid var(--border);border-radius:var(--radius);background:var(--panel);padding:0;margin-top:12px}
+details>summary{cursor:pointer;list-style:none;padding:12px 16px;font-weight:700;display:flex;align-items:center;gap:8px}
+details>summary::before{content:"▸";color:var(--acc);transition:transform .15s}
+details[open]>summary::before{transform:rotate(90deg)}
+details>div{padding:0 16px 14px;color:var(--mut);font-size:13.5px}
+
+/* ================= flow stepper ================= */
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.step{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:12px;position:relative}
+.step .n{position:absolute;top:-9px;left:12px;background:var(--acc);color:#07121a;font:800 11px/1 var(--mono);
+  padding:3px 7px;border-radius:6px}
+.step h4{margin:8px 0 4px;font-size:13.5px}
+.step p{margin:0;color:var(--mut);font-size:12px}
+
+/* ================= sim panels ================= */
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+.panel .row{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start}
+.panel .cap{margin:8px 0 0;color:var(--mut);font-size:12.5px}
+.panel .btnrow{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.btn{padding:7px 14px;border-radius:9px;border:1px solid var(--border);background:var(--panel2);font-weight:700;font-size:13px}
+.btn.primary{background:var(--acc);color:#07121a;border-color:transparent}
+.legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--mut)}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+
+/* ================= settings ================= */
+.setting{display:grid;grid-template-columns:180px 1fr 70px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)}
+.setting:last-of-type{border-bottom:none}
+.setting label{font-weight:700;font-size:13.5px}
+.setting .lbl small{display:block;color:var(--mut);font-weight:500;font-size:11.5px}
+.setting output{font:700 13px/1 var(--mono);color:var(--acc);text-align:right}
+input[type=range]{width:100%;accent-color:var(--acc)}
+select{padding:5px 8px;border:1px solid var(--border);border-radius:8px;background:var(--panel2);color:var(--ink)}
+
+/* ================= metrics & before/after ================= */
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:14px}
+.metric{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;text-align:center}
+.metric .v{font:800 24px/1.1 var(--mono);color:var(--acc)}
+.metric .k{margin-top:4px;font-size:11.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em}
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ba .side{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
+.ba .side h3{font-size:14px;margin-bottom:8px}
+.ba .side.before h3{color:var(--bad)} .ba .side.after h3{color:var(--ok)}
+.ba svg{width:100%;height:auto;border-radius:8px;background:#0a0e15}
+html[data-theme="light"] .ba svg{background:#fafcff}
+
+/* ================= checklist ================= */
+.clist{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.clist .group{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
+.clist h3{font-size:13.5px;margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut)}
+.clist label{display:flex;gap:10px;align-items:flex-start;padding:6px 0;font-size:13.5px;cursor:pointer}
+.clist input{margin-top:3px;accent-color:var(--ok)}
+.clist label.done{color:var(--mut);text-decoration:line-through}
+
+footer{margin-top:60px;color:var(--mut);font-size:12px;border-top:1px solid var(--border);padding-top:16px}
+@media (max-width:760px){.ba{grid-template-columns:1fr}.setting{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body data-plan="1">
+<!-- ============ RAIL ============ -->
+<nav class="rail"><div class="in">
+  <button data-goto="tldr" class="on">TLDR</button>
+  <button data-goto="flow">Flow</button>
+  <button data-goto="concepts">Concepts</button>
+  <button data-goto="settings">Settings</button>
+  <button data-goto="expected">Expected</button>
+  <button data-goto="verify">Verify</button>
+  <button data-goto="notes">Risks</button>
+  <span class="fill"><i id="railFill"></i></span>
+  <button id="themeToggle" title="toggle dark/light">◐</button>
+</div></nav>
+
+<main class="wrap">
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="kicker">Plan · interactive preview</div>
+  <!-- @plan:title -->
+  <h1>Citygen wavefront quality pass</h1>
+  <!-- @plan:sub (one-line what this plan is) -->
+  <p class="sub">Coastline, road-carved districts, real rivers and finer terrain in one integrated engine swap — interactive preview of the plan.</p>
+  <div class="chips">
+    <span class="chip"><span class="dot warn"></span>Status <b>review</b></span>
+    <span class="chip">Source <b>docs/plan-citygen-wavefront-quality.md</b></span>
+    <span class="chip">Read <b>~4 min</b></span>
+    <span class="chip">Sections <b>7</b></span>
+    <span class="chip">Tunables <b>4</b></span>
+  </div>
+</header>
+
+<!-- ============ TLDR ============ -->
+<section id="tldr">
+  <div class="sec-head"><h2>Outcomes</h2><span class="time">~30s</span></div>
+  <div class="cards">
+    <!-- @plan:outcome-cards (one card per TLDR bullet) -->
+    <div class="card"><div class="ico">🌊</div><h3>Coastline bounds the city</h3><p>Growth stops at water; map corners are sea.</p></div>
+    <div class="card"><div class="ico">🛣️</div><h3>Districts = road catchments</h3><p>Organic road-carved polygons replace the grid + slivers.</p></div>
+    <div class="card"><div class="ico">💧</div><h3>Rivers carve real barriers</h3><p>Steepest-descent valleys; bridges get is_bridge.</p></div>
+    <div class="card"><div class="ico">🎚️</div><h3>Gates move to the coast</h3><p>edge+t now pin a coast arc — the inter-city seam.</p></div>
+    <div class="card"><div class="ico">🔍</div><h3>Finer terrain</h3><p>8-unit grid, 8 octaves + warp, 4-unit display.</p></div>
+    <div class="card"><div class="ico">🏘️</div><h3>Fringe fades to hamlets</h3><p>Outskirts scatter into small rural districts.</p></div>
+  </div>
+</section>
+
+<!-- ============ FLOW ============ -->
+<section id="flow">
+  <div class="sec-head"><h2>Pipeline</h2><span class="time">~30s</span><button class="skip" data-goto="concepts">skip ▸</button></div>
+  <div class="flow">
+    <!-- @plan:pipeline-steps -->
+    <div class="step"><span class="n">1</span><h4>Terrain</h4><p>Island + water ring, 8 octaves + warp</p></div>
+    <div class="step"><span class="n">2</span><h4>Roads</h4><p>A* over fine grid, gates on coast arcs</p></div>
+    <div class="step"><span class="n">3</span><h4>Wavefront</h4><p>Slope-Dijkstra spread from roads; water/steep block</p></div>
+    <div class="step"><span class="n">4</span><h4>Districts</h4><p>Per-road catchments → components + bisection</p></div>
+    <div class="step"><span class="n">5</span><h4>Parcels + buildings</h4><p>Voronoi parcels, one building per parcel</p></div>
+  </div>
+</section>
+
+<!-- ============ CONCEPTS ============ -->
+<section id="concepts">
+  <div class="sec-head"><h2>Concepts, animated</h2><span class="time">~2 min</span><button class="skip" data-goto="settings">skip ▸</button></div>
+
+  <div class="panel" style="margin-bottom:16px">
+    <h3>Wavefront growth (replaces the flat horizon)</h3>
+    <div class="row">
+      <canvas id="simWave" width="560" height="400"></canvas>
+      <div style="min-width:220px;flex:1">
+        <p style="color:var(--mut);font-size:13px;margin:0 0 8px">
+          Multi-source spread from the roads (white). Water <span class="legend"><i style="background:#164">coast/river</i></span>
+          and steep relief are walls. Cells within <b style="color:var(--acc)">G_MAX</b> fully develop;
+          the band out to <b style="color:var(--acc2)">HORIZON</b> fades probabilistically into hamlets. Beyond = countryside.</p>
+        <div class="btnrow">
+          <button class="btn primary" id="wavePlay">▶ play</button>
+          <button class="btn" id="waveReset">reset</button>
+        </div>
+        <div class="legend">
+          <span><i style="background:var(--panel2)"></i>countryside</span>
+          <span><i style="background:var(--ok)"></i>developed</span>
+          <span><i style="background:var(--acc2)"></i>fade → hamlet</span>
+          <span><i style="background:#164e6b"></i>water/river</span>
+          <span><i style="background:var(--ink)"></i>road</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
+    <div class="panel">
+      <h3>District split — longest-edge bisection</h3>
+      <canvas id="simSplit" width="420" height="320"></canvas>
+      <details><summary>why this</summary><div>Components larger than DISTRICT_TARGET subdivide with the existing splitParcelRing — organic halves, and the rectangle/sliver pathology dies with the degenerate full-canvas input.</div></details>
+    </div>
+    <div class="panel">
+      <h3>Voronoi parcels (unchanged)</h3>
+      <canvas id="simVoro" width="420" height="320"></canvas>
+      <div class="btnrow"><button class="btn" id="voroReseed">⋔ reseed</button></div>
+      <details><summary>why this</summary><div>PARCEL_TARGET/FLOOR/MAX stay; only the districts feeding them change.</div></details>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:16px">
+    <h3>Fade curve — the fringe</h3>
+    <div class="row">
+      <canvas id="chartFade" width="560" height="220"></canvas>
+      <div style="min-width:220px;flex:1">
+        <p style="color:var(--mut);font-size:13px;margin:0">
+          Probability a fade-band cell develops vs distance from the nearest road.
+          Drag <b style="color:var(--acc)">G_MAX</b> and <b style="color:var(--acc2)">HORIZON</b> in Settings and watch the band grow/shrink.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SETTINGS ============ -->
+<section id="settings">
+  <div class="sec-head"><h2>Settings explorer</h2><span class="time">~1 min</span></div>
+  <!-- @plan:settings (each row wires to a sim/chart below) -->
+  <div class="panel" id="settingsPanel"></div>
+</section>
+
+<!-- ============ EXPECTED ============ -->
+<section id="expected">
+  <div class="sec-head"><h2>Expected outcome</h2><span class="time">~30s</span><button class="skip" data-goto="verify">skip ▸</button></div>
+  <div class="ba">
+    <div class="side before">
+      <h3>Before — today (seed 42 @1536)</h3>
+      <svg viewBox="0 0 300 220" aria-label="current output">
+        <rect width="300" height="220" fill="#0a0e15"/>
+        <g stroke="#2a3340" fill="#1a2230">
+          <rect x="176" y="80" width="124" height="66"/><rect x="176" y="0" width="124" height="78"/>
+          <rect x="78" y="0" width="96" height="96"/><rect x="3" y="0" width="74" height="112"/>
+          <rect x="3" y="114" width="150" height="106"/><rect x="154" y="80" width="20" height="140"/>
+        </g>
+        <g fill="#25303f"><rect x="0" y="0" width="6" height="300"/><rect x="6" y="0" width="6" height="26"/><rect x="6" y="28" width="6" height="24"/><rect x="6" y="54" width="6" height="28"/><rect x="6" y="84" width="6" height="30"/></g>
+        <path stroke="#5ad1ff" fill="none" stroke-width="2" d="M0 6 L60 40 L150 30 L200 60 L300 44"/>
+        <text x="8" y="210" fill="#8b95a7" font-size="9">16 districts — 8 rectangles + 8 slivers at x=0</text>
+      </svg>
+      <div class="metrics">
+        <div class="metric"><div class="v">48×48</div><div class="k">terrain grid</div></div>
+        <div class="metric"><div class="v">16</div><div class="k">districts</div></div>
+        <div class="metric"><div class="v">~16.6u</div><div class="k">sliver width</div></div>
+      </div>
+    </div>
+    <div class="side after">
+      <h3>After — wavefront + coast + rivers</h3>
+      <svg viewBox="0 0 300 220" aria-label="planned output">
+        <defs><linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#123"/> <stop offset="1" stop-color="#164e6b"/></linearGradient></defs>
+        <rect width="300" height="220" fill="url(#sea)"/>
+        <path d="M18 18 C70 6 130 26 168 20 C220 12 270 30 282 40 C296 52 292 96 288 142 C284 186 240 204 190 200 C140 196 96 208 54 200 C18 192 10 150 8 110 C4 70 6 44 18 18 Z" fill="#202a3a"/>
+        <g stroke="#9fd8ff" fill="none" stroke-width="1.6" opacity=".5">
+          <path d="M88 84 C120 74 148 80 174 70 C200 60 226 66 248 58"/>
+          <path d="M96 140 C126 132 156 138 182 128 C208 118 234 124 256 116"/>
+          <path d="M70 60 C96 52 118 58 140 50"/>
+        </g>
+        <path d="M150 26 C162 66 158 108 170 148 C178 176 168 196 150 210" stroke="#3dd68c" fill="none" stroke-width="3" opacity=".55"/>
+        <path stroke="#e8ecf3" fill="none" stroke-width="2" d="M40 150 C90 120 140 140 200 96 C240 74 268 64 282 60"/>
+        <g fill="#2b3b52"><circle cx="66" cy="156" r="5"/><circle cx="212" cy="120" r="4"/><circle cx="246" cy="84" r="4"/><circle cx="104" cy="176" r="4"/></g>
+        <text x="8" y="210" fill="#8b95a7" font-size="9">organic districts, hamlets, coast gates, river bridge</text>
+      </svg>
+      <div class="metrics">
+        <div class="metric"><div class="v">8u</div><div class="k">grid grain</div></div>
+        <div class="metric"><div class="v">≥1</div><div class="k">bridge (seed 42)</div></div>
+        <div class="metric"><div class="v">0</div><div class="k">slivers</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ VERIFY ============ -->
+<section id="verify">
+  <div class="sec-head"><h2>Verification</h2><span class="time">~1 min</span><button class="skip" data-goto="notes">skip ▸</button></div>
+  <!-- @plan:verify-groups (checkbox groups from the plan's Verification) -->
+  <div class="clist">
+    <div class="group"><h3>Backend</h3>
+      <label><input type="checkbox" data-persist="v1"/> go build ./… && go vet ./…</label>
+      <label><input type="checkbox" data-persist="v2"/> go test -p 1 ./…</label>
+      <label><input type="checkbox" data-persist="v3"/> Wavefront determinism (double-run)</label>
+      <label><input type="checkbox" data-persist="v4"/> Pins re-recorded (seed 42)</label>
+    </div>
+    <div class="group"><h3>Frontend</h3>
+      <label><input type="checkbox" data-persist="v5"/> bun run check</label>
+      <label><input type="checkbox" data-persist="v6"/> bun run test (189/189)</label>
+      <label><input type="checkbox" data-persist="v7"/> terrain.cell == 8 fixture</label>
+    </div>
+    <div class="group"><h3>Runtime smoke</h3>
+      <label><input type="checkbox" data-persist="v8"/> corners are water; road-0 start is a coast point</label>
+      <label><input type="checkbox" data-persist="v9"/> stage 1–4 prefix; stage 0/5 → 400</label>
+      <label><input type="checkbox" data-persist="v10"/> gates edge/t validation → 400</label>
+      <label><input type="checkbox" data-persist="v11"/> same payload twice → identical sha256</label>
+      <label><input type="checkbox" data-persist="v12"/> ≥ 1 is_bridge on seed 42</label>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RISKS / NOTES ============ -->
+<section id="notes">
+  <div class="sec-head"><h2>Risks & assumptions</h2><span class="time">~30s</span></div>
+  <details open><summary>Octave bump is pan-package</summary><div>Worldgen output changes too — its pins are re-checked in this pass.</div></details>
+  <details><summary>Rivers are metadata only</summary><div>No water mesh in this pass; visual river rendering is follow-up.</div></details>
+  <details><summary>Hamlets are real districts</summary><div>They get parcels/buildings; sub-floor clumps drop to countryside.</div></details>
+  <details><summary>Performance</summary><div>8-unit grid @8192 = 1M cells; one precomputed elevation array; frontend display caps 512² quads.</div></details>
+</section>
+
+<footer>Generated by <b>plan-viz</b> · single file, offline · dark mode friendly · adjust settings to feel the plan.</footer>
+</main>
+
+<script>
+/* ================= helpers ================= */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const rand = seed => (() => { let a = seed >>> 0; return () => (a = (a * 1664525 + 1013904223) >>> 0) / 4294967296; })();
+
+/* ================= theme + rail + sections ================= */
+const root = document.documentElement;
+$('#themeToggle').onclick = () => { root.dataset.theme = root.dataset.theme === 'light' ? 'dark' : 'light'; };
+const ids = ['tldr','flow','concepts','settings','expected','verify','notes'];
+const secs = ids.map(id => document.getElementById(id));
+const railBtns = $$('.rail button[data-goto], button.skip');
+railBtns.forEach(b => b.onclick = () => document.getElementById(b.dataset.goto).scrollIntoView());
+addEventListener('scroll', () => {
+  let cur = 0;
+  secs.forEach((s, i) => { if (s.getBoundingClientRect().top < 120) cur = i; });
+  $$('.rail button[data-goto]').forEach((b, i) => b.classList.toggle('on', i === cur));
+  const h = document.documentElement;
+  $('#railFill').style.width = (h.scrollTop / (h.scrollHeight - h.clientHeight) * 100) + '%';
+});
+addEventListener('keydown', e => {
+  if (e.target.matches('input,select,textarea')) return;
+  if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+  const cur = ids.findIndex(id => document.getElementById(id).getBoundingClientRect().top >= 0);
+  const n = (e.key === 'ArrowRight' ? cur + 1 : cur - 1) % ids.length;
+  document.getElementById(ids[(n + ids.length) % ids.length]).scrollIntoView();
+});
+
+/* ================= checklists (localStorage) ================= */
+$$('input[data-persist]').forEach(cb => {
+  cb.checked = localStorage.getItem(location.pathname + '#' + cb.dataset.persist) === '1';
+  cb.onchange = () => {
+    localStorage.setItem(location.pathname + '#' + cb.dataset.persist, cb.checked ? '1' : '0');
+    cb.closest('label').classList.toggle('done', cb.checked);
+  };
+  cb.closest('label').classList.toggle('done', cb.checked);
+});
+
+/* ================= settings binder ================= */
+/* @plan:settings-list — replace SET list with the plan's real tunables.
+   Every id MUST be handled by an onChange that drives a sim/chart/metric. */
+const SET = [
+  { id:'gmax',    label:'G_MAX',   effect:'full development radius', min:32, max:200, step:8,  value:96,  unit:'u' },
+  { id:'horizon', label:'HORIZON', effect:'fade band outer edge',    min:48, max:280, step:8,  value:160, unit:'u' },
+  { id:'seed',    label:'seed',    effect:'everything varies',       min:0,  max:99,  step:1,  value:42,  unit:''  },
+  { id:'fadeK',   label:'fade',    effect:'fade survival strength',  min:0.1,max:1,   step:0.05,value:1,   unit:''  },
+];
+const OUT = {};
+function bindSettings(){
+  const panel = $('#settingsPanel');
+  panel.innerHTML = '';
+  SET.forEach(s => {
+    const row = document.createElement('div');
+    row.className = 'setting';
+    row.innerHTML = `<div class="lbl">${s.label}<small>${s.effect}</small></div>
+      <input type="range" min="${s.min}" max="${s.max}" step="${s.step}" value="${s.value}"/>
+      <output>${s.value}${s.unit}</output>`;
+    const input = row.querySelector('input'), out = row.querySelector('output');
+    input.oninput = () => { s.value = +input.value; out.textContent = s.value + s.unit; onChange(s.id, s.value); };
+    panel.appendChild(row);
+  });
+}
+function onChange(id, v){
+  if (id === 'gmax' || id === 'horizon' || id === 'seed') waveConfig();
+  if (id === 'gmax' || id === 'horizon') drawFade();
+  if (id === 'fadeK') drawFade();
+  OUT.gmax = v;
+}
+
+/* ================= wavefront sim ================= */
+const CV = $('#simWave'), CX = CV.getContext('2d');
+const W = 140, H = 100, CW = CV.width / W, CH = CV.height / H;
+let WF = null;
+function hash2(x, y, s){ let h = (x * 374761393 + y * 668265263 + s * 1442695040888963407) >>> 0; h ^= h >>> 13; h = (h * 1274126177) >>> 0; return (h ^ (h >>> 16)) / 4294967296; }
+function waveConfig(){
+  const S = SET.find(s => s.id === 'seed').value;
+  const GM = SET.find(s => s.id === 'gmax').value, HZ = SET.find(s => s.id === 'horizon').value;
+  const rnd = rand(S);
+  const water = (x, y) => y < 8 || y > H - 8 || x < 5 || x > W - 5 || (x - 60) ** 2 + (y - 70) ** 2 < 90;
+  const river = x => x > 30 && x < 34;
+  const roadX = x => 14 + x * 0.62 + Math.sin(x * 0.21 + S) * 4;
+  const dist = new Float32Array(W * H).fill(1e9);
+  const src = new Int16Array(W * H).fill(-1);
+  const q = [];
+  for (let x = 0; x < W; x++){ const y = Math.round(roadX(x)); if (y >= 6 && y < H - 6){ const k = y * W + x; dist[k] = 0; src[k] = 0; q.push(k); } }
+  for (let qi = 0; qi < q.length; qi++){
+    const k = q[qi], x = k % W, y = (k / W) | 0, d = dist[k], s0 = src[k];
+    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++){
+      if (!dx && !dy) continue;
+      const nx = x + dx, ny = y + dy;
+      if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
+      if (water(nx, ny) || river(nx)) continue;
+      const nk = ny * W + nx;
+      if (dist[nk] <= d + 1) continue;
+      dist[nk] = d + 1; src[nk] = s0; q.push(nk);
+    }
+  }
+  WF = { W, H, dist, src, GM, HZ, tick: 0, maxTick: HZ * 0.45, rnd, hash: hash2 };
+}
+function waveDraw(){
+  if (!WF) return;
+  const { W, H, dist, GM, HZ, tick } = WF;
+  const S = SET.find(s => s.id === 'seed').value;
+  const K = SET.find(s => s.id === 'fadeK').value;
+  const r = Math.max(1, tick);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++){
+    const d = dist[y * W + x], cx = x * CW, cy = y * CH;
+    if (y < 8 || y > H - 8 || x < 5 || x > W - 5 || (x - 60) ** 2 + (y - 70) ** 2 < 90) { CX.fillStyle = '#164e6b'; CX.fillRect(cx, cy, CW, CH); continue; }
+    if (x > 30 && x < 34) { CX.fillStyle = '#0e4a5a'; CX.fillRect(cx, cy, CW, CH); continue; }
+    if (d === 1e9) { CX.fillStyle = '#141a24'; CX.fillRect(cx, cy, CW, CH); continue; }
+    if (d <= GM && d <= r) { CX.fillStyle = '#2fbf71'; CX.fillRect(cx, cy, CW, CH); continue; }
+    if (d > GM && d <= HZ && d <= r && hash2(x, y, S) < 1 - ((d - GM) / (HZ - GM)) * 0.95 * K) { CX.fillStyle = '#caa15a'; CX.fillRect(cx, cy, CW, CH); continue; }
+    CX.fillStyle = '#141a24'; CX.fillRect(cx, cy, CW, CH);
+  }
+  CX.fillStyle = '#e8ecf3';
+  for (let x = 0; x < W; x++){ const y = Math.round(14 + x * 0.62 + Math.sin(x * 0.21 + S) * 4); CX.fillRect(x * CW, y * CH, CW, CH); }
+  if (tick < 1) { CX.fillStyle = '#ffb454'; for (let x = 0; x < W; x++){ const y = Math.round(14 + x * 0.62 + Math.sin(x * 0.21 + S) * 4); CX.fillRect(x * CW + CW * 0.3, y * CH + CH * 0.3, CW * 0.4, CH * 0.4); } }
+}
+let waveAnim = null;
+function waveLoop(){ waveDraw(); const wf = WF; if (wf && wf.tick < wf.maxTick) wf.tick++; else { cancelAnimationFrame(waveAnim); waveAnim = null; $('#wavePlay').textContent = '▶ play'; return; } waveAnim = requestAnimationFrame(waveLoop); }
+$('#wavePlay').onclick = () => { if (waveAnim){ cancelAnimationFrame(waveAnim); waveAnim = null; $('#wavePlay').textContent = '▶ play'; return; } if (!WF || WF.tick >= WF.maxTick) waveConfig(); $('#wavePlay').textContent = '❚❚ pause'; waveAnim = requestAnimationFrame(waveLoop); };
+$('#waveReset').onclick = () => { if (waveAnim){ cancelAnimationFrame(waveAnim); waveAnim = null; $('#wavePlay').textContent = '▶ play'; } waveConfig(); waveDraw(); };
+
+/* ================= bisection sim ================= */
+const BS = $('#simSplit'), BX = BS.getContext('2d');
+function blob(rnd, cx, cy, r, n){ const pts = []; for (let i = 0; i < n; i++){ const a = i / n * Math.PI * 2, rr = r * (0.7 + rnd() * 0.5); pts.push([cx + Math.cos(a) * rr, cy + Math.sin(a) * rr]); } return pts; }
+function split(ring, budget){ if (budget <= 1 || ring.length < 4) return [ring];
+  let li = 0, best = -1; for (let i = 0; i < ring.length; i++){ const a = ring[i], b = ring[(i + 1) % ring.length]; const l = (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2; if (l > best){ best = l; li = i; } }
+  const a = ring[li], b = ring[(li + 1) % ring.length];
+  const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2, dx = -(b[1] - a[1]), dy = (b[0] - a[0]);
+  const cut = (p, side) => ((p[0] - mx) * dx + (p[1] - my) * dy) * side > 0 ? [...ring.slice(0, li + 1), ...ring.slice(li + 1)] : null;
+  const lo = ring.filter((_, i) => i === li || i === ring.length - 1 ? true : ((ring[i][0] - mx) * dx + (ring[i][1] - my) * dy) > 0);
+  const hi = ring.filter((_, i) => i === 0 || i === li + 1 || ((ring[i][0] - mx) * dx + (ring[i][1] - my) * dy) <= 0);
+  const clean = r => { const o = r.filter((p, i) => i === 0 || (p[0] !== r[i - 1][0] || p[1] !== r[i - 1][1])); return o.length >= 3 ? o : null; };
+  const L = clean([...lo.slice(0, li + 1), [mx, my], ...lo.slice(li + 1)]), R = clean([...hi.slice(0, Math.max(0, 2)), [mx, my], ...hi.slice(2)]);
+  if (!L || !R) return [ring];
+  const half = budget >> 1; return [...split(L, half), ...split(R, budget - half)];
+}
+let splitRings = null;
+function reseedSplit(){ const rnd = rand(7); splitRings = split(blob(rnd, 210, 160, 110, 11), SET.find(s => s.id === 'seed').value % 10 + 1); drawSplit(); }
+function drawSplit(){ BX.clearRect(0, 0, 420, 320); BX.fillStyle = '#0a0e15'; BX.fillRect(0, 0, 420, 320);
+  splitRings.forEach((r, i) => { BX.strokeStyle = ['#5ad1ff', '#ffb454', '#3dd68c', '#ffd166'][i % 4]; BX.lineWidth = 2; BX.beginPath(); r.forEach((p, k) => k ? BX.lineTo(p[0], p[1]) : BX.moveTo(p[0], p[1])); BX.closePath(); BX.stroke(); }); }
+reseedSplit();
+
+/* ================= voronoi raster sim ================= */
+const VR = $('#simVoro'), VX = VR.getContext('2d');
+let voro = null;
+function voroInit(){ const rnd = rand(SET.find(s => s.id === 'seed').value); const n = 4 + (SET.find(s => s.id === 'seed').value % 4); voro = { n, sites: [], pool: ['#2fbf71', '#5ad1ff', '#ffb454', '#ca8af7', '#ff6b6b'] };
+  for (let i = 0; i < n; i++) voro.sites.push([40 + rnd() * 340, 40 + rnd() * 240]);
+  drawVoro(); }
+function drawVoro(){ VX.fillStyle = '#0a0e15'; VX.fillRect(0, 0, 420, 320);
+  const { n, sites, pool } = voro;
+  for (let py = 0; py < 320; py += 2) for (let px = 0; px < 420; px += 2){
+    let bi = 0, bd = 1e18; for (let i = 0; i < n; i++){ const d = (px - sites[i][0]) ** 2 + (py - sites[i][1]) ** 2; if (d < bd){ bd = d; bi = i; } }
+    VX.fillStyle = pool[bi % pool.length]; VX.fillRect(px, py, 2, 2);
+  }
+  sites.forEach((s, i) => { VX.fillStyle = '#e8ecf3'; VX.beginPath(); VX.arc(s[0], s[1], 4, 0, 7); VX.fill(); }); }
+$('#voroReseed').onclick = voroInit;
+voroInit();
+
+/* ================= fade chart ================= */
+const FD = $('#chartFade'), FX = FD.getContext('2d');
+function drawFade(){
+  const GM = SET.find(s => s.id === 'gmax').value, HZ = SET.find(s => s.id === 'horizon').value, K = SET.find(s => s.id === 'fadeK').value;
+  const wdt = FD.width, hgt = FD.height, pad = 34;
+  FX.fillStyle = '#0a0e15'; FX.fillRect(0, 0, wdt, hgt);
+  const X = d => pad + (d / 320) * (wdt - pad * 2);
+  const Y = p => hgt - pad - p * (hgt - pad * 2);
+  FX.strokeStyle = '#26303f'; FX.beginPath(); [0.25, 0.5, 0.75, 1].forEach(p => { FX.moveTo(pad, Y(p)); FX.lineTo(wdt - pad, Y(p)); }); FX.stroke();
+  FX.fillStyle = '#8b95a7'; FX.font = '10px ui-monospace'; FX.fillText('develop', 6, Y(1) + 3); FX.fillText('fade', 8, Y(0.5) + 3); FX.fillText('county', 4, Y(0) + 3);
+  const curve = d => d <= GM ? 1 : d >= HZ ? 0.05 : 1 - ((d - GM) / (HZ - GM)) * 0.95 * K;
+  FX.fillStyle = '#2fbf7140'; FX.fillRect(pad, Y(1), X(GM) - pad, hgt - pad - Y(1) + 4);
+  FX.fillStyle = '#ffb4542e'; FX.fillRect(X(GM), Y(1), X(HZ) - X(GM), hgt - pad - Y(1) + 4);
+  FX.strokeStyle = '#5ad1ff'; FX.lineWidth = 2.5; FX.beginPath();
+  for (let d = 0; d <= 320; d += 2){ const p = curve(d); d ? FX.lineTo(X(d), Y(p)) : FX.moveTo(X(d), Y(p)); } FX.stroke();
+  FX.strokeStyle = '#5ad1ff'; FX.setLineDash([4, 4]); FX.beginPath(); FX.moveTo(X(GM), pad); FX.lineTo(X(GM), hgt - pad); FX.stroke();
+  FX.strokeStyle = '#ffb454'; FX.beginPath(); FX.moveTo(X(HZ), pad); FX.lineTo(X(HZ), hgt - pad); FX.stroke(); FX.setLineDash([]);
+  FX.fillStyle = '#e8ecf3'; FX.fillText('G_MAX ' + GM, X(GM) - 26, pad + 12); FX.fillText('HORIZON ' + HZ, Math.min(X(HZ), wdt - 84), pad + 24);
+}
+
+/* ================= init ================= */
+bindSettings();
+waveConfig(); waveReset();
+drawFade();
+onChange('seed', SET.find(s => s.id === 'seed').value); onChange('fadeK', SET.find(s => s.id === 'fadeK').value);
+</script>
+</body>
+</html>
