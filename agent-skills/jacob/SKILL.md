@@ -1,6 +1,6 @@
 ---
 name: jacob
-description: Use when you want a code review applying Jacob's (jacobtread) specific frontend/TypeScript standards — Props patterns, runed over raw, typing hygiene, $derived over $state, and codebase consistency
+description: Use when you want a code review applying Jacob's (jacobtread) specific frontend/TypeScript standards — Props patterns, runed over raw, typing hygiene, $derived over $state, codebase consistency, and ruthless rejection of redundant/duplicated code
 ---
 
 # Jacob Code Review
@@ -67,7 +67,7 @@ The reviewer enforces these specific rules compiled from Jacob's PR feedback (so
 23. **File organization** — No single-function files. Colocate helpers with their constants (flag helpers next to `CLIENT_FEATURE_FLAGS`) or use a shared helpers file. All interfaces (not just `Props`) belong at the top of the `<script>` block, before state and derived declarations.
 24. **Component placement mirrors what it serves** — A storybook-only provider that stubs app-level context belongs next to the module it stubs (e.g. `$lib/launchDarkly/`), not in a feature/domain folder.
 25. **Defaults hygiene** — Only keep defaults that provide genuine fallback value; drop `= undefined` on optional props; fields required by a context must not be given defaults. A component with a single call site shouldn't be parameterized — bake the props in.
-26. **Reuse existing components & libraries before re-implementing** — bits-ui `Portal`, an existing `MonthSelect`, the `uuid` `v4()` for generated ids — if the abstraction exists in the codebase or a dependency, use it. (Large mappings/extractions belong in a dedicated file.)
+26. **Reuse existing components & libraries before re-implementing** — bits-ui `Portal`, an existing `MonthSelect`, the `uuid` `v4()` for generated ids — if the abstraction exists in the codebase or a dependency, use it. (Large mappings/extractions belong in a dedicated file.) The same rule applies to **logic**: never copy a helper, block, or file and tweak identifiers — extract the shared part and use it twice.
 27. **CSS consistency** — Single layout mode per element (not `display: flex` + `display: grid`). Prefer utility classes/`class` over inline `<style>`.
 28. **Import sorting** — Enforce `perfectionist/sort-imports` conventions per the project's ESLint config.
 
@@ -82,6 +82,7 @@ The reviewer enforces these specific rules compiled from Jacob's PR feedback (so
 ### Component Hierarchy
 
 34. **Place components at the lowest level that fits** — Search `domain/` → `organisms/` → `molecules/` → `atoms/` → `ui/` before creating anything new, and put a component in the level that its content dictates (reference tree below). A pure primitive with design tokens only is an atom; a small reusable renderer is a molecule; a composed structure with shared context is an organism; a feature-scoped piece belongs in `domain/<feature>/`. **Atoms are structural — no business logic, no data fetching, no domain imports.**
+35. **No duplicated logic across sibling files — write it once, use it twice** — When near-identical routes/pages need the same logic (sibling loaders, report variants), extract a shared parameterized helper and keep the per-variant files thin. A diff that **adds the same block a second time** is the opposite of reuse: it doubles the maintenance surface and every future fix must be applied twice. This is not premature abstraction (Rule of Three) — a file that is a >80%-identical copy of a sibling is already-compounded debt, and a diff that adds the second copy is merge-blocking regardless of per-file quality. Concretely: normalize per-variant identifiers (report names, titles, data paths) and diff the siblings; if only a handful of lines differ, flag it and require extraction.
 
 ## Component Structure Reference
 
@@ -165,6 +166,8 @@ Use a `general-purpose` subagent, filling the template at [jacob-reviewer.md](ja
 - Leave Critical issues unresolved
 - Introduce new `type Props` or inline `$props<{}>` violations
 - Add new `getContext`/`setContext` without runed
+- Let a PR ship the same new logic twice (two sibling loaders/pages differing only by report-type identifiers) — duplicated code is code that will be fixed twice
+- File duplication as "Minor / nice-to-have" — it is merge-blocking whenever the diff itself adds the second copy
 
 **If reviewer flags something you disagree with:**
 
