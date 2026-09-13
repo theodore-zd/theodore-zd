@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockups</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+  body {
+    display: flex;
+    height: 100vh;
+  }
+
+  .sidebar {
+    flex-shrink: 0;
+    width: 220px;
+    padding: 12px;
+    overflow-y: auto;
+    border-right: 1px solid var(--line);
+    background: var(--paper);
+  }
+
+  .title {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--line);
+  }
+
+  .pages {
+    margin: 8px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .page {
+    display: block;
+    width: 100%;
+    padding: 4px 6px;
+    text-align: left;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+
+  .page:hover {
+    background: var(--muted);
+  }
+
+  .page.active {
+    color: var(--accent);
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 4px 6px 8px;
+  }
+
+  .chip {
+    padding: 0 8px;
+    font-size: 12px;
+    line-height: 18px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    cursor: pointer;
+  }
+
+  .chip:hover {
+    border-color: var(--ink);
+  }
+
+  .chip.active {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .error {
+    margin-top: 8px;
+    font-size: 13px;
+    white-space: pre-wrap;
+  }
+
+  .frame {
+    flex: 1;
+    border: 0;
+  }
+</style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="title">Mockups</div>
+    <ul class="pages" id="pages"></ul>
+  </aside>
+  <iframe class="frame" id="frame" title="mockup preview"></iframe>
+  <script>
+    (function () {
+      const pagesList = document.getElementById("pages");
+      const frame = document.getElementById("frame");
+
+      const pages = [];
+      let activeKey = null;
+      let activeVariant = null;
+
+      function pageFromHref(href) {
+        const file = String(href).split("/").pop();
+        if (!/\.html$/.test(file) || file === "shell.html") return null;
+        const stem = file.slice(0, -5);
+        const m = stem.match(/^(\d+)-(.+)$/);
+        if (!m) return null;
+        return { prefix: m[1], remainder: m[2], file };
+      }
+
+      function buildPages(doc) {
+        const byKey = new Map();
+        const variantCandidates = [];
+        for (const a of doc.querySelectorAll("a")) {
+          const p = pageFromHref(a.getAttribute("href"));
+          if (!p) continue;
+          if (p.remainder.includes(".")) {
+            variantCandidates.push(p);
+          } else {
+            const key = p.prefix + "-" + p.remainder;
+            p.key = key;
+            p.name = p.remainder;
+            p.variants = [];
+            byKey.set(key, p);
+          }
+        }
+        for (const v of variantCandidates) {
+          const dot = v.remainder.indexOf(".");
+          const base = byKey.get(v.prefix + "-" + v.remainder.slice(0, dot));
+          if (!base) continue;
+          base.variants.push({ label: v.remainder.slice(dot + 1), file: v.file });
+        }
+        for (const page of byKey.values()) pages.push(page);
+        pages.sort((a, b) => a.num - b.num);
+      }
+
+      function variantFile(page, label) {
+        for (const v of page.variants) {
+          if (v.label === label) return v.file;
+        }
+        return null;
+      }
+
+      function addChip(container, label, isActive, onClick) {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "chip" + (isActive ? " active" : "");
+        b.textContent = label;
+        b.addEventListener("click", onClick);
+        container.appendChild(b);
+      }
+
+      function select(key, variant) {
+        let page = null;
+        for (const p of pages) {
+          if (p.key === key) page = p;
+        }
+        if (!page) return;
+        activeKey = key;
+        activeVariant = variant;
+        frame.src = variant === null ? page.file : variantFile(page, variant);
+        render();
+      }
+
+      function render() {
+        pagesList.textContent = "";
+        for (const page of pages) {
+          const li = document.createElement("li");
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "page" + (page.key === activeKey ? " active" : "");
+          btn.textContent = page.name;
+          btn.addEventListener("click", () => select(page.key, null));
+          li.appendChild(btn);
+          if (page.key === activeKey && page.variants.length > 0) {
+            const chips = document.createElement("div");
+            chips.className = "chips";
+            addChip(chips, "default", activeVariant === null, () => select(page.key, null));
+            for (const v of page.variants) {
+              addChip(chips, v.label, activeVariant === v.label, () => select(page.key, v.label));
+            }
+            li.appendChild(chips);
+          }
+          pagesList.appendChild(li);
+        }
+      }
+
+      function showError(message) {
+        pagesList.textContent = "";
+        const p = document.createElement("p");
+        p.className = "error";
+        p.textContent = message;
+        pagesList.appendChild(p);
+      }
+
+      fetch("./")
+        .then((res) => {
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          return res.text();
+        })
+        .then((html) => {
+          const doc = new DOMParser().parseFromString(html, "text/html");
+          buildPages(doc);
+          if (pages.length === 0) {
+            showError(
+              "No mockup pages found.\nAdd numbered pages like 01-cart.html next to shell.html."
+            );
+            return;
+          }
+          render();
+          select(pages[0].key, null);
+        })
+        .catch(() => {
+          showError(
+            "Could not load the directory listing.\nServe this folder over HTTP first, e.g.\npython3 -m http.server\nThen open shell.html through it."
+          );
+        });
+    })();
+  </script>
+</body>
+</html>
