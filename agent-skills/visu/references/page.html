@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title><!-- @slot:title --></title>
+<style>
+/* ================= theme (dark only) ================= */
+:root{
+  --bg:#0d1117; --panel:#161b26; --panel2:#1d2432; --ink:#e8ecf3; --mut:#8b95a7;
+  --acc:#5ad1ff; --ok:#3dd68c; --border:#26303f; --radius:14px;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans)}
+h1,h2,h3{margin:0;line-height:1.15}
+a{color:var(--acc)}
+button{font:inherit;cursor:pointer;color:inherit}
+canvas{display:block;max-width:100%;background:#0a0e15}
+
+/* ================= layout ================= */
+.wrap{max-width:980px;margin:0 auto;padding:0 20px 80px}
+.head{padding:44px 0 20px;border-bottom:1px solid var(--border);margin-bottom:28px}
+.head h1{font-size:clamp(26px,4.5vw,40px);font-weight:800;letter-spacing:-.02em}
+.head .sub{color:var(--mut);margin-top:8px;max-width:70ch}
+.head .src{margin-top:10px;font-size:12.5px}
+section{margin:40px 0}
+section>h2{font-size:20px;font-weight:800;margin-bottom:14px}
+
+/* ================= TLDR ================= */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.card h3{font-size:15px;font-weight:700}
+.card p{margin:6px 0 0;color:var(--mut);font-size:13.5px}
+
+/* ================= steps ================= */
+.steps{display:grid;gap:8px}
+.step{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;display:flex;gap:12px;align-items:center}
+.step .n{flex:none;width:24px;height:24px;border-radius:7px;background:var(--acc);color:#07121a;font:800 12px/24px var(--mono);text-align:center}
+.step span{font-size:14px}
+
+/* ================= concept panels ================= */
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px}
+.panel h3{font-size:15px;font-weight:700;margin-bottom:10px}
+.panel .cap{margin:8px 0 0;color:var(--mut);font-size:12.5px}
+.panel .btnrow{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.btn{padding:7px 14px;border-radius:9px;border:1px solid var(--border);background:var(--panel2);font-weight:700;font-size:13px}
+.btn.primary{background:var(--acc);color:#07121a;border-color:transparent}
+.slider{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:13px}
+.slider label{color:var(--mut)}
+.slider output{font:700 13px/1 var(--mono);color:var(--acc);min-width:3ch;text-align:right}
+input[type=range]{accent-color:var(--acc)}
+details{border:1px solid var(--border);border-radius:var(--radius);background:var(--panel2);padding:0;margin-top:12px}
+details>summary{cursor:pointer;list-style:none;padding:10px 14px;font-weight:700;font-size:13px;display:flex;align-items:center;gap:8px}
+details>summary::before{content:"▸";color:var(--acc);transition:transform .15s}
+details[open]>summary::before{transform:rotate(90deg)}
+details>div{padding:0 14px 12px;color:var(--mut);font-size:13px}
+
+/* ================= checklist ================= */
+.clist{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.clist .group{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
+.clist h3{font-size:12.5px;margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut)}
+.clist label{display:flex;gap:10px;align-items:flex-start;padding:6px 0;font-size:13.5px;cursor:pointer}
+.clist input{margin-top:3px;accent-color:var(--ok)}
+.clist label.done{color:var(--mut);text-decoration:line-through}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <!-- ================= header ================= -->
+  <header class="head">
+    <h1><!-- @slot:title --></h1>
+    <p class="sub"><!-- @slot:sub --></p>
+    <p class="src"><!-- @slot:source --></p>
+  </header>
+
+  <!-- ================= TLDR ================= -->
+  <section id="tldr">
+    <h2>TLDR</h2>
+    <div class="cards"><!-- @slot:tldr-cards --></div>
+  </section>
+
+  <!-- ================= steps ================= -->
+  <section id="steps">
+    <h2>Steps</h2>
+    <div class="steps"><!-- @slot:steps --></div>
+  </section>
+
+  <!-- ================= concepts ================= -->
+  <section id="concepts">
+    <h2>Concepts</h2>
+    <div class="panels"><!-- @slot:concept-panels --><!-- one <div class="p5-holder"> per panel; new p5(sketch, holder) --></div>
+  </section>
+
+  <!-- ================= verification ================= -->
+  <section id="verify">
+    <h2>Verification</h2>
+    <div class="clist"><!-- @slot:verify-groups --></div>
+  </section>
+</main>
+
+<!-- p5.js — the one allowed external dependency (jsDelivr) -->
+<script src="https://cdn.jsdelivr.net/npm/p5@1/lib/p5.min.js"></script>
+<script>
+/* ================= helpers ================= */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const rand = seed => (() => { let a = seed >>> 0; return () => (a = (a * 1664525 + 1013904223) >>> 0) / 4294967296; })();
+
+/* ================= checklists (localStorage) ================= */
+$$('input[data-persist]').forEach(cb => {
+  cb.checked = localStorage.getItem(location.pathname + '#' + cb.dataset.persist) === '1';
+  cb.onchange = () => {
+    localStorage.setItem(location.pathname + '#' + cb.dataset.persist, cb.checked ? '1' : '0');
+    cb.closest('label').classList.toggle('done', cb.checked);
+  };
+  cb.closest('label').classList.toggle('done', cb.checked);
+});
+</script>
+</body>
+</html>
