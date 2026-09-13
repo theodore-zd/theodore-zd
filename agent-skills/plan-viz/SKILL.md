@@ -1,7 +1,7 @@
 ---
 name: plan-viz
 description: |
-  Turn a markdown plan (or brainstorm/ducky output) into a single-file, ADHD-friendly interactive HTML dashboard: big-visual TLDR cards, animated visualizations of every algorithm/concept the plan uses, an interactive settings explorer showing the real effect of each tunable, before/after expected-outcome schematics, and a clickable verification checklist. Self-contained (inline CSS/JS/SVG, no network), renders from file://.
+  Turn a markdown plan (or brainstorm output) into a single-file, ADHD-friendly interactive HTML dashboard: big-visual TLDR cards, animated visualizations of every algorithm/concept the plan uses, an interactive settings explorer showing the real effect of each tunable, before/after expected-outcome schematics, and a clickable verification checklist. Self-contained (inline CSS/JS/SVG, no network), renders from file://.
   Trigger phrases: "adhd friendly html version of the plan", "visualize the plan", "make the plan visual", "plan viz", "interactive plan", "html dashboard for the plan", "show me the concepts", "visualize the algorithms", "turn the plan into a page".
 allowed-tools: Read, Write, Glob, Grep, Ask, Eval
 ---
