@@ -1,13 +1,13 @@
 ---
 name: swarm-exec
-description: "Executes an approved plan file by splitting it into decision-complete micro-plans dispatched to budget DeepSeek workers, then correcting cheaply via staged review. Explicit call only."
+description: "Executes an approved plan file by splitting it into decision-complete micro-plans dispatched to OpenRouter free-tier workers, then correcting cheaply via staged review. Explicit call only."
 ---
 
 # Swarm Exec
 
-- TLDR: Parent stays lean: slices an approved plan, dispatches parallel DeepSeek
-  workers, reviews evidence not files, corrects with delta prompts.
-- TLDR: Worker = `swarm-worker` agent (deepseek-v4-flash, pinned). The parent never
+- TLDR: Parent stays lean: slices an approved plan, dispatches parallel OpenRouter
+  free-tier workers, reviews evidence not files, corrects with delta prompts.
+- TLDR: Worker = `swarm-worker` agent (openrouter/auto/free, pinned). The parent never
   does worker-priced work itself.
 - TLDR: Each dispatch batch is one `tasks[]` array; corrections are staged: live
   steer while running, delta reissue after settlement, escalate after 2 failed rounds.

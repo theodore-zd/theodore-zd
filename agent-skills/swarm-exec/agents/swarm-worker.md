@@ -1,9 +1,9 @@
 ---
 name: swarm-worker
-description: "Budget executor for swarm-exec: completes one decision-complete micro-plan end-to-end on deepseek-v4-flash with full tool access. Dispatched by the parent; never plans."
+description: "Budget executor for swarm-exec: completes one decision-complete micro-plan end-to-end on OpenRouter free-tier models with full tool access. Dispatched by the parent; never plans."
 spawns: "*"
 model:
-  - "openrouter/deepseek/deepseek-v4-flash-0731:high"
+  - "openrouter/auto/free"
   - "@task"
 thinkingLevel: auto
 ---
