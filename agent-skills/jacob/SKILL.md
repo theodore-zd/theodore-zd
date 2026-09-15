@@ -25,7 +25,7 @@ Dispatch a "Jacob" reviewer subagent that applies the same standards Jacob uses 
 
 ## The Jacob Standards
 
-The reviewer enforces these specific rules compiled from Jacob's PR feedback (source: PRs #29 #444 #453 #462 #464 #481 #496 #506 #518 #525 #533 #536 #542 #549 #623 #663 #701 #771 #780):
+The reviewer enforces these specific rules compiled from Jacob's PR feedback (source: PRs #29 #444 #453 #462 #464 #481 #496 #506 #518 #525 #533 #536 #542 #549 #623 #663 #701 #771 #780 #816):
 
 ### Props & Typing
 
@@ -88,6 +88,13 @@ The reviewer enforces these specific rules compiled from Jacob's PR feedback (so
 
 36. **Route through central resolvers — never re-implement their contract at call sites** — When a concern has a central resolver (variation lookups: `variation()` client-side and `resolveDarklyVariation` server-side — both fold `DEV_FLAG_OVERRIDES`; fetches: `clientFetch`/`jsonFetchApi`; decimals: `safeParseDecimal`/`parseDecimalOrNull`), call sites call the resolver with plain arguments and nothing more. A call site that adds `DEV_FLAG_OVERRIDES[key] === true || await resolveDarklyVariation(...)` copies a slice of the resolver's behavior: it re-derives what the resolver already owns, drifts independently when the resolver contract changes, and teaches future readers there are two sources of truth. If a call site needs override-aware or special behavior, extend the resolver — don't bolt a second copy beside the call.
 37. **Cross-boundary string constants must stay in lockstep (or be single-sourced)** — Feature flags appear in both `clientFeatureFlags.ts` (`CLIENT_FEATURE_FLAGS`) and `serverFeatureFlags.server.ts` (`SERVER_FEATURE_FLAGS`); the dev-override map is keyed on the **client** enum while server-side lookups use the **server** enum. The override system silently breaks if the string values diverge (dev behaves like prod, no error). When a diff adds/renames a flag used on both sides, or touches the override map, reviewer MUST verify the strings stay identical in both enums; prefer deriving one enum from the other (or a shared constants module) when realistic.
+
+### Server Loads & Organization
+
+38. **Named input/output types on exported server functions** — A server function or loader helper takes a named `interface XInput` and returns a named interface, never inline object literals (`input: { ... }` / `Promise<{ ... }>`). Existing named types for the same shape are reused, not duplicated (precedent: `FinancialStatementReviewInput`/`FinancialStatementReviewData` in `financialStatementReview.ts`).
+39. **Return objects are results-only** — In `load` functions and actions, every promise chain (`Promise.all(...).then(...)`) is hoisted into a named const above the `return`; the return statement only assembles results.
+40. **Route files stay thin** — `+page.server.ts` contains load/actions and wiring only; multi-step transforms (row synthesis, map rekeying, ID↔code mapping) live in a sibling module under `src/lib/server/<domain>/`, never at the bottom of a route file.
+41. **Decompose orchestrators** — A pipeline function that both coordinates and constructs (flag resolution, document resolution, collection building, per-pipeline computation) extracts each concern into a focused named helper; target under ~60 lines per function.
 
 ## Component Structure Reference
 

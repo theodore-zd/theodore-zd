@@ -104,6 +104,13 @@ Subagent (general-purpose):
     - [ ] **Stable keys: know the uniqueness domain** — synthesized keys for legacy entities should use the runtime-assigned globally-unique field (e.g. `interaction.index`); keep only segments that protect against real historical collisions and drop decorative ones.
     - [ ] **Placement at the lowest level that fits** — search domain/ → organisms/ → molecules/ → atoms/ → ui/ before creating; atoms stay structural (no business logic, no domain imports). See the structure reference below for what groups where.
 
+    ### Server Loads & Organization
+
+    - [ ] **Named input/output types on exported server functions** — server functions and loader helpers take a named `interface XInput` and return a named interface, never inline object literals (`input: { ... }` / `Promise<{ ... }>`). Inline shapes make the contract opaque and force readers to decode the whole signature.
+    - [ ] **Return objects are results-only** — in `load` functions and actions, every promise chain (`Promise.all(...).then(...)`) is hoisted into a named const above the `return`; the return statement only assembles results. Computation hidden inside a return is hard to reuse and hard to review.
+    - [ ] **Route files stay thin** — `+page.server.ts` holds load/actions and wiring only; multi-step transforms (row synthesis, map rekeying, ID↔code mapping) live in a sibling module under `src/lib/server/<domain>/`, never at the bottom of a route file. Route files are entry points, not the home for business logic.
+    - [ ] **Decompose orchestrators** — a pipeline that both coordinates and constructs (flag resolution, document resolution, collection building, per-pipeline computation) extracts each concern into a focused named helper; target under ~60 lines per function. Long orchestrators mix flow with construction and become unreadable.
+
     ### Clean Code
 
     - [ ] **No stray comments** — remove TODO comments, HTML `<!-- -->` comments, and commented-out code. Leaving these in signals unfinished work.
