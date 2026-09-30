@@ -23,9 +23,8 @@ description: |
 - TLDR: Confirm the flow map (screens, edges, arrow labels, primary path) with the
   user BEFORE generating.
 
-Not for: plain wireframe sets with no flow and no sketches (`mockup`), algorithm/plan
-dashboards (`plan-viz`), auditing a running app (`visual-audit`), UX critique of an
-existing app (`feral-ux-audit`).
+Not for: plain wireframe sets with no flow and no sketches (`mockup`), auditing a
+running app (`visual-audit`), UX critique of an existing app (`feral-ux-audit`).
 
 ## Standards
 

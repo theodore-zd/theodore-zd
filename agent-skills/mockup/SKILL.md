@@ -18,7 +18,7 @@ description: |
 - TLDR: Served with `timeout 300 python -m http.server <port> -d ./mockups/<set>`
   — five-minute auto-stop, no server script shipped.
 
-Not for: algorithm/plan dashboards (`plan-viz`), auditing a running app
+Not for: auditing a running app
 (`visual-audit`), UX critique of existing UI (`feral-ux-audit`).
 
 ## Standards
