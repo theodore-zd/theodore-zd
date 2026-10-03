@@ -1,6 +1,6 @@
 ---
 name: backend-arch-review
-description: 'Trigger phrases: "review the backend architecture", "audit the database schema", "arch review", "is this over-engineered", "backend-arch-review", "critique the backend design", "second pass", "data structure review", "consistency audit".'
+description: 'Deep review pass over backend architecture and database schema: over-engineering, consistency, and data-structure design. Invoked by explicit skill call only; it never auto-triggers.'
 ---
 
 # Backend Architecture Review

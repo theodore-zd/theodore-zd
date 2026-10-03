@@ -1,6 +1,6 @@
 ---
 name: tension-review
-description: 'Trigger phrases: "tension points", "structural tensions", "check the DB for tensions", "check the Go backend for tensions", "check the frontend for tensions", "architecture smells", "patterns that will hurt later", "ripple effects", "compounding maintenance debt", "what will break first".'
+description: 'Checks a design or codebase for structural tension points and compounding maintenance debt. Invoked by explicit skill call only; it never auto-triggers.'
 ---
 
 # Tension Review

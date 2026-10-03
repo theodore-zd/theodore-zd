@@ -1,0 +1,32 @@
+/* theme.css — plain shared theme for mockup sets: grayscale + one accent. */
+
+:root {
+  --accent: #e8710a;
+  --ink: #1f1f1c;
+  --paper: #ffffff;
+  --line: #8d8d87;
+  --muted: #e6e6e1;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: inherit;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--paper);
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+}

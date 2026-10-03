@@ -1,6 +1,6 @@
 ---
 name: feral-audit
-description: 'Trigger phrases: "audit this code", "hyper-critical review", "assume nothing works", "hunt for bugs", "prove this code", "written by a dumb child", "is this code broken", "show me what is wrong", "feral audit".'
+description: 'Hyper-critical code review: assumes nothing works and hunts for proven bugs. Invoked by explicit skill call only; it never auto-triggers.'
 ---
 
 # Feral Audit

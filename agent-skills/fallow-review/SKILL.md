@@ -1,8 +1,8 @@
 ---
 name: fallow-review
 description: |
-  Use when auditing a plain Svelte + bun + vite frontend for dead code, duplication, and complexity hotspots via fallow. Runs `bunx fallow`, categorizes findings, grep-verifies unused exports, then drives a plan-gated cleanup pass.
-  Trigger on phrases like "run fallow", "check dead code" (Svelte projects), "audit frontend for unused code", "dedupe Svelte components", "find duplication", or when the user mentions the fallow tool by name.
+  Audits a plain Svelte + bun + vite frontend for dead code, duplication, and complexity hotspots via fallow. Runs `bunx fallow`, categorizes findings, grep-verifies unused exports, then drives a plan-gated cleanup pass.
+  Invoked by explicit skill call only; it never auto-triggers.
 allowed-tools: Bash, Read, Edit, Grep, Glob
 ---
 

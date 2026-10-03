@@ -1,6 +1,6 @@
 ---
 name: feral-org
-description: 'Trigger phrases: "feral org", "aggressively organize", "organize this code", "maximize reuse", "componentize this", "dedupe and reuse", "code organization pass", "reuse sweep", "org sweep".'
+description: 'Aggressive code-organization pass: maximize reuse, dedupe, consolidate. Invoked by explicit skill call only; it never auto-triggers.'
 ---
 
 # Feral Org

@@ -1,6 +1,6 @@
 ---
 name: feral-lang
-description: 'Trigger phrases: "enforce code style deterministically", "add linting", "configure linting", "set up biome", "set up eslint", "set up prettier", "configure golangci", "lock down code standards", "deterministic enforcement", "make the linter enforce it".'
+description: 'Deterministic code-style enforcement: linter setup and rule lockdown. Invoked by explicit skill call only; it never auto-triggers.'
 ---
 
 # Feral Lang

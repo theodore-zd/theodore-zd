@@ -1,6 +1,6 @@
 ---
 name: component-structure-review
-description: 'Trigger phrases: "review component structure", "is this component too complex", "simplify this Svelte code", "review state structure", "YAGNI review", "frontend component complexity", props, lifting state, component boundaries.'
+description: 'Reviews component structure: complexity, state placement, boundaries, and YAGNI (Svelte frontend). Invoked by explicit skill call only; it never auto-triggers.'
 ---
 
 # Component Structure Review

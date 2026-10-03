@@ -1,6 +1,6 @@
 ---
 name: visual-audit
-description: 'Trigger phrases: "visual audit", "visual pass", "take screenshots", "screenshot the app", "screenshots and annotations", "annotate screenshots", "visual issues", "visual QA", "visual QA pass", "screenshot review", "review the ui visually".'
+description: 'Screenshot-based UI review producing an annotated fix plan. Invoked by explicit skill call only; it never auto-triggers.'
 ---
 
 # Visual Audit — screenshot-based UI review → annotated fix plan

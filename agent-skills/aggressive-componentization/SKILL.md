@@ -1,6 +1,6 @@
 ---
 name: aggressive-componentization
-description: 'Trigger phrases: "componentize", "aggressive componentization", "extract component", "extract this pattern", "dedupe markup", "this markup is duplicated", "these classes are copy-pasted", "make this a component", "turn this into a variant". Scope: Svelte + Tailwind frontend in this repo.'
+description: 'Extracts duplicated logic, markup, and class strings into bucket components with shadcn-style tv() variants (Svelte + Tailwind). Invoked by explicit skill call only; it never auto-triggers.'
 ---
 
 # Aggressive Componentization

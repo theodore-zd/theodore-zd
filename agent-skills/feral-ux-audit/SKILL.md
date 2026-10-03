@@ -1,6 +1,6 @@
 ---
 name: feral-ux-audit
-description: 'Trigger phrases: "feral ux audit", "audit the ui", "audit the ux", "hunt for ux problems", "is this confusing", "usability review", "make this easier to use", "audit this screen", "audit this flow", "users cannot figure this out".'
+description: 'Adversarial UX audit of screens, flows, and components, merged into one severity-ranked report. Invoked by explicit skill call only; it never auto-triggers.'
 ---
 
 # Feral UX Audit

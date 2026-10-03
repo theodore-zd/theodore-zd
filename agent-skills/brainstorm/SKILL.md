@@ -1,6 +1,6 @@
 ---
 name: brainstorm
-description: 'Trigger phrases: "brainstorm", "ideate", "explore approaches", "think through this problem", "generate options", "what are some ways to".'
+description: 'Generates and explores multiple approaches to a problem. Invoked by explicit skill call only; it never auto-triggers.'
 ---
 
 # Brainstorm
