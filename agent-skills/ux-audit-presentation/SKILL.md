@@ -1,6 +1,6 @@
 ---
 name: ux-audit-presentation
-description: 'Trigger phrases: "present the ux audit", "showcase the ux fixes", "before/after deck of the audit findings", "audit our components and show me what you would change", "presentation page of ux improvements". Chains a component-level feral UX audit into a mockup-redesign presentation set. Explicit call only.'
+description: 'Runs a component-level feral UX audit and renders each proposed fix as a before/after page in a mockup-redesign presentation set. Chains feral-ux-audit and mockup-redesign. Invoked by explicit skill call only; it never auto-triggers.'
 ---
 
 # UX Audit → Presentation
