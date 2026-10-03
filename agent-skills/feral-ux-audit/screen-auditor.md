@@ -124,7 +124,7 @@ fix
 ## Don't
 - DO NOT fix or redesign anything; DO NOT audit journeys or components
   (siblings); DO NOT judge aesthetics ("prettier", "nicer color") —
-  design-audit's job; DO NOT run full test suites; DO NOT report on screens
+  out of scope; DO NOT run full test suites; DO NOT report on screens
   outside your coverage.
 - Return ONLY the six sections.
 ```

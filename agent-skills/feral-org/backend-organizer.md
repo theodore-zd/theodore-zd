@@ -48,9 +48,8 @@ Run every file in your slice against each family:
 
 1. Repeated UUID/ID parsing boilerplate — `uuid.Parse` + identical error
    handling repeated across services/handlers → promote to shared parse helpers
-   following the shape of any existing stranded helper (e.g. Atluo's
-   parsePair/parseTrio in tags.go) → EXTRACT (2+ occurrences) or REUSE (helper
-   exists, stranded).
+   following the shape of any existing stranded helper → EXTRACT (2+
+   occurrences) or REUSE (helper exists, stranded).
 
 2. Duplicated param-struct / scanXxx patterns in db queries — identical scan
    loops across query files → shared scanner or const column selectors; search
@@ -87,14 +86,15 @@ symbol or new) | simplicity tax (+X/-Y lines) | gate needed`
 
 Grouped ledger rows by TYPE (REUSE / EXTRACT / SIMPLIFY / API: / RULE-NEW).
 Rows only; no prose padding. A one-line note at the end for dead/unreferenced
-code you found (do NOT propose deleting it — it belongs to strip) and for
+code you found (do NOT propose deleting it — it belongs to a separate
+user-approved deletion pass) and for
 severe db/query duplication (suggest `backend-arch-review` in one line).
 
 ## Don't
 - DO NOT edit files; run gofmt/golangci or full test suites; touch SQL
   schema/migrations (data shape — out of feral-org scope); propose auth/logic
   behavior changes (prefix `API:` ONLY for exported signature changes);
-  propose deletions of dead code (flag them → strip); propose a new abstraction
+  propose deletions of dead code (flag them for deletion); propose a new abstraction
   when an existing shared helper already satisfies the need; propose singleton
   extractions (a new abstraction needs 2+ occurrences).
 - Return ONLY the grouped ledger rows (plus the one-line notes).

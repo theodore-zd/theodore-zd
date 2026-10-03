@@ -115,12 +115,12 @@ symbol or new) | simplicity tax (+X/-Y lines) | gate needed`
 
 Grouped ledger rows by TYPE (REUSE / EXTRACT / COMPONENTIZE / SIMPLIFY /
 API: / RULE-NEW). Rows only; no prose padding. A one-line note at the end for
-dead/unreferenced code you found (do NOT propose deleting it — it belongs to
-strip).
+dead/unreferenced code you found (do NOT propose deleting it — it belongs to a
+separate user-approved deletion pass).
 
 ## Don't
 - DO NOT edit files; run formatters/linters; re-verify gates; touch backend
-  files; propose deletions of unreferenced code (flag them → strip); propose a
+  files; propose deletions of unreferenced code (flag them for deletion); propose a
   new abstraction when an existing shared thing already satisfies the need;
   propose singleton extractions (a new abstraction needs 2+ occurrences).
 - Return ONLY the grouped ledger rows (plus the one-line dead-code note).

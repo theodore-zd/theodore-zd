@@ -108,7 +108,7 @@ flattery.
 ## Don't
 - DO NOT fix or redesign anything; DO NOT run full test suites; DO NOT audit
   other app surfaces (screens and components are siblings); DO NOT report
-  visual aesthetics (that is design-audit's job); DO NOT invent journeys —
+  visual aesthetics (out of scope); DO NOT invent journeys —
   every journey in your output must be in your coverage or an explicitly
   labeled addition.
 - Return ONLY the six sections.

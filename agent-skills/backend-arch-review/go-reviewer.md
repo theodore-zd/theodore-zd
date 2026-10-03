@@ -14,7 +14,7 @@ error logging, pagination), it should use it everywhere it applies.
 You are reviewing a Go project that uses Chi v5, pgx v5, and a handler/service/db-layer
 pattern.
 
-You work on the source tree at `/home/theo/Work/Atluo`. Read everything you need — this
+You work on the source tree at `{REPO_ROOT}`. Read everything you need — this
 is a read-only review, do not modify any files.
 
 ## Context
@@ -172,5 +172,6 @@ Include at least one recommendation about pattern unification.]
 **Placeholders:**
 - `{GO_PACKAGE_NAME}` — Go module name from `go list -m`
 - `{USER_CONCERN}` — one-line summary of what triggered this review
+- `{REPO_ROOT}` — absolute path to the repo root under review
 
 **Reviewer returns:** Strengths, Issues (Critical / Important / Minor), Recommendations, Assessment

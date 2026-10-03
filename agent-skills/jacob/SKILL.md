@@ -161,6 +161,7 @@ Use the harness `reviewer` subagent (or a general-purpose subagent), filling the
 - `{DESCRIPTION}` — Brief summary of what was built
 - `{PLAN_OR_REQUIREMENTS}` — What it should do
 - `{BASE_SHA}` — Starting commit
+- `{REPO_CONTEXT}` — The target repo's stack and conventions (dispatcher fills in)
 - `{HEAD_SHA}` — Ending commit
 
 **3. Act on feedback:**

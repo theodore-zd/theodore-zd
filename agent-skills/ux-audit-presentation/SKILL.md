@@ -12,7 +12,7 @@ description: 'Runs a component-level feral UX audit and renders each proposed fi
 ## When to use / not for
 
 - Use for: "review our components/screens for UX improvements" where the user also wants to SEE the proposed changes as before/after examples.
-- Not for: fixing code (implement later from the report), visual polish/aesthetics (`design-audit` territory), whole-app journey audits without a mockup deliverable (plain `feral-ux-audit`), or greenfield mockups with nothing to compare against (`mockup`).
+- Not for: fixing code (implement later from the report), visual polish/aesthetics (aesthetic polish is out of scope), whole-app journey audits without a mockup deliverable (plain `feral-ux-audit`), or greenfield mockups with nothing to compare against (`mockup`).
 
 ## Pipeline
 

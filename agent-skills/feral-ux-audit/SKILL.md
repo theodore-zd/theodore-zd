@@ -10,7 +10,7 @@ description: 'Adversarial UX audit of screens, flows, and components, merged int
 - TLDR: Contract: judge everything against existing common UI/UX patterns — the conventions users already know from every other app. Familiar patterns are the gold standard; novelty must pay rent (a demonstrable understanding win) or it is a finding. Infer each screen's job-to-be-done from docs / routes / copy; if that fails, ask the user mid-audit with a batched `ask`.
 - TLDR: Execution: orient → build the surface map (screens + journeys + states + boundaries) → dispatch one feral subagent per slice (journeys, screens, components) in parallel → merge into one severity-ranked report with a verdict per screen and per journey.
 
-Not for: visual polish / making it prettier (`design-audit`), art direction and style (`frontend-design`), design tokens and brand systems (`design-system`), code-level correctness bugs (`feral-audit` — use it when the frontend actually misbehaves), implementing styles (`ui-styling`), or code stripping (`strip`).
+Not for: visual polish / making it prettier, art direction and style, design tokens and brand systems, or code-level correctness bugs (`feral-audit` — use it when the frontend actually misbehaves).
 
 ## Stance — the feral UX rule
 
@@ -199,8 +199,7 @@ one line per screen AND per journey: "clear", "usable with friction", "a strange
 - Dispatch per-slice auditors serially — parallel or not at all.
 - Report a finding without a worst-user scenario (no user + goal =
   preference, not a finding).
-- Judge by aesthetics ("I don't like the color") — that is `design-audit`
-  territory; judge against conventions and understanding only.
+- Judge by aesthetics ("I don't like the color") — aesthetic preference is not a finding; judge against conventions and understanding only.
 - Treat novelty as neutral — every invented pattern must pay rent or be a
   finding.
 - Let a subagent edit production code.

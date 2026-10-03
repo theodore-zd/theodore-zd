@@ -8,9 +8,9 @@ description: 'Aggressive code-organization pass: maximize reuse, dedupe, consoli
 - TLDR: Aggressive *execution* sweep of whatever target the user names (a file, directory, package, route, feature, or diff) — the org pass, not a critique. Output is applied reorganization plus a design-system doc diff, not a findings report.
 - TLDR: Stance: assume the author copy-pasted; every inline duplicate of something shared is guilt until replaced. Reuse before write, componentize toward the project's own components, simplify with a simplicity tax. Nothing is too small to dedupe, nothing is too sacred to move.
 - TLDR: Contract: obey the repo's organization conventions first (AGENTS.md, then design docs / component catalog); where conventions are missing, STOP and brainstorm them with the user before organizing (see Rules below). Rules are the point — every recurring uncovered pattern becomes a new AGENTS.md rule the user approves.
-- TLDR: Execution: orient → map the target AND repo-wide duplication for its patterns → parallel per-layer organizer subagents (frontend / backend) → merge their move-proposals into a ledger → approve themed batches (strip-style) → apply + verify each → sync the design-system doc → prompt new rules per discovery → hand deterministic rules to feral-lang.
+- TLDR: Execution: orient → map the target AND repo-wide duplication for its patterns → parallel per-layer organizer subagents (frontend / backend) → merge their move-proposals into a ledger → approve themed batches (approval-batched) → apply + verify each → sync the design-system doc → prompt new rules per discovery → hand deterministic rules to feral-lang.
 
-Not for: bug hunting (`feral-audit`), deleting dead weight (`strip` — if feral-org finds dead/unreferenced code it flags it and recommends the user run strip; it never deletes), review-only component structure (`component-structure-review`), architecture/layering (`backend-arch-review`), tension hunting (`tension-review`), standalone lint/format setup (`feral-lang`).
+Not for: bug hunting (`feral-audit`), deleting dead weight — if feral-org finds dead/unreferenced code it flags it for the user to delete; it never deletes — review-only component structure (`component-structure-review`), architecture/layering (`backend-arch-review`), tension hunting (`tension-review`), standalone lint/format setup (`feral-lang`).
 
 ## Stance — the organizer rule
 
@@ -21,7 +21,7 @@ Not for: bug hunting (`feral-audit`), deleting dead weight (`strip` — if feral
    - **Raw controls are guilt until proven otherwise**: a raw `<button>` / `<input>` / `<textarea>` / `<select>` rendered in view/component/shell code while the repo's component catalog ships a primitive for it (Button, IconButton, Input, MenuRow, TabBar, Select, Checkbox, …) is a REUSE row even at ONE site — swap the catalog primitive in, transferring the site's class string BYTE-FOR-BYTE through the primitive's `class` prop (see `frontend-organizer.md` checklist family 9). The primitive's own variants are the override mechanism — chromeless button variants (`link`/`chip`/`field`) and `Input variant="plain"` contribute no conflicting geometry/colors, so sites pass their full original class string verbatim; never fight a base class by appending a different value for the same property (Tailwind v4 resolves same-property conflicts by compiled stylesheet order, not class-attribute order — the base class wins).
    - **Where raw elements are legal**: inside the catalog primitives' own internals (they are the extraction home — e.g. Button/Input themselves, Select's `<option>`s, DatePicker's roving day-cells), plus a documented KEEP-raw whitelist of non-control structural elements — overlay backdrops/click-catchers, hidden file inputs, upload dropzones, roving calendar-grid day cells, complex per-kind tree rows, row-card `<div role="button">`s. Anything outside that whitelist converts in the same run; whitelist items get a `<!-- KEEP-raw: reason -->` comment where sensible.
 5. **Simplify with a tax**: every simplification (dead arg, redundant branch, collapse, merge) must carry a simplicity tax — lines/abstractions removed vs added. Simplifications that remove code beat extractions that add layers; when a rule conflicts, prefer fewer total moving parts.
-6. Nothing is above reorganization — stores, api modules, shell chrome, services, db helpers. But NEVER delete code (that's strip's job) and NEVER change behavior or public API shape without flagging it in the proposal (see Contract).
+6. Nothing is above reorganization — stores, api modules, shell chrome, services, db helpers. But NEVER delete code (deletion requires separate user approval) and NEVER change behavior or public API shape without flagging it in the proposal (see Contract).
 
 ## Contract — what "organized" means
 
@@ -50,9 +50,9 @@ and let `EXTRACT` fall out only where the target slice shows 2+ occurrences of
 a pattern with no shared home. Reuse rows need no rule-of-three; the catalog or
 utils home is the extraction home already done.
 
-## Approval — batched, strip-style
+## Approval — batched
 
-1. Group ledger rows into themed batches (e.g. "Extract view loading/error helper", "Reuse EmptyState in shell", "Promote uuid parse helper", "Simplify X", "Sync components.md", "New rule: X"). Each batch = one `ask` entry with a grouped multi-select (mirror strip's pattern: one question listing batches, multi-select on).
+1. Group ledger rows into themed batches (e.g. "Extract view loading/error helper", "Reuse EmptyState in shell", "Promote uuid parse helper", "Simplify X", "Sync components.md", "New rule: X"). Each batch = one `ask` entry with a grouped multi-select (one question listing batches, multi-select on).
 2. Apply ONLY approved batches, in order. After EACH batch, run its gate before touching the next:
    - Frontend touches: `cd frontend && bun run check` (+ `bun run build` when a new component/asset ships).
    - Backend touches: `go build ./...`, `go vet ./...`, and `go test ./...` (or the affected package's tests when the touch is package-local).
@@ -64,8 +64,8 @@ utils home is the extraction home already done.
 
 The components list is a deliverable, not an afterthought.
 
-1. Discover the design-system doc by glob, in this order, first hit wins: `docs/design/components.md`, `docs/design-system.md`, `docs/components.md`, `components.md`, `**/components.md` under a docs dir. (Atluo: `docs/design/components.md`.)
-2. After each batch that touches shared components/utils: add or update entries for every component or shared util the batch created or changed, following the doc's existing format (Atluo: `### Name.svelte` + Props table for primitives, table row for shared components — mirror the doc, do not invent a format). Shared utilities live in their own "Shared utilities" section listing the canonical helper home + exported names, IF the doc has no such section (Atluo has none — add it, mirroring §2's table style).
+1. Discover the design-system doc by glob, in this order, first hit wins: `docs/design/components.md`, `docs/design-system.md`, `docs/components.md`, `components.md`, `**/components.md` under a docs dir.
+2. After each batch that touches shared components/utils: add or update entries for every component or shared util the batch created or changed, following the doc's existing format (mirror the doc, do not invent a format). Shared utilities live in their own "Shared utilities" section listing the canonical helper home + exported names, IF the doc has no such section — add it, mirroring §2's table style.
 3. Doc drift found during the run (shared components with no entry, props missing from tables) becomes its own `DOC-SYNC` ledger batch for approval, matching the repo rule "add it to the catalog when it ships".
 4. If NO design doc exists anywhere and the run created shared components/utils: propose creating `docs/design/components.md` (minimal: the repo's own format) as a `DOC-SYNC` batch — approval-gated like everything else.
 5. Docs are updated in the SAME commit/batch as the code that changed them (repo rule).
@@ -106,7 +106,7 @@ If ≥1 `LINT-ENFORCE` rule was approved, the final phase loads `skill://feral-l
 - Convert something on the KEEP-raw whitelist (backdrops, hidden file inputs, dropzones, roving grid cells, complex tree rows, row-card divs) or "fix" a primitive's internals — those are the extraction home, not violations.
 - Edit without running the batch gate; commit a batch that failed its gate.
 - Leave the design doc stale after touching shared components (DOC-SYNC is mandatory, not optional).
-- Delete or rewrite dead code — flag it and defer to `strip`.
+- Delete or rewrite dead code — flag it and defer deletion to the user.
 - Invent a second convention beside an existing one (second utils home, second empty-state pattern, second api-call path).
 - Dispatch per-layer organizers serially — parallel or not at all.
 - Let a subagent edit production code — subagents propose; the main agent applies approved batches only.

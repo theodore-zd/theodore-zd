@@ -10,7 +10,7 @@ description: 'Deterministic code-style enforcement: linter setup and rule lockdo
 - TLDR: Contract: never invent a parallel toolchain — detect what exists, extend the repo's documented verification order, and for known stacks install the canonical tooling when none exists.
 - TLDR: Execution: detect stack → per-language decision table → install/config → wire into the repo's verification order (AGENTS.md/README scripts) → run gates → report an enforced-vs-convention matrix.
 
-Not for: code stripping (`strip`), aggressive reorganization sweeps (`feral-org` — when the user wants org moves plus enforcement, feral-org runs and hands its LINT-ENFORCE rules here), bug hunting (`feral-audit`), or review-only conventions (a standard with no tool mapping is a convention; say so and keep it in AGENTS.md).
+Not for: aggressive reorganization sweeps (`feral-org` — when the user wants org moves plus enforcement, feral-org runs and hands its LINT-ENFORCE rules here), bug hunting (`feral-audit`), or review-only conventions (a standard with no tool mapping is a convention; say so and keep it in AGENTS.md).
 
 ## Stance
 
@@ -20,7 +20,7 @@ Determinism over doctrine: the goal is that violations fail a command. Idempoten
 
 **1. Detect the stack.**
 - Languages present (globs): `*.go`, `*.svelte`/`*.ts`, `*.sql`, `*.py`, `*.rs`, etc.
-- Package manager (`bun`/`npm`/`pnpm` — Atluo is bun).
+- Package manager (`bun`/`npm`/`pnpm`/`uv` — whatever the repo uses).
 - Existing tooling: config files, devDeps, scripts, CI.
 
 **2. Known-stack decision table** (install by default when the tool is absent — user-confirmed preference; flag installs in the report):
@@ -34,7 +34,7 @@ Determinism over doctrine: the goal is that violations fail a command. Idempoten
 
 **3. Existing tooling?** Extend it (add the missing rule/plugin), do not reinstall or duplicate.
 
-**4. Wire gates** into the repo's documented verification order (AGENTS.md + README when both carry it — Atluo has the same 4-command block in both; update both) and add the new scripts to package.json beside `check`. Do NOT gate `scripts/dev.sh` unless the user asks (watch-loop gates churn).
+**4. Wire gates** into the repo's documented verification order (AGENTS.md + README when both carry it; update both) and add the new scripts to package.json beside `check`. Do NOT gate dev/watch scripts unless the user asks (watch-loop gates churn).
 
 **5. Run every new gate;** they must pass on the current tree (or report the pre-existing violations as a list, never silently fix unrelated code).
 
@@ -68,5 +68,5 @@ Rules with no tool mapping are returned as convention-only with a one-line reaso
 - Reinstall a present tool.
 - Add a gate that fails on the current clean tree without reporting it.
 - Run formatters across the repo unprompted (format only files the config touches when the user asked for setup — `format:check` validates, `--write` only on explicit request or within a feral-org-approved batch).
-- Touch CI that does not exist (Atluo has none).
+- Touch CI that does not exist.
 - Edit SQL migrations.

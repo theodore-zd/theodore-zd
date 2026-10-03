@@ -10,7 +10,7 @@ description: 'Hyper-critical code review: assumes nothing works and hunts for pr
 - TLDR: Contract: infer what each function "should do" from api.md / docs / AGENTS.md / migrations / tests / callers; if that fails, ask the user mid-audit with a batched `ask`. Asking is good.
 - TLDR: Execution: orient → map the full call graph (coverage map with boundaries) → dispatch one feral subagent per layer (Go, Svelte, SQL) in parallel → merge into one severity-ranked report.
 
-Not for: architecture/layering reviews (`backend-arch-review`), cross-cutting tension hunting (`tension-review`), frontend component structure (`component-structure-review`), style/lint (`go vet` / `go fmt`), test-suite QA (`test-audit`), or code stripping (`strip`).
+Not for: architecture/layering reviews (`backend-arch-review`), cross-cutting tension hunting (`tension-review`), frontend component structure (`component-structure-review`), style/lint (`go vet` / `go fmt`), or test-suite QA.
 
 ## Stance — the feral rule
 

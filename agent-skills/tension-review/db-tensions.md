@@ -12,7 +12,7 @@ maintainability.
 
 You are reviewing a Go project using PostgreSQL via pgx with raw SQL and goose migrations.
 
-You work on the source tree at `/home/theo/Work/Atluo`. Read everything you need — this
+You work on the source tree at `{REPO_ROOT}`. Read everything you need — this
 is a read-only review, do not modify any files.
 
 ## Context
@@ -212,5 +212,6 @@ Which 3 tension points would have the highest impact if resolved? Order by (impa
 **Placeholders:**
 - `{GO_PACKAGE_NAME}` — Go module name from `go list -m`
 - `{USER_CONCERN}` — one-line summary of what triggered this review
+- `{REPO_ROOT}` — absolute path to the repo root under review
 
 **Reviewer returns:** Summary, Tension Points Found (with DDL), Tension Points NOT Found, Prioritization, Assessment
