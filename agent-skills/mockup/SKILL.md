@@ -1,29 +1,53 @@
 ---
 name: mockup
 description: |
-  Mockup-set generator with three modes: plain (greenfield wireframes), flow
-  (screen-flow canvases wired by labeled connectors plus p5 sketch pages), and
-  redesign (before/after pages of an existing app with tokens lifted verbatim
-  from its source). Sets are standalone SvelteKit (Svelte 5 + Vite + Tailwind +
-  shadcn-svelte) projects in stock shadcn styling by default; theme (preset,
-  base color, dark) selectable at scaffold time. Invoked by explicit skill call
-  only; it never auto-triggers.
+  Mockup-set generator with three purposes: new (fresh screens for something
+  that doesn't exist yet), flow (screen-flow canvases wired by labeled
+  connectors plus p5 sketch pages), and redesign (before/after pages of an
+  existing app with tokens lifted verbatim from its source). ALWAYS opens by
+  asking the user what they want (purpose, theme, page list) via the `ask`
+  tool before generating anything. Sets are standalone SvelteKit (Svelte 5 +
+  Vite + Tailwind + shadcn-svelte) projects in stock shadcn styling by
+  default; theme (preset, base color, dark) selectable at scaffold time.
+  Invoked by explicit skill call only; it never auto-triggers.
 ---
 
 # Mockup
 
-- TLDR: Three modes over one shared standard — plain (greenfield wireframes), flow
-  (screen-flow canvases + p5 sketches), redesign (before/after of an existing app).
+- TLDR: Three purposes over one shared standard — new (fresh screens from
+  scratch), flow (screen-flow canvases + p5 sketches), redesign (before/after
+  of an existing app). ALWAYS open with an `ask` round — purpose, theme, page
+  list — before generating anything.
 - TLDR: Default styling is stock shadcn-svelte (Vega preset, neutral base color) —
   do NOT re-theme unless the user names a preset/base color, or the mode supplies
   one (redesign uses the target app's real tokens).
 - TLDR: Real domain labels ("Projects", "Save") with token data (`<project name>`,
   `×N`); no lorem ipsum, no invented names/numbers, no filler text elements.
-- TLDR: Confirm the page list (and the flow map in flow mode) with the user via
-  `ask` BEFORE generating. Iterate per page on feedback — never regenerate the set.
+- TLDR: Iterate per page on feedback — never regenerate the set.
 
 Not for: auditing a running app (`visual-audit`), UX critique of existing UI
 (`feral-ux-audit`). Mode routing is under [Mode routing](#mode-routing).
+
+## On invocation — ask first
+
+NEVER generate from assumptions. The FIRST action of every run is one `ask`
+round covering all three:
+
+1. Purpose — what should the set show? Offer the three modes in outcome
+   language so the user picks, don't make them parse mode names:
+   - `new` — "fresh screens for something that doesn't exist yet"
+   - `flow` — "how screens connect: a flow map of the journey"
+   - `redesign` — "before/after of an existing app" (requires its source code)
+   Guessing the purpose from phrasing is the #1 failure mode — an ambiguous
+   request mentioning several screens is still `new` unless the user says flow.
+2. Theme — offer: stock shadcn (default; Vega + neutral) / a named preset or
+   base color (Theme options) / redesign-real-tokens. Never re-theme silently.
+3. Page list — numbered, one line per page (plus the flow map in `flow`, the
+   before/after proposal list in `redesign`). User confirms or corrects.
+
+If the user's request already answers some of these (explicit mode, explicit
+theme, explicit page list), skip that item — don't re-ask what's already
+decided. Everything still ambiguous gets asked.
 
 ## Shared core (all modes)
 
@@ -112,10 +136,8 @@ Not for: auditing a running app (`visual-audit`), UX critique of existing UI
 
 ### Workflow
 
-1. Restate the request as a numbered page list (plus the mode-specific plan: flow
-   map in flow mode, before/after proposal list in redesign) + applicable-state
-   list; confirm with the user via `ask` BEFORE generating. User confirms or
-   corrects.
+1. Run the invocation `ask` round (On invocation above) — purpose, theme, and
+   page list all confirmed before anything is generated.
 2. Scaffold the project (Set structure above — init generates the theme), add
    the components the pages need (`bunx shadcn-svelte add button card …`), and
    copy the mode's assets from this skill's `assets/` into `src/lib/`.
@@ -124,10 +146,11 @@ Not for: auditing a running app (`visual-audit`), UX critique of existing UI
 5. Iterate on feedback: edit the affected page's component only — NEVER regenerate
    the whole set.
 
-## Mode: plain
+## Mode: new
 
-- Scope: greenfield wireframes — no navigation story to tell, no existing
-  app to compare against.
+- Scope: fresh screens for something that doesn't exist yet — full stock
+  component fidelity, real labels, no navigation story, no existing app to
+  compare against.
 - Build pages from stock shadcn-svelte components (Card, Button, Input, Badge,
   Skeleton, Table, Tabs) in the scaffolded theme's palette. Wireframe primitives
   come for free: Skeleton bars are the text-line placeholders, muted Cards are the
@@ -230,7 +253,7 @@ Not for: auditing a running app (`visual-audit`), UX critique of existing UI
 
 ## Mode routing
 
-- `plain` — greenfield, no navigation story to show.
+- `new` — fresh screens, nothing existing to compare against.
 - `flow` — navigation or journey matters, or the page wants a focal visual.
 - `redesign` — an existing app's UI is the baseline (needs its source, never
   memory-only).
@@ -249,7 +272,8 @@ Not for: auditing a running app (`visual-audit`), UX critique of existing UI
 - Sketches hardcoding colors instead of `theme()`, or using `Math.random`.
 - Frames overlapping, or connectors crossing through frames — reposition the map.
 - Auto-triggering: runs only on explicit skill call.
-- Generating before the page list (and flow map) is confirmed.
+- Generating before the invocation `ask` round is answered, or guessing the
+  purpose/theme from phrasing instead of asking.
 - A custom server script — vite dev/preview behind the five-minute timeout is the
   whole server story.
 - Regenerating the whole set on feedback instead of editing the affected page.
