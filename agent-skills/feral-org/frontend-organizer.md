@@ -118,6 +118,9 @@ API: / RULE-NEW). Rows only; no prose padding. A one-line note at the end for
 dead/unreferenced code you found (do NOT propose deleting it — it belongs to a
 separate user-approved deletion pass).
 
+`COMPONENTIZE`/`EXTRACT` rows are executed by `feral-componentization` (the
+applied specialist), under the same approval gate as every other batch.
+
 ## Don't
 - DO NOT edit files; run formatters/linters; re-verify gates; touch backend
   files; propose deletions of unreferenced code (flag them for deletion); propose a

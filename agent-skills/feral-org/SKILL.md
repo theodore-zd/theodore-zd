@@ -10,7 +10,11 @@ description: 'Aggressive code-organization pass: maximize reuse, dedupe, consoli
 - TLDR: Contract: obey the repo's organization conventions first (AGENTS.md, then design docs / component catalog); where conventions are missing, STOP and brainstorm them with the user before organizing (see Rules below). Rules are the point — every recurring uncovered pattern becomes a new AGENTS.md rule the user approves.
 - TLDR: Execution: orient → map the target AND repo-wide duplication for its patterns → parallel per-layer organizer subagents (frontend / backend) → merge their move-proposals into a ledger → approve themed batches (approval-batched) → apply + verify each → sync the design-system doc → prompt new rules per discovery → hand deterministic rules to feral-lang.
 
-Not for: bug hunting (`feral-audit`), deleting dead weight — if feral-org finds dead/unreferenced code it flags it for the user to delete; it never deletes — review-only component structure (`component-structure-review`), architecture/layering (`backend-arch-review`), tension hunting (`tension-review`), standalone lint/format setup (`feral-lang`).
+Not for: bug hunting (`feral-audit`), deleting dead weight — if feral-org finds dead/unreferenced code it flags it for the user to delete; it never deletes — review-only component structure (`component-structure-review`), architecture/layering (`backend-arch-review`), tension hunting (`tension-review`), standalone lint/format setup (`feral-lang`), componentization mechanics (`feral-componentization` — the applied extraction specialist; feral-org's org sweeps stay here).
+
+## Handoff
+
+`COMPONENTIZE`/`EXTRACT` rows from the Svelte frontend ledger execute in `feral-componentization` (with the same approval gate as these batches); feral-org keeps the org sweep itself.
 
 ## Stance — the organizer rule
 

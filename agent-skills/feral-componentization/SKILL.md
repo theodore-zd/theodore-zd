@@ -1,15 +1,19 @@
 ---
-name: aggressive-componentization
-description: 'Extracts duplicated logic, markup, and class strings into bucket components with shadcn-style tv() variants (Svelte + Tailwind). Invoked by explicit skill call only; it never auto-triggers.'
+name: feral-componentization
+description: 'Extracts duplicated logic, markup, and class strings into bucket components with shadcn-style tv() variants (Svelte 5 + Tailwind). Executes COMPONENTIZE/EXTRACT handoffs from feral-org and standalone extraction calls. Invoked by explicit skill call only; it never auto-triggers.'
 ---
 
-# Aggressive Componentization
+# Feral Componentization
 
 Extract duplicated **logic, markup, and class strings** into shared components. Duplicated styles count exactly as much as duplicated code: a repeated Tailwind class run is a first-class extraction signal. Variants are managed with the same system shadcn uses — `tailwind-variants` (`tv`) with `VariantProps`.
 
-## Activation — trigger only
+## Handoff
 
-This skill does NOT auto-apply during feature work. It runs only when the user invokes a trigger phrase above. Two modes:
+`feral-org` emits `COMPONENTIZE`/`EXTRACT` rows in its Svelte frontend ledger batches; those rows execute here, under the same approval gate as feral-org batches. Standalone calls ("extract this", "componentize <dir>") also land here directly.
+
+## Activation — explicit call only
+
+This skill does NOT auto-apply during feature work. It runs only when invoked explicitly. Two modes:
 
 - **Audit mode** ("componentize", "aggressive componentization", optionally naming a view/directory): scan the target, report a candidate table — pattern · occurrences · files · proposed component or variant — then apply and verify.
 - **Targeted mode** ("extract this", "make this a component"): extract only the named markup/logic.
@@ -133,6 +137,7 @@ Then visually verify the touched views in the running app (repo dev flow: `./scr
 
 ## Related skills
 
+- `feral-org` — upstream ledger: emits the `COMPONENTIZE`/`EXTRACT` rows this skill executes; org sweeps themselves stay in feral-org.
 - `component-structure-review` — the counterweight: if extraction starts feeling excessive, run it before adding another component.
 - `shadcn-svelte` — inventory of stock `ui/` components to compose instead of building new.
 - `jacob` — Svelte/TypeScript pattern enforcement that still applies to extracted components.
