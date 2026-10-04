@@ -193,6 +193,14 @@ report):
 one line per screen AND per journey: "clear", "usable with friction", "a stranger would be lost" — plus one overall line.
 ```
 
+## Optional — presentation set
+
+Only when the user asks to SEE the proposed fixes, after they approve the report. Without that ask, stop at the report.
+
+- Render the approved component findings as a before/after mockup presentation set, following the full workflow and fidelity contract in `skill://mockup` (redesign mode: one page per approved proposal, Before/After columns, same data in both, real tokens extracted from the app — never invented).
+- Each page cites its finding and carries the source `file:line`.
+- Serve the set and screenshot-verify at least two pages (one icon-bearing) before hand-off; follow the mockup skill's serve and verification contract rather than restating it here.
+
 ## Red flags — never
 
 - Run the audit without orientation or without a surface map.
