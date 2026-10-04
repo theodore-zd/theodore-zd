@@ -1,23 +1,22 @@
 ---
 name: mockup
 description: |
-  Mockup-set generator with three modes over one shared low-fi standard: plain
-  (greenfield grayscale wireframes), flow (screen-flow canvases wired by labeled
-  connectors plus p5 sketch pages), and redesign (before/after pages of an
-  existing app with tokens lifted verbatim from its source). Sets are standalone
-  SvelteKit (Svelte 5 + Vite + Tailwind + shadcn-svelte) projects themed to
-  grayscale plus exactly one accent color. Invoked by explicit skill call only;
-  it never auto-triggers.
+  Mockup-set generator with three modes: plain (greenfield wireframes), flow
+  (screen-flow canvases wired by labeled connectors plus p5 sketch pages), and
+  redesign (before/after pages of an existing app with tokens lifted verbatim
+  from its source). Sets are standalone SvelteKit (Svelte 5 + Vite + Tailwind +
+  shadcn-svelte) projects in stock shadcn styling by default; theme (preset,
+  base color, dark) selectable at scaffold time. Invoked by explicit skill call
+  only; it never auto-triggers.
 ---
 
 # Mockup
 
 - TLDR: Three modes over one shared standard — plain (greenfield wireframes), flow
   (screen-flow canvases + p5 sketches), redesign (before/after of an existing app).
-- TLDR: Low fidelity is enforced by theming, not by weaker tooling — each set is a
-  real Svelte 5 + Vite + Tailwind + shadcn-svelte project themed to grayscale plus
-  exactly ONE accent color (default `#e8710a` in `assets/app.css`); deliberately
-  plain and self-policed.
+- TLDR: Default styling is stock shadcn-svelte (Vega preset, neutral base color) —
+  do NOT re-theme unless the user names a preset/base color, or the mode supplies
+  one (redesign uses the target app's real tokens).
 - TLDR: Real domain labels ("Projects", "Save") with token data (`<project name>`,
   `×N`); no lorem ipsum, no invented names/numbers, no filler text elements.
 - TLDR: Confirm the page list (and the flow map in flow mode) with the user via
@@ -30,14 +29,9 @@ Not for: auditing a running app (`visual-audit`), UX critique of existing UI
 
 ### Standards
 
-- Fidelity: deliberately plain, self-policed. Grayscale + exactly ONE accent color
-  (default `#e8710a` in `assets/app.css`); the punch comes from layout, labels and
-  motion — never from more colors.
-- Icons ONLY via the css.gg CDN — `<link rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/css.gg/icons/icons.css">` in every page entry.
-  GOTCHA: bare `https://cdn.jsdelivr.net/npm/css.gg` serves JS, not CSS.
-- NEVER hand-write SVG and never use lucide or any icon component that embeds SVG
-  markup — css.gg class names only.
+- Styling: stock shadcn-svelte, whatever theme the set scaffolded with (default
+  Vega + neutral). Do not restyle components ad hoc; theme changes go through
+  the token file (`src/routes/layout.css`) — see Theme options.
 - Content: real domain labels ("Projects", "Save") — never generic placeholders.
 - Variable data as tokens: `<project name>`, `×N`.
 - No lorem ipsum, no invented names/numbers, no filler text elements.
@@ -54,91 +48,58 @@ Not for: auditing a running app (`visual-audit`), UX critique of existing UI
 - The shell is the root route `src/routes/+page.svelte`: a plain page linking
   every numbered page and every variant. Any set with more than one page MUST
   have it.
-- Scaffold (proven headless sequence; `sv` prompts interactively when run
-  without the answer syntax):
+- Scaffold (all prompts have safe defaults — run in a pty and answer EVERY prompt
+  with Enter; default preset is Vega, default aliases are `#lib`-based):
 
   ```
   bunx sv create mockups/<set> --template minimal --types ts --no-add-ons --install bun
   cd mockups/<set>
   bunx sv add tailwindcss="plugins:none" --install bun   # or `bunx sv add tailwindcss` + accept defaults
+  bunx shadcn-svelte init --css src/routes/layout.css --base-color <base-color>
   ```
 
-  SvelteKit 3 removed `$lib` — re-add it inside the `sveltekit()` plugin in
-  `vite.config.ts` (there is no `svelte.config.js` anymore):
+  `init` prompts, in order, each answered with Enter: preset (default **Vega**),
+  import aliases for lib/components/ui/utils/hooks (defaults `#lib`, `#lib/components`,
+  `#lib/components/ui`, `#lib/utils`, `#lib/hooks`), then "Updates to layout.css
+  required" → Yes. SvelteKit 3 has no `svelte.config.js` and uses native `#lib`
+  subpath imports — no alias configuration needed. Piped stdin does NOT drive the
+  preset select (clack needs a pty); the `add` confirm DOES accept piped `y`.
 
-  ```ts
-  sveltekit({
-    alias: { '$lib': 'src/lib', '$lib/*': 'src/lib/*' },
-    // …keep the generated compilerOptions/adapter options
-  })
-  ```
+### Theme options
 
-  Then configure shadcn-svelte manually (its `init` is interactive; this is the
-  deterministic equivalent):
-
-  ```json
-  // components.json
-  {
-    "$schema": "https://shadcn-svelte.com/schema.json",
-    "tailwind": { "css": "src/routes/layout.css", "baseColor": "neutral" },
-    "aliases": {
-      "components": "$lib/components",
-      "utils": "$lib/utils",
-      "ui": "$lib/components/ui",
-      "hooks": "$lib/hooks",
-      "lib": "$lib"
-    },
-    "typescript": true,
-    "registry": "https://shadcn-svelte.com/registry"
-  }
-  ```
-
-  ```ts
-  // src/lib/utils.ts
-  import { clsx, type ClassValue } from 'clsx';
-  import { twMerge } from 'tailwind-merge';
-
-  export function cn(...inputs: ClassValue[]) {
-    return twMerge(clsx(inputs));
-  }
-  ```
-
-  ```
-  bun add clsx tailwind-merge
-  bunx shadcn-svelte add button card badge input skeleton table tabs separator
-  ```
-
-  `add` asks "Ready to install components and dependencies?" — confirm it (pipe
-  `printf 'y\n' |` in front when running non-interactive).
-- Theming: replace `src/routes/layout.css` with `assets/app.css`, keeping
-  `@import "tailwindcss";` as the first line. `assets/app.css` IS the whole
-  theme — the grayscale + one-accent CSS variables AND the `@theme inline`
-  mapping that turns them into utilities. Stock shadcn-svelte ui components
-  then render in the grayscale palette. Re-token the palette file; never restyle
-  components ad hoc.
-- Icons: add the css.gg CDN link to the `<head>` in `src/app.html` — never
-  lucide or any SVG-embedding icon component.
-- Page routes follow this pattern (Tailwind classes stay low-fi):
+- Default: stock shadcn-svelte = **Vega preset + neutral base color**. Re-theme
+  ONLY when the user names a preset or base color (redesign mode overrides with
+  the target app's real tokens instead).
+- Presets (first `init` prompt): **Vega** — Lucide / Inter, the classic shadcn
+  look (default); **Nova** — Lucide / Geist; **Lyra** — Phosphor / JetBrains Mono;
+  **Luma** and **Rhea** — Lucide / Inter; **Maia** and **Mira** — Hugeicons;
+  **Sera** — Lucide / Noto Sans + Playfair Display.
+- Base colors (`--base-color` flag): `neutral` (default), `stone`, `zinc`,
+  `mauve`, `olive`, `mist`, `taupe`.
+- Dark mode: the generated theme ships a native `.dark` class block — a dark
+  variant needs no re-tokening (see Variants).
+- Theme changes post-scaffold go through `src/routes/layout.css` (the token
+  blocks); never restyle components ad hoc.
+- Page routes follow this pattern:
 
   ```svelte
   <!-- src/routes/01-dashboard/+page.svelte -->
   <script lang="ts">
     import { page } from '$app/state';
-    import Dashboard from '$lib/pages/01-dashboard/Dashboard.svelte';
+    import Dashboard from '#lib/pages/01-dashboard/Dashboard.svelte';
 
     const v = $derived(page.url.searchParams.get('v') ?? '');
     $effect(() => {
-      document.body.className = v
-        ? v.split(',').map((label) => `variant-${label}`).join(' ')
-        : '';
+      document.body.className = v;
     });
   </script>
   <Dashboard />
   ```
 
-  Variants: the page route reads the query param and sets body classes, which
-  `app.css` maps to palette overrides. (`$effect` is client-only — the SSR shell
-  has no variant class; fine for mockups.)
+  Variants: the page route reads the query param and sets it verbatim as the body
+  class. The label `dark` maps to shadcn's native `.dark` theme; any other label
+  is a free hook for the set's own CSS (e.g. `?v=compact`). (`$effect` is
+  client-only — the SSR shell has no variant class; fine for mockups.)
 
 ### Serve
 
@@ -155,8 +116,9 @@ Not for: auditing a running app (`visual-audit`), UX critique of existing UI
    map in flow mode, before/after proposal list in redesign) + applicable-state
    list; confirm with the user via `ask` BEFORE generating. User confirms or
    corrects.
-2. Scaffold the project, theme it with `assets/app.css`, and copy the mode's
-   assets from this skill's `assets/` into `src/lib/`.
+2. Scaffold the project (Set structure above — init generates the theme), add
+   the components the pages need (`bunx shadcn-svelte add button card …`), and
+   copy the mode's assets from this skill's `assets/` into `src/lib/`.
 3. Generate the pages.
 4. Serve with the bounded one-liner.
 5. Iterate on feedback: edit the affected page's component only — NEVER regenerate
@@ -164,10 +126,10 @@ Not for: auditing a running app (`visual-audit`), UX critique of existing UI
 
 ## Mode: plain
 
-- Scope: greenfield low-fi wireframes — no navigation story to tell, no existing
+- Scope: greenfield wireframes — no navigation story to tell, no existing
   app to compare against.
 - Build pages from stock shadcn-svelte components (Card, Button, Input, Badge,
-  Skeleton, Table, Tabs) rendered in the grayscale palette. Wireframe primitives
+  Skeleton, Table, Tabs) in the scaffolded theme's palette. Wireframe primitives
   come for free: Skeleton bars are the text-line placeholders, muted Cards are the
   frames.
 - Multiple candidate directions are `?v=` variants of the same page so they compare
@@ -202,14 +164,16 @@ Not for: auditing a running app (`visual-audit`), UX critique of existing UI
     edge; `Flow.render()` draws it as an orthogonal elbow with an arrowhead and a
     label chip carrying the action ("Log in", "Sign up", "Video 1st").
   - `via: 'h' | 'v'` — horizontal or vertical exit/entry sides; default picks the
-    dominant delta. `primary: true` — the happy path: accent line + accent label;
-    everything else stays gray. `out` / `in` (0..1) tune the exit/entry point
-    along the edge.
+    dominant delta. `primary: true` — the happy path: primary-colored line + label;
+    everything else stays in the theme's border color. If the scaffolded theme's
+    primary is too quiet against the connector gray, re-token `--primary` in the
+    set's `layout.css` (one variable — still the theme, not ad-hoc restyling).
+    `out` / `in` (0..1) tune the exit/entry point along the edge.
   - Connectors recompute on load and resize. Never hand-place connector divs,
     never hardcode their coordinates.
 - Frame anatomy: `.frame` = `.frame-head` (screen name) + `.frame-body`; phone
   screens ~230px wide, desktop frames wider; every frame needs an `id` because
-  connectors anchor to it. Copy this CSS into the flow set's `app.css`:
+  connectors anchor to it. Append this CSS to the flow set's `layout.css`:
 
   ```css
   .flow-canvas { position: relative; border: 1px solid var(--border); min-height: 420px; }
@@ -235,14 +199,14 @@ Not for: auditing a running app (`visual-audit`), UX critique of existing UI
   evidence, not imagination.
 - Two fidelity bars:
   - **Skeleton — minimal, always.** Page frames, section wrappers, spacer chrome
-    and anything NOT under proposal stay plain: grayscale, hairlines, no polish.
-    The shell carries no design opinion; it only frames the changes.
+    and anything NOT under proposal stay plain stock shadcn (scaffolded theme,
+    untouched). The shell carries no design opinion; it only frames the changes.
   - **Proposal surfaces — actual-app fidelity, always.** Every component the
     proposal changes renders with the app's REAL values: its real accent, status
     colors, font sizes, radii, borders, spacing. Polishing ONLY the proposed
     surfaces is the point — that is what makes the proposal legible.
 - Fidelity sourcing — never from memory:
-  - Extract real values from the app's source into the set's `app.css` BEFORE
+  - Extract real values from the app's source into the set's `layout.css` BEFORE
     generating pages: the token block, status/chip recipes, row-card class
     strings, font-size ramp, radius/border scale — each with a source comment
     naming the file it came from (e.g. `/* app.css .mono-overline */`).
@@ -275,12 +239,14 @@ Not for: auditing a running app (`visual-audit`), UX critique of existing UI
 
 - One massive page for the whole set — one route per page, shell for navigation.
 - Lorem ipsum, filler text, invented names/numbers.
-- Hand-written inline SVG; lucide or any SVG-embedding icon component.
-- Polish above the plain bar in plain/flow; polishing skeleton chrome or
-  un-proposed surfaces in redesign.
+- Re-theming a set on your own initiative — stock shadcn (Vega + neutral) is the
+  default; theme only on explicit user choice or redesign-mode token extraction.
+- Hand-drawing SVG decorations when a stock component or its built-in icon
+  already covers the need.
+- Polishing skeleton chrome or un-proposed surfaces in redesign.
 - Inventing token values, colors or sizes not present in the app's source;
   one-sided AFTER-only pages; before/after pairs with different data or layout.
-- Sketches hardcoding hex colors instead of `theme()`, or using `Math.random`.
+- Sketches hardcoding colors instead of `theme()`, or using `Math.random`.
 - Frames overlapping, or connectors crossing through frames — reposition the map.
 - Auto-triggering: runs only on explicit skill call.
 - Generating before the page list (and flow map) is confirmed.

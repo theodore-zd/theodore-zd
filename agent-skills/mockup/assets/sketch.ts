@@ -9,18 +9,18 @@ export function theme() {
   const cs = getComputedStyle(document.body);
   const v = (n: string, f: string) => cs.getPropertyValue(n).trim() || f;
   return {
-    primary: v('--primary', '#e8710a'),
-    background: v('--background', '#ffffff'),
-    foreground: v('--foreground', '#1f1f1c'),
-    muted: v('--muted', '#e6e6e1'),
-    border: v('--border', '#8d8d87'),
+    primary: v('--primary', 'oklch(0.55 0.2 40)'),
+    background: v('--background', 'oklch(1 0 0)'),
+    foreground: v('--foreground', 'oklch(0.145 0 0)'),
+    muted: v('--muted', 'oklch(0.97 0 0)'),
+    border: v('--border', 'oklch(0.922 0 0)'),
   };
 }
 
-export function rgba(hex: string, a: number): string {
-  const s = hex.replace('#', '');
-  const n = parseInt(s.length === 3 ? s.split('').map((c) => c + c).join('') : s, 16);
-  return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+// Alpha blend for ANY CSS color format (hex, oklch, hsl, …). Use in place of
+// the old rgba() helper — shadcn themes are oklch, which hex parsing breaks.
+export function alpha(color: string, a: number): string {
+  return `color-mix(in srgb, ${color} ${Math.round(a * 100)}%, transparent)`;
 }
 
 // sketch(host, height, draw, seed) — creates one p5 instance in the host
