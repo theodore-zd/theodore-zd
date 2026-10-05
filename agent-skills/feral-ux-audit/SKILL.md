@@ -54,13 +54,8 @@ Not for: visual polish / making it prettier, art direction and style, design tok
    **Where am I? What can I do here? What happens next?** — plus, when
    something fails, **what happened and what do I do about it?**
 3. Pattern conformance is judged against, in order:
-   - common UI/UX conventions — Nielsen's ten usability heuristics
-     (visibility of system status; match between system and the real world;
-     user control and freedom; consistency and standards; error prevention;
-     recognition rather than recall; flexibility and efficiency of use;
-     aesthetic and minimalist design; help users recognize, diagnose, and
-     recover from errors; help and documentation), plus Norman's signifiers
-     and affordances;
+   - common UI/UX conventions — Nielsen's ten usability heuristics, plus
+     Norman's signifiers and affordances;
    - platform conventions (web / OS / device);
    - the app's OWN established patterns — a second convention beside an
      existing one is a violation, even if each is fine in isolation.

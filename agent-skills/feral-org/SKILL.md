@@ -1,14 +1,17 @@
 ---
 name: feral-org
-description: 'Aggressive code-organization pass: maximize reuse, dedupe, consolidate. Invoked by explicit skill call only; it never auto-triggers.'
+description: 'Aggressive code-organization pass: maximize reuse, dedupe, consolidate. Point it at a file, directory, route, feature, or diff. Invoked by explicit skill call only; it never auto-triggers.'
 ---
 
 # Feral Org
 
-- TLDR: Aggressive *execution* sweep of whatever target the user names (a file, directory, package, route, feature, or diff) — the org pass, not a critique. Output is applied reorganization plus a design-system doc diff, not a findings report.
-- TLDR: Stance: assume the author copy-pasted; every inline duplicate of something shared is guilt until replaced. Reuse before write, componentize toward the project's own components, simplify with a simplicity tax. Nothing is too small to dedupe, nothing is too sacred to move.
-- TLDR: Contract: obey the repo's organization conventions first (AGENTS.md, then design docs / component catalog); where conventions are missing, STOP and brainstorm them with the user before organizing (see Rules below). Rules are the point — every recurring uncovered pattern becomes a new AGENTS.md rule the user approves.
-- TLDR: Execution: orient → map the target AND repo-wide duplication for its patterns → parallel per-layer organizer subagents (frontend / backend) → merge their move-proposals into a ledger → approve themed batches (approval-batched) → apply + verify each → sync the design-system doc → prompt new rules per discovery → hand deterministic rules to feral-lang.
+- TLDR: Aggressive *execution* sweep of the user-named target — applied
+  reorganization plus a design-doc diff, not a findings report. Reuse before
+  write, extract at 2nd occurrence, simplify with a simplicity tax, never delete
+  code, approval-batched with gates after each batch.
+- TLDR: Contract below: conventions first, stop-and-ask when missing (Contract),
+  the run pipeline (Dispatch), ledger + approval (Approval), doc sync, rule
+  prompting, and the feral-lang handoff.
 
 Not for: bug hunting (`feral-audit`), deleting dead weight — if feral-org finds dead/unreferenced code it flags it for the user to delete; it never deletes — review-only component structure (`component-structure-review`), architecture/layering (`backend-arch-review`), tension hunting (`tension-review`), standalone lint/format setup (`feral-lang`), componentization mechanics (`feral-componentization` — the applied extraction specialist; feral-org's org sweeps stay here).
 
@@ -97,7 +100,7 @@ The components list is a deliverable, not an afterthought.
 
 ## Enforcement handoff
 
-If ≥1 `LINT-ENFORCE` rule was approved, the final phase loads `skill://feral-lang/SKILL.md` and dispatches the deterministic-enforcement work with the rule list. If skill:// cross-skill resolution fails, fall back to reading `/home/theo/.omp/agent/skills/feral-lang/SKILL.md` directly and following it. If zero rules, this phase is skipped silently.
+If ≥1 `LINT-ENFORCE` rule was approved, the final phase loads `skill://feral-lang/SKILL.md` and dispatches the deterministic-enforcement work with the rule list. If skill:// cross-skill resolution fails, fall back to reading the installed skill file directly (`~/.omp/agent/skills/feral-lang/SKILL.md` or `~/.agents/skills/feral-lang/SKILL.md`) and following it. If zero rules, this phase is skipped silently.
 
 ## Red flags — never
 

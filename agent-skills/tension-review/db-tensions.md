@@ -17,7 +17,7 @@ is a read-only review, do not modify any files.
 
 ## Context
 
-- Project: {GO_PACKAGE_NAME}
+- Project: {PROJECT_NAME}
 - Trigger: {USER_CONCERN}
 - Structure: Migration files in `db/migrations/`. Domain models in `db/`. Queries in `db/*.go`.
 
@@ -210,7 +210,7 @@ Which 3 tension points would have the highest impact if resolved? Order by (impa
 ```
 
 **Placeholders:**
-- `{GO_PACKAGE_NAME}` — Go module name from `go list -m`
+- `{PROJECT_NAME}` — project/module name from `go list -m`
 - `{USER_CONCERN}` — one-line summary of what triggered this review
 - `{REPO_ROOT}` — absolute path to the repo root under review
 

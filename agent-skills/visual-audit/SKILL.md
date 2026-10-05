@@ -9,7 +9,7 @@ Empirical visual QA against a RUNNING app: walk every surface sequentially (auth
 
 Not for: heuristic UX critique without a running app / screenshots → `feral-ux-audit`; code-correctness bugs → `feral-audit`; architecture → `backend-arch-review` / `tension-review`.
 
-Generalized from an executed full pass (Sept 2026) whose artifacts lived at `docs/visual-pass/<date>/` in that repo. The workflow is repo-agnostic: every repo-specific fact below is DISCOVERED in Phase 0, never assumed.
+The workflow is repo-agnostic: every repo-specific fact below is DISCOVERED in Phase 0, never assumed.
 
 ## Phase 0 — Recon: discover the repo's audit config (yourself, before writing anything)
 

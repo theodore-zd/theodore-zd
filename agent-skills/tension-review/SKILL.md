@@ -34,8 +34,10 @@ Read the prompt template at the appropriate `skill://` URI only when dispatching
 - Go backend: `skill://tension-review/go-tensions.md`
 - Frontend: `skill://tension-review/component-tensions.md`
 
+The templates assume the reference stack (Go/Chi/pgx backend, Svelte 5 frontend, PostgreSQL); edit the paths and tooling for a project that differs.
+
 **Placeholders in all templates:**
-- `{GO_PACKAGE_NAME}` — Go module name (from `go list -m`)
+- `{PROJECT_NAME}` — project/module name (`go list -m` for Go projects)
 - `{USER_CONCERN}` — one-line summary of what triggered the review
 
 **3. Merge results if multiple areas were checked.** Present findings grouped by layer. Call out cross-layer tensions (e.g. a DB pattern that forces complex Go code, or a Go handler pattern that exists because the component structure pushed state to the wrong place).

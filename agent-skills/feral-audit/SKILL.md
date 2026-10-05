@@ -1,14 +1,16 @@
 ---
 name: feral-audit
-description: 'Hyper-critical code review: assumes nothing works and hunts for proven bugs. Invoked by explicit skill call only; it never auto-triggers.'
+description: 'Hyper-critical code review: assumes nothing works and hunts for proven bugs. Point it at a file, package, route, feature, diff, or a whole repo. Invoked by explicit skill call only; it never auto-triggers.'
 ---
 
 # Feral Audit
 
-- TLDR: Deep adversarial audit of the complete execution flow of whatever it is pointed at — a file, a package, a route, a feature, a diff, or the whole repo. Every function is treated as guilty until proven otherwise. No code is above question.
-- TLDR: Stance: assume the author was a dumb child who never handled edge cases, errors, concurrency, auth, or cost. Bugs must be proven (throwaway repro where cheap); improvements are argued by reasoning with a simplicity tax.
-- TLDR: Contract: infer what each function "should do" from api.md / docs / AGENTS.md / migrations / tests / callers; if that fails, ask the user mid-audit with a batched `ask`. Asking is good.
-- TLDR: Execution: orient → map the full call graph (coverage map with boundaries) → dispatch one feral subagent per layer (Go, Svelte, SQL) in parallel → merge into one severity-ranked report.
+- TLDR: Deep adversarial audit of the complete execution flow of whatever it is
+  pointed at — every function guilty until proven otherwise, bugs proven with
+  repros, improvements argued with a simplicity tax.
+- TLDR: Contract below: how to infer what code "should do" (Contract), how to run
+  the audit (Dispatch), what every function must survive (Fault battery), and the
+  report format.
 
 Not for: architecture/layering reviews (`backend-arch-review`), cross-cutting tension hunting (`tension-review`), frontend component structure (`component-structure-review`), style/lint (`go vet` / `go fmt`), or test-suite QA.
 

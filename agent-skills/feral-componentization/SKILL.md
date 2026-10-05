@@ -36,7 +36,7 @@ Any element, pattern, or logic chain appearing in **two or more places** in the 
 
 ### Named patterns — always components, even at first use
 
-These exist in the repo already; when writing one inline, stop and use (or extend) the existing component instead:
+These exist in the reference project already; the table and the repo rules below (R1/R2, `theme.ts`, dev flow) are its conventions — extend or replace them per project. When writing one inline, stop and use (or extend) the existing component instead:
 
 | Pattern | Component |
 |---|---|
