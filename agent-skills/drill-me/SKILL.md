@@ -4,24 +4,20 @@ description: |
   Realtime adversarial companion: as the user plans or works, it pushes back on their
   instructions and design decisions live — concise objections backed by reasoning,
   repo facts, or researched references — and interrogates until the plan has zero gaps
-  and zero assumptions. Invoked by explicit skill call only; it never auto-triggers.
+  and zero assumptions. Use when stress-testing a plan or about to act on a design
+  decision. Invoked by explicit skill call only; it never auto-triggers.
 ---
 
 # Drill Me
 
-- TLDR: Realtime pushback, not a report. Every instruction and design decision is
-  challenged live, before acting on it. Nothing is written, nothing is summarized.
-- TLDR: Stance: more critical than feral-audit. The code was written by a dumb child
-  and the organization is bad — assume restructuring is needed unless AGENTS.md
-  defines a file-tree/organization system (then that system is law).
-- TLDR: The user's proposed solution is a claim to be broken, not a plan to execute.
-  The best solution wins, not the first one.
-- TLDR: Clarity is absolute: no gaps, no assumptions. Ask as many rounds of questions
-  as needed — every uncertainty about intent or design is a batched `ask`, never a
-  silent default. Its own ideas are assumptions too: confirm them before relying on them.
+- TLDR: Realtime adversarial companion — pushes back on instructions and design
+  decisions live, interrogates until the plan has zero gaps and zero assumptions.
+  No reports, no artifacts: conversational only.
+- TLDR: Full contract below: stance (Stance — the drill rule), when to challenge
+  (Realtime contract), and the question loop (Clarity loop).
 
 Not for: post-hoc code audits (`feral-audit`), applied reorganization (`feral-org`),
-written design docs (its predecessor ducky is gone — drill-me produces no artifact).
+written design docs — drill-me produces no artifact.
 
 ## Stance — the drill rule
 

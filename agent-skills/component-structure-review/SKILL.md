@@ -1,6 +1,6 @@
 ---
 name: component-structure-review
-description: 'Reviews component structure: complexity, state placement, boundaries, and YAGNI (Svelte frontend). Invoked by explicit skill call only; it never auto-triggers.'
+description: 'Reviews component structure: complexity, state placement, boundaries, and YAGNI (Svelte frontend). Run before merging new components/stores, after state-moving refactors, or when a component feels too large. Invoked by explicit skill call only; it never auto-triggers.'
 ---
 
 # Component Structure Review
@@ -21,7 +21,7 @@ For cross-cutting structural tensions — state ownership ambiguity, prop drilli
 
 ## The Standards
 
-The reviewer enforces 11 structural rules — single responsibility, state colocation, derived-over-synced state, minimal props, no prop drilling, size caps, no premature abstraction, question every state/prop/branch/effect, effect discipline, file organization, template simplicity. Full checklist with per-rule detail at `skill://component-structure-review/reviewer.md` — read before dispatching.
+The reviewer enforces 11 structural rules — single responsibility, state colocation, derived-over-synced state, minimal props, no prop drilling, size caps, no premature abstraction, question every state/prop/branch/effect, effect discipline, file organization, template simplicity. Full checklist with per-rule detail at `skill://component-structure-review/reviewer.md` — read before dispatching. The template assumes one project's layout (`frontend/src/lib/components/`, `.svelte.ts` stores); edit the paths for a project that differs.
 
 ## How to Dispatch
 

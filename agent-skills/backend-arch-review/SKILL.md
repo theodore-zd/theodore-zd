@@ -1,13 +1,13 @@
 ---
 name: backend-arch-review
-description: 'Deep review pass over backend architecture and database schema: over-engineering, consistency, and data-structure design. Invoked by explicit skill call only; it never auto-triggers.'
+description: 'Deep review pass over backend architecture and database schema: over-engineering, consistency, and data-structure design. Run before major refactors, releases, or when the backend "feels over-engineered". Invoked by explicit skill call only; it never auto-triggers.'
 ---
 
 # Backend Architecture Review
 
 Dispatches two specialist subagents in parallel to audit the Go backend and PostgreSQL database architecture for over-engineering, unnecessary complexity, design issues, and **pattern consistency**. Applies a **ponytail/simplicity lens** everywhere: the shortest correct solution is preferred.
 
-Not for: bug triage (`e2e-triage`), frontend structure (`component-structure-review`), style/lint (`go vet` / `go fmt`), or small PR diffs (review inline).
+Not for: bug triage (fix inline), frontend structure (`component-structure-review`), style/lint (`go vet` / `go fmt`), or small PR diffs (review inline).
 
 For cross-cutting structural tension points — handler pattern divergence, service signature chaos, error handling fracture, auth enforcement gaps — use `tension-review` and specify "check the Go backend."
 
@@ -20,7 +20,7 @@ For cross-cutting structural tension points — handler pattern divergence, serv
 5. **Boring over clever** — The simplest thing that works is the most maintainable thing. Clever abstractions are someone else's 3am debugging session.
 6. **Pattern consistency** — If the codebase uses a pattern once, it should use it everywhere the same situation applies. Inconsistent patterns create maintenance surprises.
 
-The full Go and DB standards checklists live in the reviewer templates — read them at dispatch time, not before.
+The full Go and DB standards checklists live in the reviewer templates — read them at dispatch time, not before. The templates assume the standard stack (Chi v5, pgx v5, goose, the `internal/` layout); edit them for a project that differs.
 
 ## How to Dispatch
 
