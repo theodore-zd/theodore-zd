@@ -12,11 +12,16 @@ Not for: architecture design or "what should the structure be" ideation (that is
 ## Non-negotiable rules
 
 ### Governing principles (apply to every move)
-1. **Separation of concerns** — entry points are wiring only (env, flags, I/O); domain logic lives in domain packages. Every proposed move must state which concern boundary it enforces.
-2. **Locality of behavior** — group by domain/feature, never by type. NEVER propose a `utils/`, `helpers/`, or `common/` package; shared non-specific logic goes in the domain package that owns it (or the lowest-level consumer's package as an exported symbol).
-3. **Modularity at file scale** — one file ≈ one concern; split when concerns genuinely diverge (usually past ~300–500 lines). Size alone is not the trigger: a 600-line single-widget file stays whole.
-4. **KISS is the stop signal** — no interface, config-package, or wrapper extraction to satisfy a principle; single-concern files in one package beat premature abstraction.
-5. **DRY overrides KISS for shared code** — logic used 2+ times, or genuinely non-specific (a utility), MUST be abstracted into one home. Splitting logic across files by concern also improves readability and counts as organization. When DRY and KISS conflict, DRY wins; record the conflict in the plan.
+
+1. **Separation of concerns** — every file has one reason to exist. Entry points (cmd/, main, bootstrap) are wiring only: env, flags, HTTP/TTY I/O, dependency construction. Domain logic lives in domain packages and never leaks into wiring; wiring logic never leaks into domain code. Every proposed move must state which boundary it enforces — a move that cannot name its boundary is a guess, not a reorg. When one file is doing two jobs (say, a generation loop that also contains tool execution, entry helpers, and preview formatting), the file is split along those job lines even if the resulting files are smaller than any size heuristic would demand.
+
+2. **Locality of behavior** — code lives next to what it belongs to, grouped by domain/feature rather than by type. A tracer goes in `trace/`, a tool goes in `tools/` with its helpers; never in a grab-bag. Genuinely global utilities — string manipulation, byte/JSON helpers, timestamp formatting — are allowed in a shared utilities package (e.g. `internal/strutil/`, `pkg/textutil/`) when they are generic enough to be needed across two or more packages, now or foreseeably. What is never allowed is a `utils/` or `helpers/` package that functions as a dumping ground for domain-specific code whose real home is a domain package. The test: if the function mentions domain nouns (tasks, spans, requests, tools), it is not a global util — it lives with its domain.
+
+3. **Modularity at file scale** — the practical unit of modularity is the file, not the package. One file ≈ one concern; a reader should be able to say in one sentence what any file does. Split when concerns genuinely diverge — usually visible past ~300–500 lines, but size alone is never the trigger: a 600-line file that is one cohesive widget stays whole, while a 215-line file mixing a tool definition with a pattern engine gets split. The split lines are the seams the concern boundaries make, not arbitrary page breaks.
+
+4. **KISS is the stop signal** — do not extract an interface with one implementation, do not create a config package, do not add a wrapper layer, because an article or checklist suggested it. Single-concern files inside one package beat premature abstraction every time. Before proposing any new abstraction, name the second concrete thing that would use it; if you cannot, KISS says stop.
+
+5. **DRY overrides KISS for shared code** — the KISS stop signal does not apply to duplication. Logic used 2+ times, or genuinely non-specific (a utility), MUST be abstracted into exactly one home: the domain package that owns it, the lowest-level consumer's package as an exported symbol, or a true global-util package per rule 2. Splitting logic across files by concern also improves readability and counts as organization, not decoration. When DRY and KISS conflict, DRY wins; record the conflict in the plan so the user sees the trade-off was deliberate.
 
 1. **Nothing moves before the plan is confirmed.** Propose → user confirms → execute.
 2. **Refuse to execute when unsafe:**
@@ -36,7 +41,13 @@ Before proposing anything:
 2. Map the current structure: packages/directories, the god-files, the orphaned files.
 3. Discover the verification gates: build command, test command (from manifests, CI files, Makefiles, task runners). Record them — they drive Phase 4. Note whether committing runs hooks that re-run gates; budget the commit's runtime accordingly.
 4. Discover non-code references to paths: CI workflows, Makefiles, Dockerfiles, configs, scripts, doc links. Any moved path must chase these.
-5. **Duplication scan**: run a code-clone scanner (e.g. `jscpd <src> --min-tokens 40`) and read each hit before proposing. A clone is a DRY candidate only if it is real shared logic, not incidental similarity.
+5. **Duplication scan**: run a code-clone scanner and read each hit before proposing. A clone is a DRY candidate only if it is real shared logic, not incidental similarity. Useful scanners (pick per stack):
+   - `jscpd` — language-agnostic clone detection (`--min-tokens 40` catches small helpers)
+   - `ast-grep` — structural pattern search; good for finding near-identical function bodies
+   - `ts-prune` (TS), `vulture` (Python), `deadcode` (Go) — unused exports, pairs with deletions
+   - `knip` (TS/JS), `go vet`/`golangci-lint` (Go) — unused code, import cycles, dead wiring
+   - `madge`/`dependency-cruiser` (JS), `go list -deps`/`go mod graph` (Go) — dependency direction, cycle detection for locality decisions
+   - `scc`/`cloc` — size overview to spot god-files quickly
 6. **Scratch inventory**: list untracked/gitignored directories and files. These are flagged in the plan and NEVER deleted without explicit user say-so — untracked means unrecoverable. Tracked deletions are different: recoverable from git history, so propose them normally.
 
 ## Phase 1 — Plan
