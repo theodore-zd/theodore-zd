@@ -1,12 +1,10 @@
 ---
 import { resume } from '@/data/resume';
-import { propsToFilename } from 'astro/assets/utils'
 
 interface Props {
   index: number
 }
 const { index } = Astro.props;
-const indexStr = ""+index
 
 const githubProjects = resume.githubProjects
 const delayClass = (i: number) => `delay-${((i % 3) + 1) * 100}`
