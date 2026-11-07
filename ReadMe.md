@@ -52,5 +52,5 @@ Currently freelancing and open to interesting opportunities. Happy to chat if yo
 |-----------|-------------|
 | `configs/` | Machine configs: `niri/`, `noctalia/`, `zed/` |
 | `scripts/` | Shell utilities: `docker/` (Postgres, SeaweedFS deploys), `personal/` |
-| `skills/` | Custom agent skills; `~/.omp/agent/skills` symlinks into this directory |
+| `skills/` | Custom agent skills; `~/.agents/skills` symlinks into this directory |
 | `portfolio/` | Personal portfolio site (Astro) |
