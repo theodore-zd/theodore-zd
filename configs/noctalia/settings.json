@@ -19,7 +19,6 @@
         "overviewLayer": false,
         "pinnedApps": [
             "obsidian",
-            "steam",
             "beyondallreason",
             "org.gnome.Nautilus",
             "firefox",
@@ -30,7 +29,12 @@
             "slack",
             "spotify-launcher",
             "Path of Exile 2",
-            "dev.zed.Zed"
+            "dev.zed.Zed",
+            "google-chrome",
+            "steam",
+            "curseforge",
+            "Aseprite",
+            "beekeeper-studio"
         ],
         "position": "center",
         "screenshotAnnotationTool": "",
@@ -127,8 +131,8 @@
                 {
                     "clockColor": "none",
                     "customFont": "",
-                    "formatHorizontal": "HH:mm ddd, MMM dd",
-                    "formatVertical": "HH mm - dd MM",
+                    "formatHorizontal": "hh:mm ddd, MMM dd",
+                    "formatVertical": "hh mm - dd MM",
                     "id": "Clock",
                     "tooltipFormat": "HH:mm ddd, MMM dd",
                     "useCustomFont": false
@@ -503,13 +507,13 @@
         "weatherTaliaMascotAlways": false
     },
     "network": {
-        "bluetoothAutoConnect": false,
-        "bluetoothDetailsViewMode": "grid",
+        "bluetoothAutoConnect": true,
+        "bluetoothDetailsViewMode": "list",
         "bluetoothHideUnnamedDevices": true,
         "bluetoothRssiPollIntervalMs": 60000,
-        "bluetoothRssiPollingEnabled": false,
+        "bluetoothRssiPollingEnabled": true,
         "disableDiscoverability": false,
-        "networkPanelView": "ethernet",
+        "networkPanelView": "wifi",
         "wifiDetailsViewMode": "grid"
     },
     "nightLight": {
