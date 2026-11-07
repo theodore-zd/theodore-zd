@@ -17,9 +17,9 @@
     "provider": "open_ai_compatible_api",
     "open_ai_compatible_api": {
       "api_url": "https://openrouter.ai/api/v1/completions",
-      "model": "deepseek/deepseek-v3.2",
+      "model": "z-ai/glm-5.3-flash",
       "prompt_format": "glm",
-      "max_output_tokens": 100
+      "max_output_tokens": 1200
     }
   },
   "agent": {

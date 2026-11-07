@@ -1,4 +1,4 @@
-# zed-config
+# zed
 
 Backup of the local Zed editor configuration (`~/.config/zed/`).
 
@@ -12,8 +12,8 @@ Backup of the local Zed editor configuration (`~/.config/zed/`).
 ## Restore
 
 ```sh
-cp zed-config/settings.json ~/.config/zed/settings.json
-cp zed-config/keymap.json ~/.config/zed/keymap.json
+cp configs/zed/settings.json ~/.config/zed/settings.json
+cp configs/zed/keymap.json ~/.config/zed/keymap.json
 ```
 
 ## Edit predictions

@@ -50,10 +50,7 @@ Currently freelancing and open to interesting opportunities. Happy to chat if yo
 
 | Directory | Description |
 |-----------|-------------|
-| `agent-skills/` | Custom agent skills (omp skills mirror) |
-| `docker-scripts/` | Common Docker utilities (Postgres, SeaweedFS deploys) |
-| `niri-config/` | Niri window manager config |
-| `noctalia-config/` | Noctalia shell config (colorschemes, plugins) |
-| `personal-scripts/` | Personal shell utilities |
+| `configs/` | Machine configs: `niri/`, `noctalia/`, `zed/` |
+| `scripts/` | Shell utilities: `docker/` (Postgres, SeaweedFS deploys), `personal/` |
+| `skills/` | Custom agent skills; `~/.omp/agent/skills` symlinks into this directory |
 | `portfolio/` | Personal portfolio site (Astro) |
-| `zed-config/` | Zed editor settings and keymap |
