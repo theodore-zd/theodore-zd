@@ -50,6 +50,10 @@ Currently freelancing and open to interesting opportunities. Happy to chat if yo
 
 | Directory | Description |
 |-----------|-------------|
-| `claude-settings/` | Claude Code configuration |
-| `docker-scripts/` | Common Docker utilities |
-| `agent-skills/` | Symlink mirror of `~/.omp/agent/skills` (global omp skills); refresh with `personal-scripts/sync-omp-skills.sh` |
+| `agent-skills/` | Custom agent skills (omp skills mirror) |
+| `docker-scripts/` | Common Docker utilities (Postgres, SeaweedFS deploys) |
+| `niri-config/` | Niri window manager config |
+| `noctalia-config/` | Noctalia shell config (colorschemes, plugins) |
+| `personal-scripts/` | Personal shell utilities |
+| `portfolio/` | Personal portfolio site (Astro) |
+| `zed-config/` | Zed editor settings and keymap |

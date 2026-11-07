@@ -1,0 +1,16 @@
+# Node / build artifacts
+node_modules/
+dist/
+build/
+.astro/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# Editor / OS noise
+.DS_Store

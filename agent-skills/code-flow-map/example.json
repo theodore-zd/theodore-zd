@@ -1,0 +1,174 @@
+{
+ "title": "example \u2014 service map",
+ "subtitle": "\u00b7 data-driven \u00b7 edit this JSON, never the HTML",
+ "palette": {
+  "api": "#7aa2f7",
+  "store": "#9ece6a",
+  "client": "#bb9af7"
+ },
+ "nodes": [
+  {
+   "id": "main",
+   "kind": "container",
+   "color": "api",
+   "title": "cmd/",
+   "children": [
+    {
+     "id": "main/main.go",
+     "kind": "box",
+     "color": "api",
+     "title": "main.go",
+     "lines": [
+      "main() \u00b7 run() \u2014 wiring"
+     ],
+     "x": 60,
+     "y": 60,
+     "w": 200,
+     "h": 50
+    }
+   ]
+  },
+  {
+   "id": "api",
+   "kind": "container",
+   "color": "api",
+   "title": "internal/api",
+   "children": [
+    {
+     "id": "api/server.go",
+     "kind": "box",
+     "color": "api",
+     "title": "server.go",
+     "lines": [
+      "Listen() \u00b7 Serve()",
+      "route() \u2014 handlers"
+     ],
+     "x": 330,
+     "y": 60,
+     "w": 210,
+     "h": 66
+    },
+    {
+     "id": "api/handler.go",
+     "kind": "box",
+     "color": "api",
+     "title": "handler.go",
+     "lines": [
+      "handle() \u2014 validate",
+      "call service"
+     ],
+     "x": 330,
+     "y": 156,
+     "w": 210,
+     "h": 66
+    }
+   ]
+  },
+  {
+   "id": "store",
+   "kind": "container",
+   "color": "store",
+   "title": "internal/store",
+   "children": [
+    {
+     "id": "store/db.go",
+     "kind": "box",
+     "color": "store",
+     "title": "db.go",
+     "lines": [
+      "Open() \u2014 pool",
+      "Migrate()"
+     ],
+     "x": 330,
+     "y": 340,
+     "w": 210,
+     "h": 66
+    }
+   ]
+  },
+  {
+   "id": "client",
+   "kind": "container",
+   "color": "client",
+   "title": "internal/client",
+   "children": [
+    {
+     "id": "client/http.go",
+     "kind": "box",
+     "color": "client",
+     "title": "http.go",
+     "lines": [
+      "Get() \u00b7 Post()",
+      "retry() \u2014 backoff"
+     ],
+     "x": 600,
+     "y": 60,
+     "w": 200,
+     "h": 66
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "main/main.go",
+   "to": "api/server.go",
+   "label": "run()",
+   "color": "api"
+  },
+  {
+   "from": "api/handler.go",
+   "to": "store/db.go",
+   "label": "query",
+   "color": "store"
+  },
+  {
+   "from": "api/handler.go",
+   "to": "client/http.go",
+   "label": "outbound",
+   "color": "client",
+   "dash": true
+  }
+ ],
+ "tree": [
+  {
+   "name": "example/",
+   "children": [
+    {
+     "name": "cmd/",
+     "files": "main.go",
+     "color": "api",
+     "desc": "wiring"
+    },
+    {
+     "name": "internal/api/",
+     "files": "server.go handler.go",
+     "color": "api",
+     "desc": "HTTP handlers"
+    },
+    {
+     "name": "internal/store/",
+     "files": "db.go",
+     "color": "store",
+     "desc": "database pool"
+    },
+    {
+     "name": "internal/client/",
+     "files": "http.go",
+     "color": "client",
+     "desc": "outbound calls"
+    }
+   ]
+  }
+ ],
+ "panels": [
+  {
+   "title": "Notes",
+   "items": [
+    "handlers validate then call the store",
+    "client calls are dashed = outbound"
+   ],
+   "color": "api"
+  }
+ ]
+}

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>code-flow-map</title>
+<style>
+  :root{ --bg:#12151c; --fg:#d8dee9; --muted:#8a94b0; }
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:14px/1.45 ui-sans-serif,system-ui,sans-serif;
+    display:flex;flex-direction:column;height:100vh}
+  header{padding:14px 20px 6px}
+  header h1{margin:0;font-size:17px}
+  header span{color:#8a94b0;font-size:12px}
+  #cy{flex:1;min-height:0}
+  #labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+  .nlabel{position:absolute;text-align:left;padding:6px 7px;white-space:pre;font:11px/16px ui-monospace,SFMono-Regular,monospace}
+  .nlabel .t{font:600 12px/16px ui-sans-serif,system-ui,sans-serif}
+  .nlabel .rule{display:block;height:1px;margin:3px 0}
+  #bottomstrip{display:flex;gap:12px;margin:12px 20px 16px;align-items:stretch}
+  #tree{flex:0 1 auto;padding:10px 16px;border:1px solid #2a3145;
+    border-radius:10px;background:#161b28;font:11px/1.6 ui-monospace,monospace;
+    color:#aab3cc;white-space:pre;overflow:auto}
+  #bottomstrip .panel{flex:1 1 320px;max-width:520px;padding:10px 16px;border:1px solid #2a3145;
+    border-radius:10px;background:#161b28;font:11px/1.8 ui-monospace,monospace;
+    color:#aab3cc;white-space:pre-wrap}
+  #tree b{color:#d8dee9;font-family:ui-sans-serif,system-ui,sans-serif;cursor:pointer;user-select:none}
+  #tree.collapsed #tbody{display:none}
+  #err{color:#f7768e;padding:20px;font-family:ui-monospace,monospace;white-space:pre-wrap}
+</style>
+</head>
+<body>
+<header><h1 id="t">svg-map</h1><span id="s"></span></header>
+<div id="err"></div>
+<div id="cy"></div>
+<div id="bottomstrip"><div id="tree" hidden></div></div>
+<script src="cytoscape.min.js"></script>
+<script>
+// c1..c10 = ten well-separated accent hues; maps define their own names on top.
+const DEF = {
+  c1:"#7aa2f7", c2:"#9ece6a", c3:"#e0af68", c4:"#73daca", c5:"#bb9af7",
+  c6:"#e8d178", c7:"#ff5c5c", c8:"#ff9e64", c9:"#e06c9f", c10:"#c0caf5",
+  fg:"#d8dee9", muted:"#8a94b0", soft:"#aab3cc", line:"#2a3145",
+  panel:"#1a2030", panelbg:"#161b28", new:"#73daca", badge:"#ff9e64"
+};
+const P = Object.assign({}, DEF);
+// container tint derived from the accent color — no per-project table
+const tint = (hex, a) => {
+  const n = parseInt(hex.slice(1), 16), bg = parseInt(P.panelbg.slice(1), 16);
+  const mix = sh => Math.round(((n >> sh) & 255) * a + ((bg >> sh) & 255) * (1 - a));
+  return "rgb(" + mix(16) + "," + mix(8) + "," + mix(0) + ")";
+};
+
+const nid = s => s.replace(/[^\w-]/g, "-");
+const qs = new URLSearchParams(location.search);
+const dataFile = qs.get("data") || "map.json";
+
+fetch(dataFile, { cache: "no-store" }).then(r => { if (!r.ok) throw new Error(dataFile + ": HTTP " + r.status); return r.json(); })
+  .then(render)
+  .catch(e => { document.getElementById("err").textContent = "map load failed: " + e; });
+
+function render(data){
+  Object.assign(P, data.palette || {});
+  document.getElementById("t").textContent = data.title || "code-flow-map";
+  document.getElementById("s").textContent = data.subtitle || "";
+
+  const els = [];
+  const byId = {};
+  for (const n of data.nodes || []){
+    byId[nid(n.id)] = n;
+    if (n.children) for (const c of n.children) byId[nid(c.id)] = c;
+  }
+
+  for (const n of data.nodes || []){
+    if (n.kind === "container"){
+      els.push({data:{id:nid(n.id), label:n.title, kind:"container", color:n.color, new:!!n.new}});
+      for (const c of n.children) els.push(boxEle(c, nid(n.id)));
+    } else {
+      els.push(boxEle(n, null));
+    }
+  }
+  for (const e of data.edges || []) els.push(edgeEle(e));
+
+  const cy = cytoscape({
+    container: document.getElementById("cy"),
+    elements: els,
+    layout: {name:"preset"},
+    minZoom: 0.05, maxZoom: 4,
+    boxSelectionEnabled: false,
+    style: styles()
+  });
+  cy.fit(undefined, 30);
+  window.cy = cy;
+
+  // gentle wheel zoom: intercept wheel before cytoscape (capture on body)
+  const ZOOM_PER_TICK = 0.00083; // ~half of cytoscape default sensitivity
+  document.body.addEventListener("wheel", e => {
+    if (!e.target.closest || !e.target.closest("#cy")) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    const r = cy.container().getBoundingClientRect();
+    const f = Math.exp(-e.deltaY * ZOOM_PER_TICK);
+    cy.zoom({ level: Math.min(cy.maxZoom(), Math.max(cy.minZoom(), cy.zoom() * f)),
+              renderedPosition: { x: e.clientX - r.left, y: e.clientY - r.top } });
+  }, { capture: true, passive: false });
+
+  // ---- HTML card labels (per-line color) ----
+  const layer = document.createElement("div");
+  layer.id = "labels";
+  document.getElementById("cy").appendChild(layer);
+  const divs = new Map();
+  const col = key => P[key] || P.muted;
+  function cardHTML(n){
+    const lines = (n.kind === "list" ? n.items : n.lines) || [];
+    let h = "<span class='t' style='color:" + col(n.color) + "'>"
+          + (n.badge ? "◐ " : "") + (n.new ? "＋ " : "") + (n.title || "") + "</span>"
+          + (lines.length ? "<span class='rule' style='background:" + P.line + "'></span>" : "");
+    for (const l of lines){
+      const t = typeof l === "string" ? l : l.t;
+      const c = (typeof l !== "string" && l.new) ? P.new : (typeof l !== "string" && l.c ? col(l.c) : P.soft);
+      h += "<span style='color:" + c + "'>" + (typeof l !== "string" && l.new ? "＋ " : "") + t + "</span>\n";
+    }
+    return h;
+  }
+  cy.nodes('[kind != "container"]').forEach(ele => {
+    const n = byId[ele.id()];
+    const d = document.createElement("div");
+    d.className = "nlabel";
+    d.innerHTML = cardHTML(n);
+    layer.appendChild(d);
+    divs.set(ele.id(), d);
+  });
+  function syncLabels(){
+    const z = cy.zoom();
+    cy.nodes('[kind != "container"]').forEach(ele => {
+      const d = divs.get(ele.id());
+      if (!d) return;
+      if (!ele.visible()){ d.style.display = "none"; return; }
+      const p = ele.renderedPosition();
+      d.style.display = "block";
+      d.style.left = p.x + "px"; d.style.top = p.y + "px";
+      d.style.transform = "translate(-50%,-50%) scale(" + z + ")";
+    });
+  }
+  // fit each card to its text (no squish), left-aligned: measure text, resize node.
+  // re-run after fonts load — font swap changes text metrics.
+  const fitCards = () => {
+    cy.batch(() => {
+      cy.nodes('[kind != "container"]').forEach(ele => {
+        const d = divs.get(ele.id()); if (!d) return;
+        ele.style({ width: Math.max(d.offsetWidth + 2, 40), height: Math.max(d.offsetHeight + 2, 30) });
+      });
+    });
+    syncLabels();
+  };
+  fitCards();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitCards);
+  setTimeout(fitCards, 400);
+  cy.on("render", syncLabels);
+  syncLabels();
+
+  // ---- collapse/expand package groups on click ----
+  const collapsed = new Set();
+  cy.on("tap", "node:parent", evt => {
+    const pkg = evt.target;
+    const kids = pkg.children();
+    if (collapsed.has(pkg.id())){
+      kids.show();
+      cy.edges().forEach(e => {
+        const s = e.scratch("osrc"), t = e.scratch("otgt");
+        if (s !== undefined || t !== undefined){
+          e.move({ source: s === undefined ? e.source().id() : s, target: t === undefined ? e.target().id() : t });
+          e.scratch("osrc", null); e.scratch("otgt", null); e.show();
+        }
+      });
+      collapsed.delete(pkg.id());
+      pkg.removeClass("collapsed");
+    } else {
+      collapsed.add(pkg.id());
+      pkg.addClass("collapsed");
+      cy.edges().forEach(e => {
+        let ns = e.source().id(), nt = e.target().id(), moved = false;
+        if (e.source().id() !== pkg.id() && pkg.contains(e.source())){ e.scratch("osrc", ns); ns = pkg.id(); moved = true; }
+        if (e.target().id() !== pkg.id() && pkg.contains(e.target())){ e.scratch("otgt", nt); nt = pkg.id(); moved = true; }
+        if (moved) e.move({ source: ns, target: nt });
+        if (ns === nt) e.hide();
+      });
+      kids.hide();
+    }
+  });
+
+  if (data.tree && data.tree.length) renderTree(data.tree, data.panels || (data.changes ? [data.changes] : []));
+}
+
+function boxEle(n, parent){
+  const lines = (n.kind === "list" ? n.items : n.lines) || [];
+  let label = (n.badge ? "◐ " : "") + (n.new ? "＋ " : "") + (n.title || "");
+  if (lines.length) label += "\n" + "─".repeat(Math.min(26, Math.max(10, (n.title || "").length + 3)));
+  for (const l of lines){
+    const s = typeof l === "string" ? l : l.t;
+    label += (typeof l !== "string" && l.new ? "\n＋ " : "\n") + s;
+  }
+  const data = {id:nid(n.id), label, kind:n.kind || "box", color:n.color};
+  if (parent) data.parent = parent;
+  return {data,
+    position:{x:(n.x || 0) + (n.w || 160)/2, y:(n.y || 0) + (n.h || 60)/2 + (lines.length ? 7 : 0)},
+    scratch:{w:n.w, h:(n.h || 60) + (lines.length ? 14 : 0)}};
+}
+
+function edgeEle(e){
+  return {data:{id:nid(e.from) + "->" + nid(e.to), source:nid(e.from), target:nid(e.to),
+    label:e.label || "", color:e.color || "soft", dash:!!e.dash}};
+}
+
+function styles(){
+  const f = (ele) => ele.scratch("w");
+  return [
+    {selector:"node[kind = 'container']", style:{
+      shape:"round-rectangle", "border-width":1.4, "border-style":"dashed",
+      "border-color":ele => P[ele.data("color")],
+      "background-color":ele => { const c = P[ele.data("color")]; return c && c[0] === "#" ? tint(c, 0.10) : P.panelbg; },
+      label:"data(label)", color:ele => ele.data("new") ? P.new : P[ele.data("color")],
+      "font-size":13, "font-weight":600, "text-valign":"top",
+      "text-halign":"center", "text-margin-y":-6,
+      padding:"10px"}},
+    {selector:"node.collapsed", style:{
+      "border-style":"solid", padding:"2px", "font-size":11,
+      "text-valign":"center", "text-margin-y":0,
+      "background-color":P.panel, "background-opacity":1}},
+    {selector:"node[kind = 'note']", style:{
+      shape:"round-rectangle", width:f, height:ele => ele.scratch("h"),
+      "background-color":P.panelbg, "border-width":1,
+      "border-color":P.line, label:"", "font-size":11,
+      "text-halign":"center", padding:"5px"}},
+    {selector:"node[kind = 'list']", style:{
+      shape:"round-rectangle", width:f, height:ele => ele.scratch("h"),
+      "background-color":P.panel, "border-width":1.4,
+      "border-color":ele => P[ele.data("color")],
+      label:"", "font-size":11,
+      "text-wrap":"wrap", "text-valign":"center", "text-justification":"left", padding:"5px"}},
+    {selector:"node[kind = 'box']", style:{
+      shape:"round-rectangle", width:f, height:ele => ele.scratch("h"),
+      "background-color":P.panel, "border-width":1.6,
+      "border-color":ele => P[ele.data("color")],
+      label:"", "font-size":11,
+      "text-wrap":"wrap", "text-valign":"center", "text-justification":"left", padding:"5px"}},
+    {selector:"edge", style:{
+      width:1.4, "curve-style":"bezier",
+      "line-color":ele => P[ele.data("color")],
+      "target-arrow-color":ele => P[ele.data("color")],
+      "target-arrow-shape":"triangle",
+      "line-style":ele => ele.data("dash") ? "dashed" : "solid",
+      label:"data(label)", color:ele => P[ele.data("color")],
+      "font-size":10.5, "text-background-color":"#12151c",
+      "text-background-opacity":0.9, "text-background-padding":2}},
+  ];
+}
+
+// ---- tree strip ----
+function renderTree(roots, changes){
+  const el_ = document.getElementById("tree");
+  el_.hidden = false;
+  const all = [];
+  for (const root of roots) rows(root, "", false, 0, all);
+  const padP = Math.max(...all.map(r => r.path.length));
+  const fdOf = r => { const f = r.files || ""; return f.length > 46 ? f.slice(0, 46) + "…" : f; };
+  const padF = Math.max(10, ...all.map(r => fdOf(r).length));
+  const out = all.map(r => {
+    const pc = r.color && P[r.color] ? P[r.color] : (r.new ? P.new : "#d8dee9");
+    const mark = r.new ? "＋ " : "  ";
+    let line = mark + "<span style=\"color:" + pc + "\">" + r.path + "</span>"
+             + " ".repeat(padP - r.path.length + 2)
+             + "<span style=\"color:" + P.soft + "\">" + fdOf(r) + "</span>";
+    if (all.some(x => x.desc))
+      line += " ".repeat(padF - fdOf(r).length + 2)
+            + "<span style=\"color:" + P.muted + "\">" + (r.desc || "") + "</span>";
+    return line;
+  });
+  el_.innerHTML = "<b id=\"tt\">▾ Package structure — real tree, ＋/(new) = proposed</b>\n<div id=\"tbody\">" + out.join("\n") + "</div>";
+  document.getElementById("tt").onclick = () => {
+    const c = el_.classList.toggle("collapsed");
+    document.getElementById("tt").textContent = (c ? "▸" : "▾") + " Package structure — real tree, ＋/(new) = proposed";
+  };
+  const strip = document.getElementById("bottomstrip");
+  strip.querySelectorAll(".panel").forEach(n => n.remove());
+  (changes || []).forEach(p => {
+    if (!p) return;
+    const c = document.createElement("div");
+    c.className = "panel";
+    c.innerHTML = "<b style=\"color:" + (p.color && P[p.color] ? P[p.color] : "#d8dee9") + ";font-family:ui-sans-serif,system-ui,sans-serif\">" + (p.title || "") + "</b>\n"
+      + (p.items || p.lines || []).map(l => {
+          const t = typeof l === "string" ? l : l.t;
+          const col = (typeof l !== "string" && l.new) ? P.new : (typeof l !== "string" && l.c ? P[l.c] : P.soft);
+          return "<span style=\"color:" + col + "\">" + t + "</span>";
+        }).join("\n");
+    strip.appendChild(c);
+  });
+  function rows(n, prefix, isLast, depth, acc){
+    const conn = depth === 0 ? "" : (isLast ? "└─ " : "├─ ");
+    acc.push({path: prefix + conn + n.name, files: n.files || "", new: !!n.new, desc: n.desc || "", color: n.color || ""});
+    const kids = n.children || [];
+    kids.forEach((k, i) => rows(k, depth === 0 ? "" : prefix + (isLast ? "   " : "│  "),
+      i === kids.length - 1, depth + 1, acc));
+    return acc;
+  }
+}
+</script>
+</body>
+</html>
