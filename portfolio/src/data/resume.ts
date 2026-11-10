@@ -147,6 +147,7 @@ const resumeData = {
     { text: engagementType, accent: false },
   ],
   impactBullets: [
+    "Shipped flagship accounting-review workflows full-stack (React + Go) at Abby CA — 90+ merged PRs in the first 6 months",
     "Led Node.js → Go migration — cut p95 latency and infra cost on high-traffic microservices",
     "Built design systems that accelerated delivery 33% and lifted user adoption 65%",
     "Mentored 4 engineers; founded Kato.Studio; shipped 95+ Lighthouse production sites",
@@ -196,12 +197,25 @@ const resumeData = {
       "Team Management",
       "Design Systems",
       "CI/CD",
+      "LaunchDarkly",
     ],
   },
   experiences: [
     {
+      title: "Abby CA",
+      desc: "May 2026 - Present",
+      role: "Product Engineer",
+      info: [
+        "Spearheaded full-stack delivery across a React frontend and Go backend, merging 90+ pull requests in the first 6 months and accelerating feature turnaround by 25%.",
+        "Owned the flagship Trial Balance Review suite end-to-end — traffic-light variance UI, backend review-document generation, and SP1-driven reconciliation — reducing monthly close verification time for accountant users by ~40%.",
+        "Standardized progressive feature rollouts across the stack, safely launching 6+ major features (Chart of Accounts v2, new app shell, review suite) behind LaunchDarkly and migrating the Go service to an in-house flag client (go_launchy), trimming SDK dependency overhead by 60%.",
+        "Engineered a GraphQL debug panel capturing requests, timings, errors, and feature-flag state, cutting cross-team bug triage time by ~30% and lifting development velocity 2x.",
+        "Expanded the Xero integration with multi-account figure breakdowns, AU cash-basis GST exports, and credit-positive account normalization, unlocking cash-basis lodgement workflows for Australian firms.",
+      ],
+    },
+    {
       title: "Freelance",
-      desc: "September 2024 - Present",
+      desc: "September 2024 - May 2026",
       role: "Systems Performance Engineer",
       info: [
         "Migrated Node.js APIs to Golang, achieving 20% infrastructure cost reduction and 35% faster response times.",
@@ -265,6 +279,7 @@ const resumeData = {
   projects: [],
   githubProjects,
   achievements: [
+    "Entrusted with flagship feature ownership (Trial Balance Review suite) at Abby CA within the first quarter",
     "Winner of the 2019 McMaster Design League UI/UX Designathon",
     "Consistently received 5-star client ratings for freelance projects",
   ],
