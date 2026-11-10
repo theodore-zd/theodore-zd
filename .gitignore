@@ -14,3 +14,14 @@ build/
 
 # Editor / OS noise
 .DS_Store
+
+
+# misc
+export/
+
+# secrets
+dotenv/
+
+# self-contained app repo (has its own .git)
+webcam-capture/
+exports/
