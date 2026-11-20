@@ -147,7 +147,7 @@ const resumeData = {
     { text: engagementType, accent: false },
   ],
   impactBullets: [
-    "Shipped flagship accounting-review workflows full-stack (React + Go) at Abby CA — 90+ merged PRs in the first 6 months",
+    "Owned major client-facing product features at Abby CA from concept through implementation and production deployment",
     "Led Node.js → Go migration — cut p95 latency and infra cost on high-traffic microservices",
     "Built design systems that accelerated delivery 33% and lifted user adoption 65%",
     "Mentored 4 engineers; founded Kato.Studio; shipped 95+ Lighthouse production sites",
@@ -206,11 +206,12 @@ const resumeData = {
       desc: "May 2026 - Present",
       role: "Product Engineer",
       info: [
-        "Spearheaded full-stack delivery across a React frontend and Go backend, merging 90+ pull requests in the first 6 months and accelerating feature turnaround by 25%.",
-        "Owned the flagship Trial Balance Review suite end-to-end — traffic-light variance UI, backend review-document generation, and SP1-driven reconciliation — reducing monthly close verification time for accountant users by ~40%.",
-        "Standardized progressive feature rollouts across the stack, safely launching 6+ major features (Chart of Accounts v2, new app shell, review suite) behind LaunchDarkly and migrating the Go service to an in-house flag client (go_launchy), trimming SDK dependency overhead by 60%.",
-        "Engineered a GraphQL debug panel capturing requests, timings, errors, and feature-flag state, cutting cross-team bug triage time by ~30% and lifting development velocity 2x.",
-        "Expanded the Xero integration with multi-account figure breakdowns, AU cash-basis GST exports, and credit-positive account normalization, unlocking cash-basis lodgement workflows for Australian firms.",
+        "Owned multiple major client-facing features from concept through implementation and production deployment, including the Trial Balance Review suite, Chart of Accounts v2, and a redesigned application shell.",
+        "Led a restructuring of the client application's components into an atomic-design hierarchy, creating a more consistent foundation for building and maintaining product interfaces.",
+        "Delivered full-stack accounting workflows across React and Go, including traffic-light variance reviews, generated review documents, and reconciliation features; merged 90+ pull requests in the first six months.",
+        "Standardized progressive rollouts for 6+ major features with LaunchDarkly, then migrated the Go service to the in-house go_launchy feature-flag client.",
+        "Expanded Xero workflows with multi-account figure breakdowns, Australian cash-basis GST exports, and credit-positive account normalization.",
+        "Consolidated stale and redundant documentation into a unified Obsidian knowledge base, adding custom plugins and MCP support for developers and agents.",
       ],
     },
     {
@@ -279,7 +280,7 @@ const resumeData = {
   projects: [],
   githubProjects,
   achievements: [
-    "Entrusted with flagship feature ownership (Trial Balance Review suite) at Abby CA within the first quarter",
+    "Led client-facing feature delivery and a client application component architecture restructure at Abby CA",
     "Winner of the 2019 McMaster Design League UI/UX Designathon",
     "Consistently received 5-star client ratings for freelance projects",
   ],
