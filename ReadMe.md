@@ -49,8 +49,17 @@ Currently freelancing and open to interesting opportunities. Happy to chat if yo
 
 
 | Directory | Description |
-|-----------|-------------|
-| `configs/` | Machine configs: `niri/`, `noctalia/`, `zed/` |
-| `scripts/` | Shell utilities: `docker/` (Postgres, SeaweedFS deploys), `personal/` |
-| `skills/` | Custom agent skills; `~/.agents/skills` symlinks into this directory |
-| `portfolio/` | Personal portfolio site (Astro) |
+|-----------|-------------
+
+## Repository layout
+
+| Path | Contents |
+|------|----------|
+| [`configs/`](configs/) | Niri, Noctalia, and Zed configuration |
+| [`scripts/`](scripts/) | Shell utilities and Docker deployment scripts |
+| [`skills/`](skills/) | Versioned source for agent skills |
+| [`portfolio/`](portfolio/) | Portfolio site |
+
+[Brainstorming](skills/brainstorming/SKILL.md) develops ideas in conversation and updates relevant wiki pages after the user confirms the outcome.
+
+Use [`scripts/sync-skills.sh`](scripts/sync-skills.sh) to link the curated skills into `~/.agents/skills`, or pass `--all` to link every skill.
