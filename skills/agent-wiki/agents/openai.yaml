@@ -1,0 +1,4 @@
+interface:
+  display_name: "Agent Wiki"
+  short_description: "Scaffold and organize project wikis"
+  default_prompt: "Use $agent-wiki to scaffold or reorganize this project's wiki with Diátaxis page purposes."
